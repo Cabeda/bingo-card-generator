@@ -18,16 +18,18 @@ export function FileUpload() {
   const [bingoCards, setBingoCards] = useState<BingoGame | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
   const [eventHeader, setEventHeader] = useState<string>("Magusto 2024");
-  const [locationFooter, setLocationFooter] = useState<string>("Paroquia Nossa Senhora da Areosa");
+  const [locationFooter, setLocationFooter] = useState<string>(
+    "Paroquia Nossa Senhora da Areosa"
+  );
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
 
-    if (selectedFile && selectedFile.name.endsWith(".bingocards")) {
+    if (selectedFile && selectedFile.name.endsWith(".bingoCards")) {
       setFile(selectedFile);
       const reader = new FileReader();
-      const filename = selectedFile.name.replace(".bingocards", "");
+      const filename = selectedFile.name.replace(".bingoCards", "");
       reader.onload = (e) => {
         const content = e.target?.result as string;
         const bingoGame = parseBingoCards(filename, content);
@@ -35,7 +37,7 @@ export function FileUpload() {
       };
       reader.readAsText(selectedFile);
     } else {
-      alert("Please upload a file with the .bingocards extension.");
+      alert("Please upload a file with the .bingoCards extension.");
     }
   };
 
@@ -45,10 +47,7 @@ export function FileUpload() {
       .filter(Boolean)
       .map((cardStr) => {
         const [cardNoStr, ...numberStrs] = cardStr.split(";");
-        const cardNumber = `${filename}-${cardNoStr.replace(
-          "CardNo.",
-          ""
-        )}`;
+        const cardNumber = `${filename}-${cardNoStr.replace("CardNo.", "")}`;
         const numbers = numberStrs.map((num) =>
           num ? parseInt(num, 10) : null
         );
@@ -107,7 +106,10 @@ export function FileUpload() {
 
     let indices = Array.from(Array(9).keys());
     while (numbersNeeded > 0) {
-      const idx = indices.splice(Math.floor(Math.random() * indices.length), 1)[0];
+      const idx = indices.splice(
+        Math.floor(Math.random() * indices.length),
+        1
+      )[0];
       columnCounts[idx]++;
       numbersNeeded--;
       if (indices.length === 0) {
@@ -152,7 +154,9 @@ export function FileUpload() {
       pdf.setFontSize(18);
       pdf.text(eventHeader, pageWidth / 2, 30, { align: "center" });
       pdf.setFontSize(12);
-      pdf.text(locationFooter, pageWidth / 2, pageHeight - 30, { align: "center" });
+      pdf.text(locationFooter, pageWidth / 2, pageHeight - 30, {
+        align: "center",
+      });
       for (let j = 0; j < cardsPerPage; j++) {
         const cardIndex = i + j;
         if (cardIndex >= bingoCards.cards.length) break;
@@ -163,20 +167,19 @@ export function FileUpload() {
           const imgWidth = pageWidth - 40;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
           const positionY = j * (pageHeight / cardsPerPage) + 50;
-          pdf.addImage(
-            imgData,
-            "PNG",
-            20,
-            positionY,
-            imgWidth,
-            imgHeight
-          );
+          pdf.addImage(imgData, "PNG", 20, positionY, imgWidth, imgHeight);
         }
       }
     }
     pdf.save("bingo_cards.pdf");
   };
-  
+  const getCurrentDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
   const exportBingoGame = () => {
     if (!bingoCards) return;
 
@@ -191,9 +194,7 @@ export function FileUpload() {
       .join("|");
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const filename = bingoCards.filename
-      ? `${bingoCards.filename}.bingocards`
-      : "bingoGame.bingocards";
+    const filename = `${eventHeader}-${getCurrentDate()}.bingoCards`;
 
     const element = document.createElement("a");
     element.href = URL.createObjectURL(blob);
@@ -204,9 +205,14 @@ export function FileUpload() {
   };
 
   return (
-    <div className="file-upload" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      className="file-upload"
+      style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}
+    >
       <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Number of Bingo Cards:</label>
+        <label style={{ display: "block", marginBottom: "5px" }}>
+          Number of Bingo Cards:
+        </label>
         <input
           type="number"
           value={numCards}
@@ -217,12 +223,17 @@ export function FileUpload() {
         />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={handleGenerateRandomCards} style={{ padding: "10px 20px", cursor: "pointer" }}>
+        <button
+          onClick={handleGenerateRandomCards}
+          style={{ padding: "10px 20px", cursor: "pointer" }}
+        >
           Generate Random Bingo Cards
         </button>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Event Header:</label>
+        <label style={{ display: "block", marginBottom: "5px" }}>
+          Event Header:
+        </label>
         <input
           type="text"
           value={eventHeader}
@@ -232,7 +243,9 @@ export function FileUpload() {
         />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Location Footer:</label>
+        <label style={{ display: "block", marginBottom: "5px" }}>
+          Location Footer:
+        </label>
         <input
           type="text"
           value={locationFooter}
@@ -242,10 +255,12 @@ export function FileUpload() {
         />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Upload .bingocards File:</label>
+        <label style={{ display: "block", marginBottom: "5px" }}>
+          Upload .bingoCards File:
+        </label>
         <input
           type="file"
-          accept=".bingocards"
+          accept=".bingoCards"
           onChange={handleFileChange}
           style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
         />
@@ -254,11 +269,21 @@ export function FileUpload() {
       {bingoCards && (
         <div>
           <h3>Bingo Cards:</h3>
-          <button onClick={generatePDF} style={{ padding: "10px 20px", cursor: "pointer", marginRight: "10px" }}>
+          <button
+            onClick={generatePDF}
+            style={{
+              padding: "10px 20px",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+          >
             Generate PDF
           </button>
-          <button onClick={exportBingoGame} style={{ padding: "10px 20px", cursor: "pointer" }}>
-            Download .bingocards File
+          <button
+            onClick={exportBingoGame}
+            style={{ padding: "10px 20px", cursor: "pointer" }}
+          >
+            Download .bingoCards File
           </button>
           {bingoCards.cards.map((card, index) => (
             <div
