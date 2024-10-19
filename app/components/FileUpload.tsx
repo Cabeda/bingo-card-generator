@@ -93,7 +93,7 @@ export function FileUpload() {
         if (cardIndex >= totalCards) break;
         const cardRef = cardRefs.current[cardIndex];
         if (cardRef) {
-          const imgDataUrl = await htmlToImage.toPng(cardRef);
+          const imgDataUrl = await htmlToImage.toPng(cardRef, {quality: 0.3});
           const img = new Image();
           img.src = imgDataUrl;
           await new Promise((resolve) => {
@@ -298,7 +298,7 @@ export function FileUpload() {
                   </div>
                 ))}
               </div>
-              <p style={{color: "black" }}>
+              <p style={{color: "black", fontSize: "8px" }}>
                 {getCurrentDate()}-{card.cardNumber}
               </p>
             </div>
