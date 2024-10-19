@@ -298,7 +298,7 @@ export function FileUpload() {
                   </div>
                 ))}
               </div>
-              <p style={{color: "black", fontSize: "8px" }}>
+              <p className="cardNumber">
                 {getCurrentDate()}-{card.cardNumber}
               </p>
             </div>

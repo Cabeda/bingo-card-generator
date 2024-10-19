@@ -8,13 +8,13 @@
   --input-text-color: #000000; /* Add this line */
 
 }
-
+/* 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 input {
   color: var(--input-text-color, var(--foreground)); /* Use input-text-color if defined, otherwise fallback to foreground */
@@ -68,9 +68,8 @@ h3 {
   background-color: white;
 }
 
-.centered-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* Ensure the cell takes the full height */
+.cardNumber {
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--foreground);
 }
