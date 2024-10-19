@@ -53,3 +53,24 @@ h3 {
   font-size: 1.75em;
   font-weight: normal;
 }
+
+.bingo-cell {
+  background-color: yellow;
+  border: 0.0625rem solid black; /* 1px to rem */
+  font-size: 2rem; /* 40px to rem */
+  display: grid;
+  place-items: center;
+  color: black;
+  font-weight: bold; /* Added bold */
+}
+
+.bingo-cell.empty {
+  background-color: white;
+}
+
+.centered-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Ensure the cell takes the full height */
+}

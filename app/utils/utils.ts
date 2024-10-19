@@ -18,8 +18,8 @@ export function generateBingoCard(cardNumber: string): Card {
 
     // Fill each column
     for (let col = 0; col < 9; col++) {
-        const min = col * 10 + 1;
-        const max = col === 8 ? 90 : min + 9;
+        const min = col === 0 ? 1 : col * 10;
+        const max = col === 0 ? 9 : (col === 8 ? 90 : col * 10 + 9);
         const columnNumbers: number[] = [];
 
         // Generate 3 unique numbers for each column
@@ -31,7 +31,7 @@ export function generateBingoCard(cardNumber: string): Card {
         columnNumbers.sort((a, b) => a - b);
 
         // Randomly choose which row to leave blank (if needed)
-        const blankRow = Math.floor(Math.random() * 3);
+        const blankRow = col === 0 || col === 8 ? -1 : Math.floor(Math.random() * 3);
 
         // Assign numbers to the card
         for (let row = 0; row < 3; row++) {
@@ -57,10 +57,6 @@ export function generateBingoCard(cardNumber: string): Card {
     const finalCard: Card = {
         cardNumber,
         numbers: card.flat(),
-    } 
+    }
     return finalCard;
 }
-
-// Generate and print a bingo card
-const bingoCard = generateBingoCard("1");
-console.log(bingoCard);

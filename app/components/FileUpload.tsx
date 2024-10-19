@@ -1,7 +1,7 @@
 // File: FileUpload.tsx
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import * as htmlToImage from "html-to-image";
 import { Card, BingoGame } from "../utils/bingo.interface";
 import { generateBingoCard } from "../utils/utils";
 
@@ -83,28 +83,33 @@ export function FileUpload() {
       if (i > 0) {
         pdf.addPage();
       }
-      pdf.setFontSize(18);
       pdf.text(eventHeader, pageWidth / 2, 30, { align: "center" });
-      pdf.setFontSize(12);
       pdf.text(locationFooter, pageWidth / 2, pageHeight - 30, {
         align: "center",
       });
+
       for (let j = 0; j < cardsPerPage; j++) {
         const cardIndex = i + j;
         if (cardIndex >= totalCards) break;
         const cardRef = cardRefs.current[cardIndex];
         if (cardRef) {
-          const canvas = await html2canvas(cardRef);
-          const imgData = canvas.toDataURL("image/png");
-          const imgWidth = pageWidth - 40;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          const positionY = j * (pageHeight / cardsPerPage) + 50;
-          pdf.addImage(imgData, "PNG", 20, positionY, imgWidth, imgHeight);
+          const imgDataUrl = await htmlToImage.toPng(cardRef);
+          const img = new Image();
+          img.src = imgDataUrl;
+          await new Promise((resolve) => {
+            img.onload = () => {
+              const imgWidth = pageWidth - 40;
+              const imgHeight = (img.height * imgWidth) / img.width;
+              const positionY = j * (pageHeight / cardsPerPage) + 50;
+              pdf.addImage(imgDataUrl, "PNG", 20, positionY, imgWidth, imgHeight);
+              resolve(null);
+            };
+          });
         }
       }
       setProgress(((i + cardsPerPage) / totalCards) * 100);
     }
-    pdf.save("bingo_cards.pdf");
+    pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
     setProgress(100);
   };
 
@@ -273,42 +278,29 @@ export function FileUpload() {
                 pageBreakInside: "avoid",
                 marginBottom: "20px",
                 padding: "10px",
-                border: "1px solid #ccc",
                 borderRadius: "5px",
-                backgroundColor: "#f9f9f9",
               }}
             >
-              <h4 style={{ marginBottom: "10px", color: "black" }}>
-                {getCurrentDate()}-{card.cardNumber}
-              </h4>
               <div
                 className="grid-container"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(9, 60px)",
                   gridTemplateRows: "repeat(3, 60px)",
-                  gap: "2px",
                 }}
               >
                 {card.numbers.map((num, idx) => (
                   <div
                     key={idx}
-                    className="cell"
-                    style={{
-                      backgroundColor: num !== null ? "yellow" : "white",
-                      border: "1px solid black",
-                      width: "60px",
-                      height: "60px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "black",
-                    }}
+                    className={`bingo-cell ${num === null ? "empty" : ""}`}
                   >
                     {num !== null ? num : ""}
                   </div>
                 ))}
               </div>
+              <p style={{color: "black" }}>
+                {getCurrentDate()}-{card.cardNumber}
+              </p>
             </div>
           ))}
         </div>
