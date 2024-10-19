@@ -2,16 +2,9 @@
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import {Card, BingoGame} from '../utils/bingo.interface';
+import {generateBingoCard} from '../utils/utils';
 
-interface Card {
-  cardNumber: string;
-  numbers: (number | null)[];
-}
-
-interface BingoGame {
-  filename?: string;
-  cards: Card[];
-}
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -68,7 +61,7 @@ export function FileUpload() {
     for (let i = 0; i < numberOfCards; i++) {
       let card: Card;
       do {
-        card = createRandomBingoCard(i + 1);
+        card = generateBingoCard((i + 1).toString());
       } while (generatedCardNumbers.has(card.numbers.toString()));
       generatedCardNumbers.add(card.numbers.toString());
       generatedCards.push(card);
@@ -76,70 +69,68 @@ export function FileUpload() {
 
     return generatedCards;
   };
+//     const columnRanges = [
+//       [1, 9],
+//       [10, 19],
+//       [20, 29],
+//       [30, 39],
+//       [40, 49],
+//       [50, 59],
+//       [60, 69],
+//       [70, 79],
+//       [80, 90],
+//     ];
 
-  const createRandomBingoCard = (cardNumber: number): Card => {
-    const columnRanges = [
-      [1, 9],
-      [10, 19],
-      [20, 29],
-      [30, 39],
-      [40, 49],
-      [50, 59],
-      [60, 69],
-      [70, 79],
-      [80, 90],
-    ];
+//     const columns = columnRanges.map(([min, max]) => {
+//       const numbers = [];
+//       for (let i = min; i <= max; i++) {
+//         numbers.push(i);
+//       }
+//       return numbers;
+//     });
 
-    const columns = columnRanges.map(([min, max]) => {
-      const numbers = [];
-      for (let i = min; i <= max; i++) {
-        numbers.push(i);
-      }
-      return numbers;
-    });
+//     const cardNumbers: (number | null)[] = Array(27).fill(null);
 
-    const cardNumbers: (number | null)[] = Array(27).fill(null);
+//     let numbersNeeded = 15;
+//     const columnCounts = Array(9).fill(1);
+//     numbersNeeded -= 9;
 
-    let numbersNeeded = 15;
-    const columnCounts = Array(9).fill(1);
-    numbersNeeded -= 9;
+//     let indices = Array.from(Array(9).keys());
+//     while (numbersNeeded > 0) {
+//       const idx = indices.splice(
+//         Math.floor(Math.random() * indices.length),
+//         1
+//       )[0];
+//       columnCounts[idx]++;
+//       numbersNeeded--;
+//       if (indices.length === 0) {
+//         indices = columnCounts
+//           .map((count, idx) => (count < 3 ? idx : -1))
+//           .filter((idx) => idx >= 0);
+//       }
+//     }
 
-    let indices = Array.from(Array(9).keys());
-    while (numbersNeeded > 0) {
-      const idx = indices.splice(
-        Math.floor(Math.random() * indices.length),
-        1
-      )[0];
-      columnCounts[idx]++;
-      numbersNeeded--;
-      if (indices.length === 0) {
-        indices = columnCounts
-          .map((count, idx) => (count < 3 ? idx : -1))
-          .filter((idx) => idx >= 0);
-      }
-    }
+//     for (let col = 0; col < 9; col++) {
+//       const count = columnCounts[col];
+//       const availableNumbers = columns[col];
+//       const selectedNumbers = [];
+//       for (let i = 0; i < count; i++) {
+//         const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+//         selectedNumbers.push(availableNumbers.splice(randomIndex, 1)[0]);
+//       }
+//       const rows = [0, 1, 2];
+//       for (const num of selectedNumbers) {
+//         const randomRowIndex = Math.floor(Math.random() * rows.length);
+//         const row = rows.splice(randomRowIndex, 1)[0];
+//         cardNumbers[row * 9 + col] = num;
+//       }
+//     }
 
-    for (let col = 0; col < 9; col++) {
-      const count = columnCounts[col];
-      const availableNumbers = columns[col];
-      const selectedNumbers = [];
-      for (let i = 0; i < count; i++) {
-        const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-        selectedNumbers.push(availableNumbers.splice(randomIndex, 1)[0]);
-      }
-      const rows = [0, 1, 2];
-      for (const num of selectedNumbers) {
-        const randomRowIndex = Math.floor(Math.random() * rows.length);
-        const row = rows.splice(randomRowIndex, 1)[0];
-        cardNumbers[row * 9 + col] = num;
-      }
-    }
-
-    return {
-      cardNumber: `Random-${cardNumber}`,
-      numbers: cardNumbers,
-    };
-  };
+//     return {
+//       cardNumber: `Random-${cardNumber}`,
+//       numbers: cardNumbers,
+//     };
+//   };
 
   const generatePDF = async () => {
     if (!bingoCards) return;
@@ -173,6 +164,7 @@ export function FileUpload() {
     }
     pdf.save("bingo_cards.pdf");
   };
+  
   const getCurrentDate = () => {
     const date = new Date();
     const year = date.getFullYear();
@@ -209,30 +201,23 @@ export function FileUpload() {
       className="file-upload"
       style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}
     >
+      <h1>Gerador de cartões de Bingo</h1>
       <div style={{ marginBottom: "20px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
-          Number of Bingo Cards:
+          Número de cartões
         </label>
         <input
           type="number"
           value={numCards}
           onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
-          placeholder="Number of Bingo Cards"
+          placeholder="Número de cartões"
           min={1}
           style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
         />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <button
-          onClick={handleGenerateRandomCards}
-          style={{ padding: "10px 20px", cursor: "pointer" }}
-        >
-          Generate Random Bingo Cards
-        </button>
-      </div>
-      <div style={{ marginBottom: "20px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
-          Event Header:
+          Nome do evento
         </label>
         <input
           type="text"
@@ -243,9 +228,7 @@ export function FileUpload() {
         />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
-          Location Footer:
-        </label>
+        <label style={{ display: "block", marginBottom: "5px" }}>Local</label>
         <input
           type="text"
           value={locationFooter}
@@ -254,7 +237,7 @@ export function FileUpload() {
           style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
         />
       </div>
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ marginBottom: "20px", visibility: "hidden" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Upload .bingoCards File:
         </label>
@@ -266,9 +249,35 @@ export function FileUpload() {
         />
         {file && <p>Selected file: {file.name}</p>}
       </div>
+      <div style={{ marginBottom: "20px" }}>
+        <button
+          onClick={handleGenerateRandomCards}
+          style={{
+            padding: "0.6rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#007BFF", // Primary blue color
+            color: "#FFFFFF", // White text color
+            border: "none", // Remove default border
+            borderRadius: "5px", // Rounded corners
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
+            transition: "background-color 0.3s ease", // Smooth transition for hover effect
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0056b3")
+          } // Darker blue on hover
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#007BFF")
+          } // Original color on mouse leave
+        >
+          Gerar cartões de Bingo
+        </button>
+      </div>
       {bingoCards && (
         <div>
-          <h3>Bingo Cards:</h3>
+          <h3>Cartões de bingo</h3>
           <button
             onClick={generatePDF}
             style={{
@@ -277,13 +286,13 @@ export function FileUpload() {
               marginRight: "10px",
             }}
           >
-            Generate PDF
+            Gerar PDF
           </button>
           <button
             onClick={exportBingoGame}
             style={{ padding: "10px 20px", cursor: "pointer" }}
           >
-            Download .bingoCards File
+            Gerar .bingoCards
           </button>
           {bingoCards.cards.map((card, index) => (
             <div
