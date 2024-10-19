@@ -2,9 +2,8 @@
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import {Card, BingoGame} from '../utils/bingo.interface';
-import {generateBingoCard} from '../utils/utils';
-
+import { Card, BingoGame } from "../utils/bingo.interface";
+import { generateBingoCard } from "../utils/utils";
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +13,7 @@ export function FileUpload() {
   const [locationFooter, setLocationFooter] = useState<string>(
     "Paroquia Nossa Senhora da Areosa"
   );
+  const [progress, setProgress] = useState<number>(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +61,7 @@ export function FileUpload() {
     for (let i = 0; i < numberOfCards; i++) {
       let card: Card;
       do {
-        card = generateBingoCard((i + 1).toString());
+        card = generateBingoCard(`${i + 1}`);
       } while (generatedCardNumbers.has(card.numbers.toString()));
       generatedCardNumbers.add(card.numbers.toString());
       generatedCards.push(card);
@@ -69,68 +69,6 @@ export function FileUpload() {
 
     return generatedCards;
   };
-//     const columnRanges = [
-//       [1, 9],
-//       [10, 19],
-//       [20, 29],
-//       [30, 39],
-//       [40, 49],
-//       [50, 59],
-//       [60, 69],
-//       [70, 79],
-//       [80, 90],
-//     ];
-
-//     const columns = columnRanges.map(([min, max]) => {
-//       const numbers = [];
-//       for (let i = min; i <= max; i++) {
-//         numbers.push(i);
-//       }
-//       return numbers;
-//     });
-
-//     const cardNumbers: (number | null)[] = Array(27).fill(null);
-
-//     let numbersNeeded = 15;
-//     const columnCounts = Array(9).fill(1);
-//     numbersNeeded -= 9;
-
-//     let indices = Array.from(Array(9).keys());
-//     while (numbersNeeded > 0) {
-//       const idx = indices.splice(
-//         Math.floor(Math.random() * indices.length),
-//         1
-//       )[0];
-//       columnCounts[idx]++;
-//       numbersNeeded--;
-//       if (indices.length === 0) {
-//         indices = columnCounts
-//           .map((count, idx) => (count < 3 ? idx : -1))
-//           .filter((idx) => idx >= 0);
-//       }
-//     }
-
-//     for (let col = 0; col < 9; col++) {
-//       const count = columnCounts[col];
-//       const availableNumbers = columns[col];
-//       const selectedNumbers = [];
-//       for (let i = 0; i < count; i++) {
-//         const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-//         selectedNumbers.push(availableNumbers.splice(randomIndex, 1)[0]);
-//       }
-//       const rows = [0, 1, 2];
-//       for (const num of selectedNumbers) {
-//         const randomRowIndex = Math.floor(Math.random() * rows.length);
-//         const row = rows.splice(randomRowIndex, 1)[0];
-//         cardNumbers[row * 9 + col] = num;
-//       }
-//     }
-
-//     return {
-//       cardNumber: `Random-${cardNumber}`,
-//       numbers: cardNumbers,
-//     };
-//   };
 
   const generatePDF = async () => {
     if (!bingoCards) return;
@@ -138,7 +76,10 @@ export function FileUpload() {
     const cardsPerPage = 2;
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    for (let i = 0; i < bingoCards.cards.length; i += cardsPerPage) {
+    const totalCards = bingoCards.cards.length;
+    setProgress(0);
+
+    for (let i = 0; i < totalCards; i += cardsPerPage) {
       if (i > 0) {
         pdf.addPage();
       }
@@ -150,7 +91,7 @@ export function FileUpload() {
       });
       for (let j = 0; j < cardsPerPage; j++) {
         const cardIndex = i + j;
-        if (cardIndex >= bingoCards.cards.length) break;
+        if (cardIndex >= totalCards) break;
         const cardRef = cardRefs.current[cardIndex];
         if (cardRef) {
           const canvas = await html2canvas(cardRef);
@@ -161,17 +102,22 @@ export function FileUpload() {
           pdf.addImage(imgData, "PNG", 20, positionY, imgWidth, imgHeight);
         }
       }
+      setProgress(((i + cardsPerPage) / totalCards) * 100);
     }
     pdf.save("bingo_cards.pdf");
+    setProgress(100);
   };
-  
+
   const getCurrentDate = () => {
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}${month}${day}-${hours}${minutes}`;
   };
+
   const exportBingoGame = () => {
     if (!bingoCards) return;
 
@@ -279,6 +225,12 @@ export function FileUpload() {
         <div>
           <h3>Cartões de bingo</h3>
           <button
+            onClick={exportBingoGame}
+            style={{ padding: "10px 20px", cursor: "pointer" }}
+          >
+            Gerar .bingoCards
+          </button>
+          <button
             onClick={generatePDF}
             style={{
               padding: "10px 20px",
@@ -288,12 +240,28 @@ export function FileUpload() {
           >
             Gerar PDF
           </button>
-          <button
-            onClick={exportBingoGame}
-            style={{ padding: "10px 20px", cursor: "pointer" }}
-          >
-            Gerar .bingoCards
-          </button>
+          {progress > 0 && progress < 100 && (
+            <div style={{ marginBottom: "20px" }}>
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor: "#f3f3f3",
+                  borderRadius: "5px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${progress}%`,
+                    backgroundColor: "#007BFF",
+                    height: "10px",
+                    transition: "width 0.3s ease",
+                  }}
+                ></div>
+              </div>
+              <p>{Math.round(progress)}%</p>
+            </div>
+          )}
           {bingoCards.cards.map((card, index) => (
             <div
               key={card.cardNumber}
@@ -311,7 +279,7 @@ export function FileUpload() {
               }}
             >
               <h4 style={{ marginBottom: "10px", color: "black" }}>
-                Card No. {card.cardNumber}
+                {getCurrentDate()}-{card.cardNumber}
               </h4>
               <div
                 className="grid-container"
