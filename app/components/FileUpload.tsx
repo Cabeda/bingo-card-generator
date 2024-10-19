@@ -1,4 +1,3 @@
-// File: FileUpload.tsx
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
@@ -9,9 +8,9 @@ export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<BingoGame | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
-  const [eventHeader, setEventHeader] = useState<string>("Magusto 2024");
+  const [eventHeader, setEventHeader] = useState<string>(`Magusto ${new Date().getFullYear()}`);
   const [locationFooter, setLocationFooter] = useState<string>(
-    "Paroquia Nossa Senhora da Areosa"
+    "Paróquia Nossa Senhora da Areosa"
   );
   const [progress, setProgress] = useState<number>(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -148,13 +147,10 @@ export function FileUpload() {
   };
 
   return (
-    <div
-      className="file-upload"
-      style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}
-    >
+    <div className="file-upload">
       <h1>Gerador de cartões de Bingo</h1>
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+      <div className="margin-bottom-20">
+        <label className="label-style">
           Número de cartões
         </label>
         <input
@@ -163,11 +159,11 @@ export function FileUpload() {
           onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
           placeholder="Número de cartões"
           min={1}
-          style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
+          className="input-style"
         />
       </div>
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+      <div className="margin-bottom-20">
+        <label className="label-style">
           Nome do evento
         </label>
         <input
@@ -175,53 +171,35 @@ export function FileUpload() {
           value={eventHeader}
           onChange={(e) => setEventHeader(e.target.value)}
           placeholder="Event Header"
-          style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
+          className="input-style"
         />
       </div>
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Local</label>
+      <div className="margin-bottom-20">
+        <label className="label-style">Local</label>
         <input
           type="text"
           value={locationFooter}
           onChange={(e) => setLocationFooter(e.target.value)}
           placeholder="Location Footer"
-          style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
+          className="input-style"
         />
       </div>
-      <div style={{ marginBottom: "20px", visibility: "hidden" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+      <div className="margin-bottom-20 hidden">
+        <label className="label-style">
           Upload .bingoCards File:
         </label>
         <input
           type="file"
           accept=".bingoCards"
           onChange={handleFileChange}
-          style={{ padding: "5px", width: "100%", boxSizing: "border-box" }}
+          className="input-style"
         />
         {file && <p>Selected file: {file.name}</p>}
       </div>
-      <div style={{ marginBottom: "20px" }}>
+      <div className="margin-bottom-20">
         <button
           onClick={handleGenerateRandomCards}
-          style={{
-            padding: "0.6rem",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#007BFF", // Primary blue color
-            color: "#FFFFFF", // White text color
-            border: "none", // Remove default border
-            borderRadius: "5px", // Rounded corners
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
-            transition: "background-color 0.3s ease", // Smooth transition for hover effect
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0056b3")
-          } // Darker blue on hover
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "#007BFF")
-          } // Original color on mouse leave
+          className="button-style"
         >
           Gerar cartões de Bingo
         </button>
@@ -231,37 +209,22 @@ export function FileUpload() {
           <h3>Cartões de bingo</h3>
           <button
             onClick={exportBingoGame}
-            style={{ padding: "10px 20px", cursor: "pointer" }}
+            className="button-style"
           >
             Gerar .bingoCards
           </button>
           <button
             onClick={generatePDF}
-            style={{
-              padding: "10px 20px",
-              cursor: "pointer",
-              marginRight: "10px",
-            }}
+            className="button-style"
           >
             Gerar PDF
           </button>
           {progress > 0 && progress < 100 && (
-            <div style={{ marginBottom: "20px" }}>
-              <div
-                style={{
-                  width: "100%",
-                  backgroundColor: "#f3f3f3",
-                  borderRadius: "5px",
-                  overflow: "hidden",
-                }}
-              >
+            <div className="margin-bottom-20">
+              <div className="progress-bar-container">
                 <div
-                  style={{
-                    width: `${progress}%`,
-                    backgroundColor: "#007BFF",
-                    height: "10px",
-                    transition: "width 0.3s ease",
-                  }}
+                  className="progress-bar"
+                  style={{ width: `${progress}%` }}
                 ></div>
               </div>
               <p>{Math.round(progress)}%</p>
@@ -274,21 +237,8 @@ export function FileUpload() {
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
-              style={{
-                pageBreakInside: "avoid",
-                marginBottom: "20px",
-                padding: "10px",
-                borderRadius: "5px",
-              }}
             >
-              <div
-                className="grid-container"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(9, 60px)",
-                  gridTemplateRows: "repeat(3, 60px)",
-                }}
-              >
+              <div className="grid-container">
                 {card.numbers.map((num, idx) => (
                   <div
                     key={idx}

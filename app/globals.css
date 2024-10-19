@@ -5,25 +5,19 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --input-text-color: #000000; /* Add this line */
-
+  --input-text-color: #000000;
+  --primary-color: #ff007f; /* Edgy primary color */
+  --secondary-color: #000000; /* Edgy secondary color */
 }
-/* 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
 
 input {
-  color: var(--input-text-color, var(--foreground)); /* Use input-text-color if defined, otherwise fallback to foreground */
+  color: var(--input-text-color, var(--foreground));
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif; /* Modern font */
 }
 
 @layer utilities {
@@ -33,7 +27,7 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: 'Georgia', serif;
+  font-family: 'Oswald', sans-serif; /* Edgy font */
   color: var(--foreground);
   text-align: center;
   margin-bottom: 0.5em;
@@ -55,21 +49,90 @@ h3 {
 }
 
 .bingo-cell {
-  background-color: yellow;
-  border: 0.0625rem solid black; /* 1px to rem */
-  font-size: 2rem; /* 40px to rem */
+  background-color: var(--primary-color);
+  border: 0.125rem solid var(--secondary-color); /* Thicker border */
+  font-size: 2rem;
   display: grid;
   place-items: center;
-  color: black;
-  font-weight: bold; /* Added bold */
+  color: white;
+  font-weight: bold;
+  border-radius: 0.25rem; /* Slightly rounded corners */
 }
 
 .bingo-cell.empty {
-  background-color: white;
+  background-color: var(--background);
 }
 
 .cardNumber {
-  font-size: 8px;
+  font-size: 0.75rem;
   font-weight: bold;
   color: var(--foreground);
+}
+
+.file-upload {
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20px;
+}
+
+.input-style {
+  padding: 10px; /* Increased padding */
+  width: 100%;
+  box-sizing: border-box;
+  border: 0.125rem solid var(--primary-color); /* Edgy border */
+  border-radius: 0.25rem; /* Slightly rounded corners */
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.button-style {
+  padding: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.25rem; /* Slightly rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button-style:hover {
+  background-color: var(--secondary-color);
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: #f3f3f3;
+  border-radius: 0.25rem; /* Slightly rounded corners */
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: var(--primary-color);
+  height: 10px;
+  transition: width 0.3s ease;
+}
+
+.bingo-card {
+  page-break-inside: avoid;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 0.25rem; /* Slightly rounded corners */
+  border: 0.125rem solid var(--secondary-color); /* Edgy border */
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(9, 60px);
+  grid-template-rows: repeat(3, 60px);
+  gap: 0.25rem; /* Add some gap between cells */
 }
