@@ -127,13 +127,11 @@ export function FileUpload() {
 
     const content = bingoCards.cards
       .map((card) => {
-        const cardNo = `CardNo.${card.cardNumber.split("-").pop()}`;
-        const numberStrs = card.numbers
-          .map((num) => (num !== null ? num : ""))
-          .join(";");
-        return `${cardNo};${numberStrs}`;
+      const cardNo = `CardNo.${card.cardNumber.split("-").pop()}`;
+      const numberStrs = card.numbers.join(";");
+      return `|${cardNo};${numberStrs}`;
       })
-      .join("|");
+      .join("");
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const filename = `${eventHeader}-${getCurrentDate()}.bingoCards`;
