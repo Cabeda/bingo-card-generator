@@ -56,6 +56,7 @@ h3 {
   place-items: center;
   color: white;
   font-weight: bold;
+  min-width: 60px;
   border-radius: 0.25rem; /* Slightly rounded corners */
 }
 
@@ -72,6 +73,8 @@ h3 {
 .file-upload {
   padding: 20px;
   font-family: 'Roboto', sans-serif;
+  max-width: 600px; /* Set your desired maximum width */
+  width: 100%;
 }
 
 .margin-bottom-20 {
@@ -123,16 +126,101 @@ h3 {
 }
 
 .bingo-card {
-  page-break-inside: avoid;
+  display: inline-block; /* Allow the card to shrink to fit its content */
   margin-bottom: 20px;
   padding: 10px;
-  border-radius: 0.25rem; /* Slightly rounded corners */
-  border: 0.125rem solid var(--secondary-color); /* Edgy border */
+  border-radius: 0.25rem;
+  border: 0.125rem solid var(--secondary-color);
+  width: auto; /* Let the width adjust based on content */
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(9, 60px);
-  grid-template-rows: repeat(3, 60px);
+  grid-template-columns: repeat(9, auto);
+  grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
+}
+
+/* Navbar styles */
+.navbar {
+  background-color: #333;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.navbar li {
+  margin-right: 20px;
+}
+
+.navbar .nav-link {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 14px 16px;
+}
+
+.navbar .nav-link:hover {
+  background-color: #111;
+}
+
+/* Game page styles */
+.game-page {
+  text-align: center;
+  padding: 20px;
+}
+
+.button-style {
+  margin: 5px;
+  padding: 10px 20px;
+}
+
+.current-number h2 {
+  font-size: 2em;
+}
+
+.drawn-numbers {
+  margin-top: 20px;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.modal-box p {
+  margin-bottom: 20px;
+}
+
+.modal-box .button-style {
+  margin: 5px;
+}
+
+/* globals.css */
+
+.container {
+  display: grid;
+  place-items: center;
+  width: 100%;
 }
