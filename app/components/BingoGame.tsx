@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Game, Card } from '../utils/bingo.interface';
 import { parseBingoCards } from '../utils/utils';
+import Ball from './Ball';
 
 export default function BingoGame() {
   const [bingoGame, setBingoGame] = useState<Game | null>(null);
@@ -19,27 +20,20 @@ export default function BingoGame() {
     const storedNumbers = localStorage.getItem('drawnNumbers');
     const storedCurrentNumber = localStorage.getItem('currentNumber');
 
-    if (storedGame) {
+    if (storedGame) {      
       setBingoGame(JSON.parse(storedGame));
     }
 
     if (storedNumbers) {
-      setDrawnNumbers(JSON.parse(storedNumbers));
+      const numbers = JSON.parse(storedNumbers);
+      setDrawnNumbers(numbers);
     }
 
     if (storedCurrentNumber) {
-      setCurrentNumber(JSON.parse(storedCurrentNumber));
+      setCurrentNumber(2);
     }
   }, []);
 
-  // Save game state to localStorage whenever it changes
-  useEffect(() => {
-    if (bingoGame) {
-      localStorage.setItem('bingoGame', JSON.stringify(bingoGame));
-    }
-    localStorage.setItem('drawnNumbers', JSON.stringify(drawnNumbers));
-    localStorage.setItem('currentNumber', JSON.stringify(currentNumber));
-  }, [bingoGame, drawnNumbers, currentNumber]);
 
   const showModal = (message: string, onConfirm?: () => void) => {
     setModalMessage(message);
@@ -69,7 +63,9 @@ export default function BingoGame() {
     input.accept = '.bingoCards';
 
     input.onchange = (event: Event) => {
-      const selectedFile = event.target.files[0];
+      const target = event.target as HTMLInputElement;
+      if (!target || !target.files) return;
+      const selectedFile = target.files[0];
       if (selectedFile && selectedFile.name.endsWith('.bingoCards')) {
         const reader = new FileReader();
         const filename = selectedFile.name.replace('.bingoCards', '');
@@ -116,6 +112,9 @@ export default function BingoGame() {
 
     const randomIndex = Math.floor(Math.random() * availableNumbers.length);
     const newNumber = availableNumbers[randomIndex];
+    localStorage.setItem('currentNumber', JSON.stringify(currentNumber));
+    localStorage.setItem('drawnNumbers', JSON.stringify([...drawnNumbers, newNumber]));
+    console.log([...drawnNumbers, newNumber]);
     setCurrentNumber(newNumber);
     setDrawnNumbers([...drawnNumbers, newNumber]);
   };
@@ -173,9 +172,7 @@ export default function BingoGame() {
         Show New Bingo Ball
       </button>
       {currentNumber && (
-        <div className="current-number">
-          <h2>Number: {currentNumber}</h2>
-        </div>
+        <Ball number={currentNumber} />
       )}
       <button onClick={handleCheckLine} className="button-style">
         Check Line
@@ -186,7 +183,11 @@ export default function BingoGame() {
       {drawnNumbers.length > 0 && (
         <div className="drawn-numbers">
           <h3>Drawn Numbers:</h3>
-          <p>{drawnNumbers.join(', ')}</p>
+          <div className="drawn-balls">
+            {drawnNumbers.map((num, idx) => (
+              <Ball key={idx} number={num} small />
+            ))}
+          </div>
         </div>
       )}
 

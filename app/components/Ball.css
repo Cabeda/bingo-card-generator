@@ -1,0 +1,46 @@
+.ball-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.ball-container.small {
+  margin: 5px;
+}
+
+.ball {
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border: 5px solid black;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.ball-container.small .ball {
+  width: 45px;
+  height: 45px;
+  border-width: 2px;
+}
+
+.ball-number {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.ball-container.small .ball-number {
+  font-size: 1em;
+}
+
+.drawn-balls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow-x: auto;
+  margin: 0 auto;
+}
