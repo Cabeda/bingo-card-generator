@@ -1,14 +1,17 @@
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
-import { Card, BingoGame } from "../utils/bingo.interface";
-import { generateBingoCard } from "../utils/utils";
+import { Card, Game } from "../utils/bingo.interface";
+import { generateBingoCard, parseBingoCards } from "../utils/utils";
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
-  const [bingoCards, setBingoCards] = useState<BingoGame | null>(null);
+  const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
-  const [eventHeader, setEventHeader] = useState<string>(`Magusto ${new Date().getFullYear()}`);
+  const [bingoPercard, setBingoPercard] = useState<number>(2); // New state for bingoPercard
+  const [eventHeader, setEventHeader] = useState<string>(
+    `Magusto ${new Date().getFullYear()}`
+  );
   const [locationFooter, setLocationFooter] = useState<string>(
     "Paróquia Nossa Senhora da Areosa"
   );
@@ -33,24 +36,12 @@ export function FileUpload() {
     }
   };
 
-  const parseBingoCards = (filename: string, content: string): BingoGame => {
-    const cards: Card[] = content
-      .split("|")
-      .filter(Boolean)
-      .map((cardStr) => {
-        const [cardNoStr, ...numberStrs] = cardStr.split(";");
-        const cardNumber = `${filename}-${cardNoStr.replace("CardNo.", "")}`;
-        const numbers = numberStrs.map((num) =>
-          num ? parseInt(num, 10) : null
-        );
-        return { cardNumber, numbers };
-      });
-    return { filename, cards };
-  };
-
   const handleGenerateRandomCards = () => {
     const generatedCards = generateRandomBingoCards(numCards);
-    setBingoCards({ cards: generatedCards });
+    setBingoCards({
+      filename: `${getCurrentDate()}-${eventHeader}`,
+      cards: generatedCards,
+    });
   };
 
   const generateRandomBingoCards = (numberOfCards: number): Card[] => {
@@ -72,7 +63,7 @@ export function FileUpload() {
   const generatePDF = async () => {
     if (!bingoCards) return;
     const pdf = new jsPDF("p", "pt", "a4");
-    const cardsPerPage = 2;
+    const cardsPerPage = bingoPercard; // Use bingoPercard for cards per page
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const totalCards = bingoCards.cards.length;
@@ -92,7 +83,7 @@ export function FileUpload() {
         if (cardIndex >= totalCards) break;
         const cardRef = cardRefs.current[cardIndex];
         if (cardRef) {
-          const imgDataUrl = await htmlToImage.toPng(cardRef, {quality: 0.3});
+          const imgDataUrl = await htmlToImage.toPng(cardRef, { quality: 0.3 });
           const img = new Image();
           img.src = imgDataUrl;
           await new Promise((resolve) => {
@@ -100,7 +91,14 @@ export function FileUpload() {
               const imgWidth = pageWidth - 40;
               const imgHeight = (img.height * imgWidth) / img.width;
               const positionY = j * (pageHeight / cardsPerPage) + 50;
-              pdf.addImage(imgDataUrl, "PNG", 20, positionY, imgWidth, imgHeight);
+              pdf.addImage(
+                imgDataUrl,
+                "PNG",
+                20,
+                positionY,
+                imgWidth,
+                imgHeight
+              );
               resolve(null);
             };
           });
@@ -127,9 +125,9 @@ export function FileUpload() {
 
     const content = bingoCards.cards
       .map((card) => {
-      const cardNo = `CardNo.${card.cardNumber.split("-").pop()}`;
-      const numberStrs = card.numbers.join(";");
-      return `|${cardNo};${numberStrs}`;
+        const cardNo = `CardNo.${card.cardNumber.split("-").pop()}`;
+        const numberStrs = card.numbers.join(";");
+        return `|${cardNo};${numberStrs}`;
       })
       .join("");
 
@@ -145,114 +143,114 @@ export function FileUpload() {
   };
 
   return (
-    <div className="file-upload">
-      <h1>Gerador de cartões de Bingo</h1>
-      <div className="margin-bottom-20">
-        <label className="label-style">
-          Número de cartões
-        </label>
-        <input
-          type="number"
-          value={numCards}
-          onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
-          placeholder="Número de cartões"
-          min={1}
-          className="input-style"
-        />
-      </div>
-      <div className="margin-bottom-20">
-        <label className="label-style">
-          Nome do evento
-        </label>
-        <input
-          type="text"
-          value={eventHeader}
-          onChange={(e) => setEventHeader(e.target.value)}
-          placeholder="Event Header"
-          className="input-style"
-        />
-      </div>
-      <div className="margin-bottom-20">
-        <label className="label-style">Local</label>
-        <input
-          type="text"
-          value={locationFooter}
-          onChange={(e) => setLocationFooter(e.target.value)}
-          placeholder="Location Footer"
-          className="input-style"
-        />
-      </div>
-      <div className="margin-bottom-20 hidden">
-        <label className="label-style">
-          Upload .bingoCards File:
-        </label>
-        <input
-          type="file"
-          accept=".bingoCards"
-          onChange={handleFileChange}
-          className="input-style"
-        />
-        {file && <p>Selected file: {file.name}</p>}
-      </div>
-      <div className="margin-bottom-20">
-        <button
-          onClick={handleGenerateRandomCards}
-          className="button-style"
-        >
-          Gerar cartões de Bingo
-        </button>
-      </div>
-      {bingoCards && (
-        <div>
-          <h3>Cartões de bingo</h3>
-          <button
-            onClick={exportBingoGame}
-            className="button-style"
-          >
-            Gerar .bingoCards
-          </button>
-          <button
-            onClick={generatePDF}
-            className="button-style"
-          >
-            Gerar PDF
-          </button>
-          {progress > 0 && progress < 100 && (
-            <div className="margin-bottom-20">
-              <div className="progress-bar-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-              <p>{Math.round(progress)}%</p>
-            </div>
-          )}
-          {bingoCards.cards.map((card, index) => (
-            <div
-              key={card.cardNumber}
-              className="bingo-card"
-              ref={(el) => {
-                cardRefs.current[index] = el;
-              }}
-            >
-              <div className="grid-container">
-                {card.numbers.map((num, idx) => (
-                  <div
-                    key={idx}
-                    className={`bingo-cell ${num === null ? "empty" : ""}`}
-                  >
-                    {num !== null ? num : ""}
-                  </div>
-                ))}
-              </div>
-              <p className="cardNumber">
-                {getCurrentDate()}-{card.cardNumber}
-              </p>
-            </div>
-          ))}
+    <div className="container">
+      <div className="file-upload">
+        <h1>Gerador de cartões de Bingo</h1>
+        <div className="margin-bottom-20">
+          <label className="label-style">Número de cartões</label>
+          <input
+            type="number"
+            value={numCards}
+            onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
+            placeholder="Número de cartões"
+            min={1}
+            className="input-style"
+          />
         </div>
-      )}
+        <div className="margin-bottom-20">
+          <label className="label-style">Cartões por página</label>
+          <input
+            type="range"
+            value={bingoPercard}
+            onChange={(e) => setBingoPercard(parseInt(e.target.value, 10))}
+            min={1}
+            max={3}
+            step={1}
+            className="input-style"
+          />
+          <span>{bingoPercard}</span>
+        </div>
+        <div className="margin-bottom-20">
+          <label className="label-style">Nome do evento</label>
+          <input
+            type="text"
+            value={eventHeader}
+            onChange={(e) => setEventHeader(e.target.value)}
+            placeholder="Event Header"
+            className="input-style"
+          />
+        </div>
+        <div className="margin-bottom-20">
+          <label className="label-style">Local</label>
+          <input
+            type="text"
+            value={locationFooter}
+            onChange={(e) => setLocationFooter(e.target.value)}
+            placeholder="Location Footer"
+            className="input-style"
+          />
+        </div>
+        <div className="margin-bottom-20 hidden">
+          <label className="label-style">Upload .bingoCards File:</label>
+          <input
+            type="file"
+            accept=".bingoCards"
+            onChange={handleFileChange}
+            className="input-style"
+          />
+          {file && <p>Selected file: {file.name}</p>}
+        </div>
+        <div className="margin-bottom-20">
+          <button onClick={handleGenerateRandomCards} className="button-style">
+            Gerar cartões de Bingo
+          </button>
+        </div>
+        {bingoCards && (
+          <div>
+            <h3>Cartões de bingo</h3>
+            <button onClick={exportBingoGame} className="button-style">
+              Gerar .bingoCards
+            </button>
+            <button onClick={generatePDF} className="button-style">
+              Gerar PDF
+            </button>
+            {progress > 0 && progress < 100 && (
+              <div className="margin-bottom-20">
+                <div className="progress-bar-container">
+                  <div
+                    className="progress-bar"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <p>{Math.round(progress)}%</p>
+              </div>
+            )}
+            {bingoCards.cards.map((card, index) => (
+              <div
+                key={card.cardNumber}
+                className="bingo-card"
+                ref={(el) => {
+                  cardRefs.current[index] = el;
+                }}
+              >
+                <div className="grid-container">
+                  {card.numbers.map((num, idx) => (
+                    <div
+                      key={idx}
+                      className={`bingo-cell ${num === null ? "empty" : ""}`}
+                    >
+                      {num !== null ? num : ""}
+                    </div>
+                  ))}
+                </div>
+                <p className="cardNumber">
+                  {getCurrentDate()}-{card.cardNumber}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

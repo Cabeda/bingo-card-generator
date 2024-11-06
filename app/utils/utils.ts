@@ -1,6 +1,6 @@
 type BingoCard = (number | null)[][];
 
-import { Card } from "./bingo.interface";
+import { Card, Game } from "./bingo.interface";
 
 export function generateBingoCard(cardNumber: string): Card {
     const card: BingoCard = Array(3).fill(null).map(() => Array(9).fill(null));
@@ -59,4 +59,19 @@ export function generateBingoCard(cardNumber: string): Card {
         numbers: card.flat(),
     }
     return finalCard;
+}
+
+export function parseBingoCards(filename: string, content: string): Game {
+    const cards: Card[] = content
+        .split('|')
+        .filter(Boolean)
+        .map((cardStr) => {
+            const [cardNoStr, ...numberStrs] = cardStr.split(';');
+            const cardNumber = `${filename}-${cardNoStr.replace('CardNo.', '')}`;
+            const numbers = numberStrs.map((num) =>
+                num ? parseInt(num, 10) : null
+            );
+            return { cardNumber, numbers };
+        });
+    return { filename, cards };
 }
