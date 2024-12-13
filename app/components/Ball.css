@@ -21,6 +21,11 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+.ball.drawn {
+  background-color: #ffeb3b;
+  border-color: #ffc107;
+}
+
 .ball-container.small .ball {
   width: 45px;
   height: 45px;

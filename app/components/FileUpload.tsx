@@ -125,7 +125,7 @@ export function FileUpload() {
 
     const content = bingoCards.cards
       .map((card) => {
-        const cardNo = `CardNo.${card.cardNumber.split("-").pop()}`;
+        const cardNo = `CardNo.${card.cardTitle.split("-").pop()}`;
         const numberStrs = card.numbers.join(";");
         return `|${cardNo};${numberStrs}`;
       })
@@ -227,7 +227,7 @@ export function FileUpload() {
             )}
             {bingoCards.cards.map((card, index) => (
               <div
-                key={card.cardNumber}
+                key={card.cardTitle}
                 className="bingo-card"
                 ref={(el) => {
                   cardRefs.current[index] = el;
@@ -244,7 +244,7 @@ export function FileUpload() {
                   ))}
                 </div>
                 <p className="cardNumber">
-                  {getCurrentDate()}-{card.cardNumber}
+                  {getCurrentDate()}-{card.cardTitle}
                 </p>
               </div>
             ))}

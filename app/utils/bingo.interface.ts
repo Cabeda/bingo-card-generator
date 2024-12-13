@@ -1,5 +1,6 @@
 export interface Card {
-  cardNumber: string;
+  cardTitle: string;
+  cardNumber: number;
   numbers: (number | null)[];
 }
 
