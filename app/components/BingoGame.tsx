@@ -105,7 +105,7 @@ export default function BingoGame() {
       return;
     }
 
-    const availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1).filter(
+    const availableNumbers = Array.from({ length: 90 }, (_, i) => i + 1).filter(
       (num) => !drawnNumbers.includes(num)
     );
 
@@ -127,14 +127,14 @@ export default function BingoGame() {
   };
 
   const handleCheckLine = () => {
-    const cardNumber = prompt("Enter card number:");
+    const cardNumber = prompt("Insira o número do cartão:");
     if (!cardNumber || !bingoGame) return;
 
     const card = bingoGame.cards.find(
       (c) => c.cardNumber === parseInt(cardNumber)
     );
     if (!card) {
-      showModal("Card not found.");
+      showModal("Cartão não encontrado.");
       return;
     }
 
@@ -142,22 +142,21 @@ export default function BingoGame() {
     if (hasLine) {
       setValidCard(card);
       setIsCardModalOpen(true);
-      showModal("Line is valid!");
     } else {
       setValidCard(null);
-      showModal("Line is not valid.");
+      showModal("Linha não é válida.");
     }
   };
 
   const handleCheckBingo = () => {
-    const cardNumber = prompt("Enter card number:");
+    const cardNumber = prompt("Insira número do cartão (ultimos dígitos após ultimo '-'):");
     if (!cardNumber || !bingoGame) return;
 
     const card = bingoGame.cards.find(
       (c) => c.cardNumber === parseInt(cardNumber)
     );
     if (!card) {
-      showModal("Card not found.");
+      showModal("cartão não encontrado.");
       return;
     }
 
@@ -168,7 +167,7 @@ export default function BingoGame() {
       showModal("Bingo!");
     } else {
       setValidCard(null);
-      showModal("Not a Bingo yet.");
+      showModal("Bing não é válido.");
     }
   };
 

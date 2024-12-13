@@ -10,8 +10,8 @@
 }
 
 .ball {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   background-color: white;
   border: 5px solid black;
   border-radius: 50%;
@@ -27,13 +27,13 @@
 }
 
 .ball-container.small .ball {
-  width: 45px;
-  height: 45px;
+  width: 55px;
+  height: 55px;
   border-width: 2px;
 }
 
 .ball-number {
-  font-size: 2em;
+  font-size: 4em;
   font-weight: bold;
 }
 
