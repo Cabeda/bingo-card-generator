@@ -1,0 +1,45 @@
+name: Lint Auto-Fix
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run lint with auto-fix
+      run: npm run lint:fix
+      continue-on-error: true
+
+    - name: Check for changes
+      id: verify_diff
+      run: |
+        git diff --quiet . || echo "changed=true" >> $GITHUB_OUTPUT
+
+    - name: Commit and push if changed
+      if: steps.verify_diff.outputs.changed == 'true'
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add -A
+        git commit -m "chore: auto-fix lint issues"
+        git push

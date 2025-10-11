@@ -30,7 +30,7 @@ export function generateBingoCard(cardNumber: string): Card {
     }
 
     // Ensure exactly 5 numbers per row
-    card.forEach((row, rowIndex) => {
+    card.forEach((row) => {
         const filledCount = row.filter(cell => cell !== null).length;
         if (filledCount > 5) {
             const filledIndices = row
