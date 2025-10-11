@@ -30,9 +30,9 @@ Cards follow traditional bingo rules:
 - Each column has at least 1 number
 - Numbers are sorted in ascending order within columns
 - Column number ranges:
-  - Column 1: 1-9
-  - Columns 2-8: (col × 10) to (col × 10 + 9)
-  - Column 9: 80-90
+  - Column 0: 1-9
+  - Columns 1-7: (col × 10) to (col × 10 + 9)
+  - Column 8: 80-90
 - All numbers on a card are unique
 
 ## 🚀 Getting Started
