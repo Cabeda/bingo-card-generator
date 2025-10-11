@@ -7,7 +7,7 @@ export function generateBingoCard(cardNumber: string): Card {
     // Fill columns and validate rows in a single pass
     for (let col = 0; col < 9; col++) {
         const min = col === 0 ? 1 : col * 10;
-        const max = col === 8 ? 90 : col * 10 + 9;
+        const max = col === 8 ? 89 : col * 10 + 9;
         const numbersNeeded = col === 0 || col === 8 ? 3 : 2;
         
         // Generate and sort numbers for this column

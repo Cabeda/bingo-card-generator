@@ -105,7 +105,7 @@ export default function BingoGame() {
       return;
     }
 
-    const availableNumbers = Array.from({ length: 90 }, (_, i) => i + 1).filter(
+    const availableNumbers = Array.from({ length: 89 }, (_, i) => i + 1).filter(
       (num) => !drawnNumbers.includes(num)
     );
 
@@ -181,7 +181,7 @@ export default function BingoGame() {
         </div>
         <div className={styles.all_numbers}>
           <div className={styles.numbers_grid}>
-            {Array.from({ length: 90 }, (_, i) => i + 1).map((num) => (
+            {Array.from({ length: 89 }, (_, i) => i + 1).map((num) => (
               <Ball 
                 key={num} 
                 number={num} 
