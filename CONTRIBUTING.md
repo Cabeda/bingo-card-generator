@@ -306,7 +306,7 @@ When working on card generation or validation, remember these rules:
 - Column ranges:
   - Column 0: 1-9
   - Columns 1-7: (col × 10) to (col × 10 + 9)
-  - Column 8: 80-90
+  - Column 8: 80-89
 - All numbers on a card must be unique
 
 ## Questions?
