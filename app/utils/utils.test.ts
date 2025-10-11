@@ -58,7 +58,7 @@ describe('generateBingoCard', () => {
 
         for (let col = 0; col < 9; col++) {
             const min = col === 0 ? 1 : col * 10;
-            const max = col === 0 ? 9 : (col === 8 ? 90 : col * 10 + 9);
+            const max = col === 0 ? 9 : (col === 8 ? 89 : col * 10 + 9);
 
             const columnNumbers = [
                 card.numbers[col],
