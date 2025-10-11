@@ -32,15 +32,66 @@ export function generateBingoCard(cardNumber: string): Card {
     // Ensure exactly 5 numbers per row
     card.forEach((row) => {
         const filledCount = row.filter(cell => cell !== null).length;
+        
         if (filledCount > 5) {
+            // Remove excess numbers, but avoid creating empty columns
             const filledIndices = row
-                .map((cell, i) => cell !== null && i !== 0 && i !== 8 ? i : -1)
+                .map((cell, i) => {
+                    if (cell === null) return -1;
+                    // Check if this is the only number in the column
+                    const columnCount = [card[0][i], card[1][i], card[2][i]].filter(c => c !== null).length;
+                    // Don't remove from first/last columns, or if it would create an empty column
+                    if (i === 0 || i === 8 || columnCount === 1) return -1;
+                    return i;
+                })
                 .filter(i => i !== -1);
             
             while (row.filter(cell => cell !== null).length > 5) {
+                if (filledIndices.length === 0) break; // Safety check
                 const removeIndex = filledIndices[Math.floor(Math.random() * filledIndices.length)];
                 row[removeIndex] = null;
                 filledIndices.splice(filledIndices.indexOf(removeIndex), 1);
+            }
+        } else if (filledCount < 5) {
+            // Add numbers to reach exactly 5
+            const emptyIndices = row
+                .map((cell, i) => cell === null ? i : -1)
+                .filter(i => i !== -1);
+            
+            while (row.filter(cell => cell !== null).length < 5 && emptyIndices.length > 0) {
+                const addIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+                
+                // Generate a number for this column that hasn't been used
+                const col = addIndex;
+                const min = col === 0 ? 1 : col * 10;
+                const max = col === 8 ? 90 : col * 10 + 9;
+                
+                let num;
+                let attempts = 0;
+                do {
+                    num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    attempts++;
+                    if (attempts > 100) break; // Safety check
+                } while (usedNumbers.has(num));
+                
+                if (attempts <= 100) {
+                    row[addIndex] = num;
+                    usedNumbers.add(num);
+                    
+                    // Re-sort the column to maintain ascending order
+                    const columnValues = [card[0][col], card[1][col], card[2][col]]
+                        .filter(v => v !== null)
+                        .sort((a, b) => a - b);
+                    
+                    let valueIndex = 0;
+                    for (let r = 0; r < 3; r++) {
+                        if (card[r][col] !== null) {
+                            card[r][col] = columnValues[valueIndex++];
+                        }
+                    }
+                }
+                
+                emptyIndices.splice(emptyIndices.indexOf(addIndex), 1);
             }
         }
     });
