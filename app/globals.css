@@ -92,6 +92,18 @@ h3 {
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .file-upload {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-upload {
+    padding: 10px;
+  }
+}
+
 .margin-bottom-20 {
   margin-bottom: 20px;
 }
@@ -147,6 +159,7 @@ h3 {
   border-radius: 0.25rem;
   border: 0.125rem solid var(--secondary-color);
   width: auto; /* Let the width adjust based on content */
+  max-width: 100%; /* Ensure it doesn't overflow container */
 }
 
 .grid-container {
@@ -154,6 +167,49 @@ h3 {
   grid-template-columns: repeat(9, auto);
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  .bingo-card {
+    padding: 5px;
+    max-width: calc(100vw - 40px); /* Leave some margin */
+  }
+
+  .grid-container {
+    gap: 0.125rem; /* Smaller gap on mobile */
+  }
+
+  .bingo-cell {
+    min-width: 30px; /* Smaller cells on mobile */
+    font-size: 1.2rem; /* Smaller font size */
+    padding: 2px;
+  }
+
+  .cardNumber {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-card {
+    padding: 3px;
+    max-width: calc(100vw - 30px);
+  }
+
+  .grid-container {
+    gap: 0.1rem;
+  }
+
+  .bingo-cell {
+    min-width: 25px; /* Even smaller on very small screens */
+    font-size: 1rem;
+    padding: 1px;
+  }
+
+  .cardNumber {
+    font-size: 0.55rem;
+  }
 }
 
 /* Navbar styles */
