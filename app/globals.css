@@ -1,23 +1,38 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-input-text: #000000;
+  --color-primary: #ff007f;
+  --color-secondary: #000000;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --input-text-color: #000000;
-  --primary-color: #ff007f; /* Edgy primary color */
-  --secondary-color: #000000; /* Edgy secondary color */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --input-text-color: var(--color-input-text);
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
 }
 
 input {
   color: var(--input-text-color, var(--foreground));
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Roboto', sans-serif; /* Modern font */
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 @layer utilities {
