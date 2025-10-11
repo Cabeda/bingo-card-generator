@@ -8,7 +8,7 @@ export function generateBingoCard(cardNumber: string): Card {
     for (let col = 0; col < 9; col++) {
         const min = col === 0 ? 1 : col * 10;
         const max = col === 8 ? 89 : col * 10 + 9;
-        const numbersNeeded = col === 0 || col === 8 ? 3 : 2;
+        const numbersNeeded = 2;
         
         // Generate and sort numbers for this column
         const columnNumbers = Array(3).fill(0)
@@ -40,8 +40,8 @@ export function generateBingoCard(cardNumber: string): Card {
                     if (cell === null) return -1;
                     // Check if this is the only number in the column
                     const columnCount = [card[0][i], card[1][i], card[2][i]].filter(c => c !== null).length;
-                    // Don't remove from first/last columns, or if it would create an empty column
-                    if (i === 0 || i === 8 || columnCount === 1) return -1;
+                    // Don't remove if it would create an empty column
+                    if (columnCount === 1) return -1;
                     return i;
                 })
                 .filter(i => i !== -1);
