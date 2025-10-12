@@ -12,10 +12,10 @@ export default function ViewTransition() {
     // Check if View Transitions API is supported
     if (typeof document !== 'undefined' && 'startViewTransition' in document) {
       // Native support detected - CSS will handle transitions
-      console.log('View Transitions API supported');
+      // View Transitions API supported
     } else {
       // Fallback for browsers without support
-      console.log('View Transitions API not supported - using fallback');
+      // View Transitions API not supported - using fallback
     }
   }, []);
 
