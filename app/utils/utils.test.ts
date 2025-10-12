@@ -1,4 +1,4 @@
-import { generateBingoCard, parseBingoCards } from './utils';
+import { generateBingoCard, parseBingoCards, generateRandomBingoCards } from './utils';
 import { Card, Game } from './bingo.interface';
 
 describe('generateBingoCard', () => {
@@ -178,6 +178,95 @@ describe('generateBingoCard', () => {
 
             expect(game.filename).toBe(filename);
             expect(game.cards).toHaveLength(0);
+        });
+    });
+
+    describe('generateRandomBingoCards', () => {
+        it('should generate the correct number of cards', () => {
+            const numberOfCards = 5;
+            const cards = generateRandomBingoCards(numberOfCards);
+
+            expect(cards).toHaveLength(numberOfCards);
+        });
+
+        it('should generate cards with unique numbers (no duplicates)', () => {
+            const numberOfCards = 10;
+            const cards = generateRandomBingoCards(numberOfCards);
+
+            // Convert each card's numbers to a string to check for duplicates
+            const cardSignatures = cards.map(card => card.numbers.toString());
+            const uniqueSignatures = new Set(cardSignatures);
+
+            expect(uniqueSignatures.size).toBe(cards.length);
+        });
+
+        it('should generate zero cards when numberOfCards is 0', () => {
+            const cards = generateRandomBingoCards(0);
+
+            expect(cards).toHaveLength(0);
+        });
+
+        it('should generate exactly one card when numberOfCards is 1', () => {
+            const cards = generateRandomBingoCards(1);
+
+            expect(cards).toHaveLength(1);
+            expect(cards[0].cardTitle).toBe('1');
+            expect(cards[0].cardNumber).toBe(1);
+        });
+
+        it('should generate cards with proper card numbers', () => {
+            const numberOfCards = 3;
+            const cards = generateRandomBingoCards(numberOfCards);
+
+            for (let i = 0; i < numberOfCards; i++) {
+                expect(cards[i].cardTitle).toBe(`${i + 1}`);
+                expect(cards[i].cardNumber).toBe(i + 1);
+            }
+        });
+
+        it('should generate valid bingo cards that follow all rules', () => {
+            const numberOfCards = 5;
+            const cards = generateRandomBingoCards(numberOfCards);
+
+            cards.forEach(card => {
+                // Each card should have 27 cells (3 rows * 9 columns)
+                expect(card.numbers).toHaveLength(27);
+
+                // Each row should have exactly 5 numbers
+                for (let row = 0; row < 3; row++) {
+                    const rowNumbers = card.numbers.slice(row * 9, (row + 1) * 9);
+                    const filledCells = rowNumbers.filter(cell => cell !== null).length;
+                    expect(filledCells).toBe(5);
+                }
+
+                // Each column should have at least one number
+                for (let col = 0; col < 9; col++) {
+                    const columnNumbers = [
+                        card.numbers[col],
+                        card.numbers[9 + col],
+                        card.numbers[18 + col]
+                    ].filter(cell => cell !== null);
+
+                    expect(columnNumbers.length).toBeGreaterThan(0);
+                }
+
+                // All non-null numbers should be unique on the card
+                const nonNullNumbers = card.numbers.filter(num => num !== null);
+                const uniqueNumbers = new Set(nonNullNumbers);
+                expect(uniqueNumbers.size).toBe(nonNullNumbers.length);
+            });
+        });
+
+        it('should handle generating a large number of cards', () => {
+            const numberOfCards = 50;
+            const cards = generateRandomBingoCards(numberOfCards);
+
+            expect(cards).toHaveLength(numberOfCards);
+
+            // Verify all cards are unique
+            const cardSignatures = cards.map(card => card.numbers.toString());
+            const uniqueSignatures = new Set(cardSignatures);
+            expect(uniqueSignatures.size).toBe(numberOfCards);
         });
     });
 });
