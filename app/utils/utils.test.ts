@@ -513,7 +513,7 @@ describe('generateBingoCard', () => {
             });
         });
 
-        it('should handle stress test of 10000 cards', () => {
+        it('should handle stress test of 1000 cards', () => {
             const numberOfCards = 1000;
             const startTime = Date.now();
             const cards = generateRandomBingoCards(numberOfCards);
