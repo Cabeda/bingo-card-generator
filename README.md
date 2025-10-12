@@ -1,6 +1,9 @@
 # Bingo Card Generator
 
-[![codecov](https://codecov.io/gh/Cabeda/bingo-card-generator/branch/main/graph/badge.svg)](https://codecov.io/gh/Cabeda/bingo-card-generator)
+![Test & Build](https://github.com/Cabeda/bingo-card-generator/actions/workflows/test.yml/badge.svg?branch=main)
+![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
+![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
+![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
 
 A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
 
@@ -46,8 +49,7 @@ Cards follow traditional bingo rules:
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- bun package manager
+- [Bun](https://bun.sh) 1.0 or higher
 
 ### Installation
 
