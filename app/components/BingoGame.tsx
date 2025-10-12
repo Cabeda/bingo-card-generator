@@ -51,7 +51,7 @@ export default function BingoGame() {
   const handleStartGame = () => {
     if (bingoGame) {
       showModal(
-        "A game is already running. Do you want to start a new game?",
+        "Já existe um jogo em curso. Queres começar um novo?",
         () => {
           startNewGame();
         }
