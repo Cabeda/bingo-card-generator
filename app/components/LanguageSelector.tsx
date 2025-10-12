@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { routing, usePathname, useRouter, type Locale } from '../routing';
+import { type Locale, routing, usePathname, useRouter } from '../routing';
 import styles from './LanguageSelector.module.css';
 
 const languageNames: Record<Locale, string> = {

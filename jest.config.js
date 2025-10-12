@@ -6,6 +6,9 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-intl)/)',
+  ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {

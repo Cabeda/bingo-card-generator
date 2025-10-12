@@ -1,9 +1,9 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { useTranslations } from "next-intl";
 import { Game } from "../utils/bingo.interface";
-import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
+import { generateRandomBingoCards, parseBingoCards } from "../utils/utils";
 
 export function FileUpload() {
   const t = useTranslations('fileUpload');

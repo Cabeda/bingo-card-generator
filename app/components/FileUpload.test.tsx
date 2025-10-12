@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FileUpload } from './FileUpload';
 import { generateRandomBingoCards, parseBingoCards } from '../utils/utils';
 

@@ -1,9 +1,9 @@
 // components/BingoGame.tsx
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { useTranslations, useLocale } from "next-intl";
-import { Game, Card } from "../utils/bingo.interface";
+import React, { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
+import { Card, Game } from "../utils/bingo.interface";
 import { parseBingoCards } from "../utils/utils";
 import Ball from "./Ball";
 import styles from './BingoGame.module.css';
