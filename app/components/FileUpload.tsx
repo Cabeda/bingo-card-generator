@@ -1,10 +1,12 @@
 import React, { useState, useRef, useCallback } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
+import { useTranslations } from "next-intl";
 import { Game } from "../utils/bingo.interface";
 import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
 
 export function FileUpload() {
+  const t = useTranslations('fileUpload');
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
@@ -34,7 +36,7 @@ export function FileUpload() {
       };
       reader.readAsText(selectedFile);
     } else {
-      alert("Please upload a file with the .bingoCards extension.");
+      alert(t('uploadError'));
     }
   };
 
@@ -161,7 +163,7 @@ export function FileUpload() {
       }, 1000);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Erro ao gerar PDF. Por favor, tente novamente.");
+      alert(t('errorGeneratingPdf'));
       setIsGeneratingPDF(false);
       setProgress(0);
     }
@@ -202,20 +204,20 @@ export function FileUpload() {
   return (
     <div className="container">
       <div className="file-upload">
-        <h1>Gerador de cartões de Bingo</h1>
+        <h1>{t('title')}</h1>
         <div className="margin-bottom-20">
-          <label className="label-style">Número de cartões</label>
+          <label className="label-style">{t('numCards')}</label>
           <input
             type="number"
             value={numCards}
             onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
-            placeholder="Número de cartões"
+            placeholder={t('numCardsPlaceholder')}
             min={1}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Cartões por página</label>
+          <label className="label-style">{t('cardsPerPage')}</label>
           <input
             type="range"
             value={bingoPercard}
@@ -228,38 +230,38 @@ export function FileUpload() {
           <span>{bingoPercard}</span>
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Nome do evento</label>
+          <label className="label-style">{t('eventName')}</label>
           <input
             type="text"
             value={eventHeader}
             onChange={(e) => setEventHeader(e.target.value)}
-            placeholder="Event Header"
+            placeholder={t('eventNamePlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Local</label>
+          <label className="label-style">{t('location')}</label>
           <input
             type="text"
             value={locationFooter}
             onChange={(e) => setLocationFooter(e.target.value)}
-            placeholder="Location Footer"
+            placeholder={t('locationPlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20 hidden">
-          <label className="label-style">Upload .bingoCards File:</label>
+          <label className="label-style">{t('uploadFile')}</label>
           <input
             type="file"
             accept=".bingoCards"
             onChange={handleFileChange}
             className="input-style"
           />
-          {file && <p>Selected file: {file.name}</p>}
+          {file && <p>{t('selectedFile', { filename: file.name })}</p>}
         </div>
         <div className="margin-bottom-20">
           <button onClick={handleGenerateRandomCards} className="button-style">
-            Gerar cartões de Bingo
+            {t('generateCards')}
           </button>
         </div>
         {isGenerating && (
@@ -279,18 +281,18 @@ export function FileUpload() {
               }}
             />
             <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-              A gerar cartões...
+              {t('generating')}
             </p>
           </div>
         )}
         {bingoCards && (
           <div>
-            <h3>Cartões de bingo</h3>
+            <h3>{t('bingoCards')}</h3>
             <button
               onClick={exportBingoGame}
               className="button-style"
             >
-              Gerar .bingoCards
+              {t('exportBingoCards')}
             </button>
             <button
               onClick={generatePDF}
@@ -301,7 +303,7 @@ export function FileUpload() {
                 cursor: isGeneratingPDF ? "not-allowed" : "pointer",
               }}
             >
-              Gerar PDF
+              {t('generatePdf')}
             </button>
             {isGeneratingPDF && (
               <div
@@ -320,7 +322,7 @@ export function FileUpload() {
                   }}
                 />
                 <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-                  A gerar PDF... {Math.round(progress)}%
+                  {t('generatingPdf', { progress: Math.round(progress) })}
                 </p>
               </div>
             )}

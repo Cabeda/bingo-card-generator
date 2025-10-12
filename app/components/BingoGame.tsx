@@ -2,12 +2,15 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslations, useLocale } from "next-intl";
 import { Game, Card } from "../utils/bingo.interface";
 import { parseBingoCards } from "../utils/utils";
 import Ball from "./Ball";
 import styles from './BingoGame.module.css';
 
 export default function BingoGame() {
+  const t = useTranslations('bingoGame');
+  const locale = useLocale();
   const [bingoGame, setBingoGame] = useState<Game | null>(null);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [modalMessage, setModalMessage] = useState("");
@@ -51,7 +54,7 @@ export default function BingoGame() {
   const handleStartGame = () => {
     if (bingoGame) {
       showModal(
-        "Já existe um jogo em curso. Queres começar um novo?",
+        t('gameInProgress'),
         () => {
           startNewGame();
         }
@@ -83,7 +86,7 @@ export default function BingoGame() {
         };
         reader.readAsText(selectedFile);
       } else {
-        showModal("Please upload a valid .bingoCards file.");
+        showModal(t('uploadValidFile'));
       }
     };
 
@@ -102,7 +105,7 @@ export default function BingoGame() {
     }
 
     if (!bingoGame) {
-      showModal("Please start the game first.");
+      showModal(t('pleaseStartGame'));
       return;
     }
 
@@ -111,7 +114,7 @@ export default function BingoGame() {
     );
 
     if (availableNumbers.length === 0) {
-      showModal("All numbers have been drawn.");
+      showModal(t('allNumbersDrawn'));
       return;
     }
 
@@ -161,8 +164,10 @@ export default function BingoGame() {
       
       // Text-to-speech
       if (ttsEnabled && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(`Número ${newNumber}`);
-        utterance.lang = 'pt-PT';
+        const utterance = new SpeechSynthesisUtterance(t('numberAnnouncement', { number: newNumber }));
+        // Set language based on locale
+        const ttsLang = locale === 'pt' ? 'pt-PT' : locale === 'es' ? 'es-ES' : locale === 'fr' ? 'fr-FR' : 'en-US';
+        utterance.lang = ttsLang;
         utterance.rate = 0.9;
         window.speechSynthesis.speak(utterance);
       }
@@ -173,7 +178,7 @@ export default function BingoGame() {
       setAnimatingNumber(null);
       setIsAnimating(false);
     }, 1000);
-  }, [isAnimating, bingoGame, drawnNumbers, audioEnabled, ttsEnabled]);
+  }, [isAnimating, bingoGame, drawnNumbers, audioEnabled, ttsEnabled, t, locale]);
 
   // Keyboard shortcuts - must be after handleDrawNumber is defined
   useEffect(() => {
@@ -191,7 +196,7 @@ export default function BingoGame() {
   const handleCheckLine = (cardNumberInput?: string) => {
     const cardNumber = cardNumberInput || cardToValidate;
     if (!cardNumber || !bingoGame) {
-      showModal("Por favor insira o número do cartão.");
+      showModal(t('pleaseEnterCardNumber'));
       return;
     }
 
@@ -199,7 +204,7 @@ export default function BingoGame() {
       (c) => c.cardNumber === parseInt(cardNumber)
     );
     if (!card) {
-      showModal("Cartão não encontrado.");
+      showModal(t('cardNotFound'));
       return;
     }
 
@@ -210,14 +215,14 @@ export default function BingoGame() {
       setCardToValidate("");
     } else {
       setValidCard(null);
-      showModal("Linha não é válida.");
+      showModal(t('lineNotValid'));
     }
   };
 
   const handleCheckBingo = (cardNumberInput?: string) => {
     const cardNumber = cardNumberInput || cardToValidate;
     if (!cardNumber || !bingoGame) {
-      showModal("Por favor insira o número do cartão.");
+      showModal(t('pleaseEnterCardNumber'));
       return;
     }
 
@@ -225,7 +230,7 @@ export default function BingoGame() {
       (c) => c.cardNumber === parseInt(cardNumber)
     );
     if (!card) {
-      showModal("Cartão não encontrado.");
+      showModal(t('cardNotFound'));
       return;
     }
 
@@ -234,10 +239,10 @@ export default function BingoGame() {
       setValidCard(card);
       setIsCardModalOpen(true);
       setCardToValidate("");
-      showModal("🎉 Bingo! 🎉");
+      showModal(t('bingoValid'));
     } else {
       setValidCard(null);
-      showModal("Bingo não é válido.");
+      showModal(t('bingoNotValid'));
     }
   };
 
@@ -275,7 +280,7 @@ export default function BingoGame() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
-                <h3>Últimas Bolas</h3>
+                <h3>{t('lastBalls')}</h3>
                 <div className={styles.recent_list}>
                   {drawnNumbers.slice(-10).reverse().map((num, idx) => (
                     <motion.span 
@@ -308,7 +313,7 @@ export default function BingoGame() {
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Iniciar Jogo
+              {t('startGame')}
             </motion.button>
             <motion.button 
               onClick={handleRestartGame} 
@@ -317,17 +322,17 @@ export default function BingoGame() {
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Recomeçar
+              {t('restart')}
             </motion.button>
             <motion.button 
               onClick={handleDrawNumber} 
               className={`button-style ${styles.draw_button} ${isAnimating ? styles.disabled : ''}`}
-              title="Pressione Espaço ou Enter"
+              title={t('pressSpace')}
               whileHover={!isAnimating ? { scale: 1.05 } : {}}
               whileTap={!isAnimating ? { scale: 0.95 } : {}}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Próxima Bola 🎱
+              {t('nextBall')}
             </motion.button>
           </div>
 
@@ -339,7 +344,7 @@ export default function BingoGame() {
                 checked={audioEnabled}
                 onChange={(e) => setAudioEnabled(e.target.checked)}
               />
-              <span>🔊 Som</span>
+              <span>{t('audio')}</span>
             </label>
             <label className={styles.setting_item}>
               <input 
@@ -347,17 +352,17 @@ export default function BingoGame() {
                 checked={ttsEnabled}
                 onChange={(e) => setTtsEnabled(e.target.checked)}
               />
-              <span>🗣️ Voz</span>
+              <span>{t('tts')}</span>
             </label>
           </div>
 
           {/* Validation Panel */}
           <div className={styles.validation_panel}>
-            <h3>Validar Cartão</h3>
+            <h3>{t('validateCard')}</h3>
             <div className={styles.validation_controls}>
               <motion.input 
                 type="number" 
-                placeholder="Nº do Cartão"
+                placeholder={t('cardNumberPlaceholder')}
                 value={cardToValidate}
                 onChange={(e) => setCardToValidate(e.target.value)}
                 className={styles.card_input}
@@ -377,7 +382,7 @@ export default function BingoGame() {
                 whileTap={cardToValidate ? { scale: 0.95 } : {}}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                Validar Linha
+                {t('validateLine')}
               </motion.button>
               <motion.button 
                 onClick={() => handleCheckBingo(cardToValidate)} 
@@ -387,7 +392,7 @@ export default function BingoGame() {
                 whileTap={cardToValidate ? { scale: 0.95 } : {}}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                Validar Bingo
+                {t('validateBingo')}
               </motion.button>
             </div>
           </div>
@@ -410,7 +415,7 @@ export default function BingoGame() {
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
               <div className={styles.modal_header}>
-                <h3>Card Number: {validCard.cardTitle}</h3>
+                <h3>{t('cardNumberLabel', { number: validCard.cardTitle })}</h3>
                 <motion.button 
                   onClick={() => setIsCardModalOpen(false)}
                   className={styles.close_button}
@@ -474,7 +479,7 @@ export default function BingoGame() {
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
-                    Yes
+                    {t('yes')}
                   </motion.button>
                   <motion.button 
                     onClick={handleModalClose} 
@@ -483,7 +488,7 @@ export default function BingoGame() {
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
-                    No
+                    {t('no')}
                   </motion.button>
                 </div>
               ) : (
@@ -494,7 +499,7 @@ export default function BingoGame() {
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  Close
+                  {t('close')}
                 </motion.button>
               )}
             </motion.div>
