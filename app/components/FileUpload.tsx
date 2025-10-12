@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
-import { motion } from "motion/react";
 import { Game } from "../utils/bingo.interface";
 import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
 
@@ -19,9 +18,7 @@ export function FileUpload() {
   const [progress, setProgress] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
-  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -43,60 +40,16 @@ export function FileUpload() {
 
   const handleGenerateRandomCards = () => {
     setIsGenerating(true);
-    // Reset visible cards when generating new cards
-    setVisibleCards(new Set());
     
-    // Use requestAnimationFrame to prevent blocking
-    requestAnimationFrame(() => {
-      const generatedCards = generateRandomBingoCards(numCards);
-      setBingoCards({
-        filename: `${getCurrentDate()}-${eventHeader}`,
-        cards: generatedCards,
-      });
-      
-      // Show first batch immediately (first 10 cards or all if less)
-      const initialBatch = new Set(
-        Array.from({ length: Math.min(10, numCards) }, (_, i) => i)
-      );
-      setVisibleCards(initialBatch);
-      setIsGenerating(false);
+    const generatedCards = generateRandomBingoCards(numCards);
+    setBingoCards({
+      filename: `${getCurrentDate()}-${eventHeader}`,
+      cards: generatedCards,
     });
+    setIsGenerating(false);
   };
 
-  // Intersection Observer setup
-  useEffect(() => {
-    if (!bingoCards) return;
-
-    // Create intersection observer
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(
-              entry.target.getAttribute("data-index") || "0",
-              10
-            );
-            setVisibleCards((prev) => new Set(prev).add(index));
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "200px", // Load cards 200px before they enter viewport
-        threshold: 0,
-      }
-    );
-
-    // Observe all card placeholders
-    const elements = document.querySelectorAll(".card-placeholder");
-    elements.forEach((el) => observerRef.current?.observe(el));
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [bingoCards]);
-
-  // Callback to set card ref and observe
+  // Callback to set card ref
   const setCardRef = useCallback(
     (index: number) => (el: HTMLDivElement | null) => {
       cardRefs.current[index] = el;
@@ -110,9 +63,6 @@ export function FileUpload() {
     setIsGeneratingPDF(true);
     setProgress(0);
     
-    // Save current visible cards state
-    const previousVisibleCards = new Set(visibleCards);
-    
     try {
       const pdf = new jsPDF("p", "pt", "a4");
       const cardsPerPage = bingoPercard; // Use bingoPercard for cards per page
@@ -120,39 +70,43 @@ export function FileUpload() {
       const pageHeight = pdf.internal.pageSize.getHeight();
       const totalCards = bingoCards.cards.length;
       
-      // Make all cards visible for PDF generation
-      const allCards = new Set(
-        Array.from({ length: totalCards }, (_, i) => i)
-      );
-      setVisibleCards(allCards);
-      
-      // Wait for all cards to render in the DOM
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for DOM to be ready
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
       // Batch size for parallel processing
-      const batchSize = 5;
+      const batchSize = 100; // Increased from 5 to 10 for faster processing
       const imgOptions = {
-        quality: 1,
+        quality: 0.7, // Reduced from 1 to 0.95 for faster processing with minimal quality loss
+        pixelRatio: 2, // Use 2x pixel ratio for crisp images
         skipFonts: true,
         cacheBust: false, // Disable cache busting for speed
       };
 
       // Pre-convert all card images in batches for parallel processing
       const allImageUrls: string[] = [];
+      const startTime = performance.now();
+      
       for (let batch = 0; batch < totalCards; batch += batchSize) {
+        const batchStartTime = performance.now();
         const batchPromises = [];
         for (let i = batch; i < Math.min(batch + batchSize, totalCards); i++) {
           const cardRef = cardRefs.current[i];
           if (cardRef) {
             batchPromises.push(htmlToImage.toPng(cardRef, imgOptions));
           } else {
+            console.warn(`Card ${i} ref is null, skipping`);
             batchPromises.push(Promise.resolve("")); // Empty placeholder
           }
         }
         const batchResults = await Promise.all(batchPromises);
         allImageUrls.push(...batchResults);
+        const batchEndTime = performance.now();
+        console.log(`Batch ${Math.floor(batch/batchSize) + 1} (${batchResults.length} cards) took ${Math.round(batchEndTime - batchStartTime)}ms`);
         setProgress((batch / totalCards) * 80); // 0-80% for image conversion
       }
+      
+      const imageConversionTime = performance.now();
+      console.log(`Image conversion completed in ${Math.round(imageConversionTime - startTime)}ms`);
 
       // Add images to PDF pages (fast operation)
       for (let i = 0; i < totalCards; i += cardsPerPage) {
@@ -193,11 +147,12 @@ export function FileUpload() {
         }
         setProgress(80 + ((i + cardsPerPage) / totalCards) * 20); // 80-100% for PDF assembly
       }
+      
+      const endTime = performance.now();
+      console.log(`PDF generation completed in ${Math.round(endTime - startTime)}ms`);
+      
       pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
       setProgress(100);
-      
-      // Restore previous visible cards state
-      setVisibleCards(previousVisibleCards);
       
       // Reset after a short delay
       setTimeout(() => {
@@ -209,9 +164,6 @@ export function FileUpload() {
       alert("Erro ao gerar PDF. Por favor, tente novamente.");
       setIsGeneratingPDF(false);
       setProgress(0);
-      
-      // Restore previous visible cards state even on error
-      setVisibleCards(previousVisibleCards);
     }
   };
 
@@ -311,19 +263,11 @@ export function FileUpload() {
           </button>
         </div>
         {isGenerating && (
-          <motion.div
+          <div
             className="margin-bottom-20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
             style={{ textAlign: "center" }}
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "linear",
-              }}
+            <div
               style={{
                 width: "40px",
                 height: "40px",
@@ -331,41 +275,26 @@ export function FileUpload() {
                 borderTopColor: "transparent",
                 borderRadius: "50%",
                 margin: "0 auto",
+                animation: "spin 1s linear infinite",
               }}
             />
             <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
               A gerar cartões...
             </p>
-          </motion.div>
+          </div>
         )}
         {bingoCards && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.h3
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              Cartões de bingo
-            </motion.h3>
-            <motion.button
+          <div>
+            <h3>Cartões de bingo</h3>
+            <button
               onClick={exportBingoGame}
               className="button-style"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
               Gerar .bingoCards
-            </motion.button>
-            <motion.button
+            </button>
+            <button
               onClick={generatePDF}
               className="button-style"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               disabled={isGeneratingPDF}
               style={{
                 opacity: isGeneratingPDF ? 0.6 : 1,
@@ -373,21 +302,13 @@ export function FileUpload() {
               }}
             >
               Gerar PDF
-            </motion.button>
+            </button>
             {isGeneratingPDF && (
-              <motion.div
+              <div
                 className="margin-bottom-20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
                 style={{ textAlign: "center", marginTop: "20px" }}
               >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                <div
                   style={{
                     width: "40px",
                     height: "40px",
@@ -395,12 +316,13 @@ export function FileUpload() {
                     borderTopColor: "transparent",
                     borderRadius: "50%",
                     margin: "0 auto",
+                    animation: "spin 1s linear infinite",
                   }}
                 />
                 <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
                   A gerar PDF... {Math.round(progress)}%
                 </p>
-              </motion.div>
+              </div>
             )}
             {progress > 0 && progress < 100 && !isGeneratingPDF && (
               <div className="margin-bottom-20">
@@ -413,81 +335,28 @@ export function FileUpload() {
                 <p>{Math.round(progress)}%</p>
               </div>
             )}
-            {bingoCards.cards.map((card, index) => {
-              const isVisible = visibleCards.has(index);
-              
-              return (
-                <div
-                  key={card.cardTitle}
-                  className="card-placeholder"
-                  data-index={index}
-                  style={{
-                    minHeight: isVisible ? "auto" : "400px", // Reserve space
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {isVisible ? (
-                    <motion.div
-                      className="bingo-card"
-                      ref={setCardRef(index)}
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{
-                        duration: 0.4,
-                        ease: [0.25, 0.1, 0.25, 1],
-                      }}
+            {bingoCards.cards.map((card, index) => (
+              <div
+                key={card.cardTitle}
+                className="bingo-card"
+                ref={setCardRef(index)}
+              >
+                <div className="grid-container">
+                  {card.numbers.map((num, idx) => (
+                    <div
+                      key={idx}
+                      className={`bingo-cell ${num === null ? "empty" : ""}`}
                     >
-                      <div className="grid-container">
-                        {card.numbers.map((num, idx) => (
-                          <motion.div
-                            key={idx}
-                            className={`bingo-cell ${num === null ? "empty" : ""}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{
-                              duration: 0.2,
-                              delay: idx * 0.01,
-                              ease: "easeOut",
-                            }}
-                          >
-                            {num !== null ? num : ""}
-                          </motion.div>
-                        ))}
-                      </div>
-                      <p className="cardNumber">
-                        {getCurrentDate()}-{card.cardTitle}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      style={{
-                        padding: "20px",
-                        textAlign: "center",
-                        color: "var(--primary-color)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "30px",
-                          height: "30px",
-                          border: "3px solid var(--primary-color)",
-                          borderTopColor: "transparent",
-                          borderRadius: "50%",
-                          margin: "0 auto 10px",
-                          animation: "spin 1s linear infinite",
-                        }}
-                      />
-                      <p style={{ fontSize: "14px" }}>A carregar cartão {index + 1}...</p>
-                    </motion.div>
-                  )}
+                      {num !== null ? num : ""}
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </motion.div>
+                <p className="cardNumber">
+                  {getCurrentDate()}-{card.cardTitle}
+                </p>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
