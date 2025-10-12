@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 'use client';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Link } from '../routing';
 import styles from './Navbar.module.css';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSelector } from './LanguageSelector';

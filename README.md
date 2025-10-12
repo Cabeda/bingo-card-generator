@@ -9,6 +9,13 @@ A modern web application for generating, managing, and playing bingo games. Buil
 
 ## ✨ Features
 
+### 🌍 Internationalization
+
+- **Multi-language Support**: Available in English, Portuguese, Spanish, and French
+- **Language Selector**: Easy-to-use dropdown in the navigation bar
+- **Persistent Preference**: Language selection is saved in localStorage
+- **Localized TTS**: Text-to-speech announces numbers in the selected language
+
 ### 🎴 Card Generation
 
 - **Generate Random Bingo Cards**: Create multiple bingo cards with configurable quantities
@@ -188,6 +195,10 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for de
 - Our code style and standards
 - How to submit pull requests
 - Testing requirements
+
+### 🌍 Adding Translations
+
+To add a new language or update existing translations, see [docs/I18N.md](./docs/I18N.md) for detailed instructions.
 
 ## 📄 License
 
