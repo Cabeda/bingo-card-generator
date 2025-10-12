@@ -40,7 +40,7 @@ Cards follow traditional bingo rules:
 ### Prerequisites
 
 - Node.js 18.x or higher
-- npm, yarn, pnpm, or bun package manager
+- bun package manager
 
 ### Installation
 
@@ -52,20 +52,12 @@ cd bingo-card-generator
 
 2. Install dependencies:
 ```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
+bun install
 ```
 
 3. Run the development server:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+bun run dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
@@ -73,8 +65,8 @@ pnpm dev
 ### Building for Production
 
 ```bash
-npm run build
-npm run start
+bun run build
+bun run start
 ```
 
 ## 🛠️ Technology Stack
@@ -118,12 +110,12 @@ bingo-card-generator/
 ### Available Scripts
 
 ```bash
-npm run dev        # Start development server
-npm run build      # Build for production
-npm run start      # Start production server
-npm run lint       # Run ESLint
-npm run lint:fix   # Fix ESLint issues automatically
-npm run test       # Run Jest tests
+bun run dev        # Start development server
+bun run build      # Build for production
+bun run start      # Start production server
+bun run lint       # Run ESLint
+bun run lint:fix   # Fix ESLint issues automatically
+bun test           # Run Jest tests
 ```
 
 ### Testing
@@ -131,8 +123,8 @@ npm run test       # Run Jest tests
 Tests are written using Jest and located alongside the code they test:
 
 ```bash
-npm run test       # Run all tests
-npm run test -- --watch  # Run tests in watch mode
+bun test           # Run all tests
+bun test --watch   # Run tests in watch mode
 ```
 
 ### Code Style
