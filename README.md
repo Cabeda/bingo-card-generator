@@ -1,7 +1,6 @@
 # Bingo Card Generator
 
 ![Test & Build](https://github.com/Cabeda/bingo-card-generator/actions/workflows/test.yml/badge.svg?branch=main)
-![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
 ![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
 ![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
 
@@ -138,6 +137,9 @@ Tests are written using Jest and located alongside the code they test:
 bun test           # Run all tests
 bun test --watch   # Run tests in watch mode
 ```
+
+> **Note:** Tests use Jest through Bun. The `bun test` command runs Jest with the proper
+> configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
 
 ### Code Style
 

@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' bunx jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'",
-    "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'",
-    "test": "jest"
+    "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
@@ -24,6 +26,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.37.0",
     "@tailwindcss/postcss": "^4.1.14",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.7.2",
@@ -31,6 +34,7 @@
     "@types/react-dom": "^19.2.1",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.4",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "markdownlint-cli2": "^0.18.1",

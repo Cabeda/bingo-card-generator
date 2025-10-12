@@ -66,6 +66,9 @@ bun test --watch   # Run tests in watch mode
 bun test --coverage  # Run tests with coverage report
 ```
 
+> **Note:** The project uses Jest through Bun. All test commands are configured in
+> `package.json` to run Jest with the proper Node options for compatibility.
+
 ### Linting
 
 ```bash

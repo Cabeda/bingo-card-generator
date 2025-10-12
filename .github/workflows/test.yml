@@ -28,7 +28,7 @@ jobs:
       run: bun run lint
 
     - name: Run tests with coverage
-      run: bun test --coverage
+      run: NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage
 
     - name: Build application
       run: bun run build
