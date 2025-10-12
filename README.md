@@ -3,6 +3,7 @@
 ![Test & Build](https://github.com/Cabeda/bingo-card-generator/workflows/Test%20&%20Build/badge.svg)
 ![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
 ![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
+![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
 
 A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
 
