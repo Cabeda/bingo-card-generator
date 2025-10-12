@@ -110,12 +110,24 @@ export function FileUpload() {
     setIsGeneratingPDF(true);
     setProgress(0);
     
+    // Save current visible cards state
+    const previousVisibleCards = new Set(visibleCards);
+    
     try {
       const pdf = new jsPDF("p", "pt", "a4");
       const cardsPerPage = bingoPercard; // Use bingoPercard for cards per page
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const totalCards = bingoCards.cards.length;
+      
+      // Make all cards visible for PDF generation
+      const allCards = new Set(
+        Array.from({ length: totalCards }, (_, i) => i)
+      );
+      setVisibleCards(allCards);
+      
+      // Wait for all cards to render in the DOM
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Batch size for parallel processing
       const batchSize = 5;
@@ -184,6 +196,9 @@ export function FileUpload() {
       pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
       setProgress(100);
       
+      // Restore previous visible cards state
+      setVisibleCards(previousVisibleCards);
+      
       // Reset after a short delay
       setTimeout(() => {
         setProgress(0);
@@ -194,6 +209,9 @@ export function FileUpload() {
       alert("Erro ao gerar PDF. Por favor, tente novamente.");
       setIsGeneratingPDF(false);
       setProgress(0);
+      
+      // Restore previous visible cards state even on error
+      setVisibleCards(previousVisibleCards);
     }
   };
 
