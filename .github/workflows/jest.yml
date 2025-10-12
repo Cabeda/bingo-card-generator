@@ -24,3 +24,10 @@ jobs:
 
     - name: Run Jest tests
       run: bun test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        fail_ci_if_error: true

@@ -1,5 +1,7 @@
 # Bingo Card Generator
 
+[![codecov](https://codecov.io/gh/Cabeda/bingo-card-generator/branch/main/graph/badge.svg)](https://codecov.io/gh/Cabeda/bingo-card-generator)
+
 A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
 
 ## ✨ Features
