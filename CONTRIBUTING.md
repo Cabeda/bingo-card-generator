@@ -66,6 +66,9 @@ bun test --watch   # Run tests in watch mode
 bun test --coverage  # Run tests with coverage report
 ```
 
+> **Note:** The project uses Jest through Bun. All test commands are configured in
+> `package.json` to run Jest with the proper Node options for compatibility.
+
 ### Linting
 
 ```bash
@@ -255,6 +258,7 @@ Place test files next to the code they test:
 4. **Run linting** and fix any issues: `bun run lint:fix`
 5. **Build the project** to ensure no build errors: `bun run build`
 6. **Update the README** if you've added features or changed usage
+7. **Update the CHANGELOG.md** under the `[Unreleased]` section with your changes
 
 ### PR Guidelines
 

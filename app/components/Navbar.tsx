@@ -2,6 +2,8 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { Link } from '../routing';
+import React from 'react';
+import Link from 'next/link';
 import styles from './Navbar.module.css';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSelector } from './LanguageSelector';
