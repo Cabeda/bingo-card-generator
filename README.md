@@ -44,8 +44,7 @@ Cards follow traditional bingo rules:
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- bun package manager
+- [Bun](https://bun.sh) 1.0 or higher
 
 ### Installation
 

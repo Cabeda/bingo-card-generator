@@ -14,11 +14,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:
@@ -33,7 +28,7 @@ jobs:
     # Note: Vercel automatically deploys from the main branch
     # This workflow serves as a CI check before Vercel deployment
     # If you want to deploy to Vercel from GitHub Actions instead:
-    # 1. Install Vercel CLI: npm i -g vercel
+    # 1. Install Vercel CLI: bun add -g vercel
     # 2. Add VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID to secrets
     # 3. Uncomment and configure the following step:
     #

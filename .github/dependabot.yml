@@ -3,7 +3,7 @@
 
 version: 2
 updates:
-  # Enable version updates for npm (bun uses package.json)
+  # Enable version updates for npm (Bun uses package.json for dependency management)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
