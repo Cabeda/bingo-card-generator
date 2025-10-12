@@ -25,10 +25,10 @@ bun run dev      # Start development server on http://localhost:3000
 bun run build    # Build the production application
 bun run start    # Start the production server
 bun run lint     # Run ESLint checks
-bun test         # Run Jest tests (configured to use bunx jest with proper Node options)
+bun run test     # Run Jest tests (configured to use bunx jest with proper Node options)
 ```
 
-**Note:** The `bun test` command is configured in `package.json` to run
+**Note:** The `bun run test` command is configured in `package.json` to run
 `NODE_OPTIONS='--experimental-vm-modules' bunx jest`, ensuring Jest works correctly with Bun.
 
 ## Code Style and Formatting
@@ -95,7 +95,7 @@ describe('functionName', () => {
 
 ### Running Tests
 
-- Run all tests with `bun test`
+- Run all tests with `bun run test`
 - Tests should pass before committing code
 - Write tests for new functionality before implementing features (TDD approach encouraged)
 

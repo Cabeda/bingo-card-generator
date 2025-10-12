@@ -3,6 +3,33 @@ import { render, screen } from '@testing-library/react';
 import BingoGame from './BingoGame';
 import { Game } from '../utils/bingo.interface';
 
+// Mock next-intl with actual translations
+const translations: Record<string, string> = {
+  'startGame': 'Start Game',
+  'restart': 'Restart',
+  'nextBall': 'Next Ball 🎱',
+  'pressSpace': 'Press Space or Enter',
+  'audio': '🔊 Audio',
+  'tts': '🗣️ Voice',
+  'validateCard': 'Validate Card',
+  'lastBalls': 'Last Balls',
+  'gameInProgress': 'There is already a game in progress. Do you want to start a new one?',
+  'pleaseStartGame': 'Please start the game first.',
+  'allNumbersDrawn': 'All numbers have been drawn.',
+  'pleaseEnterCardNumber': 'Please enter the card number.',
+  'cardNotFound': 'Card not found.',
+  'lineValid': 'Line is valid! 🎉',
+  'lineNotValid': 'Line is not valid.',
+  'bingoValid': '🎉 Bingo! 🎉',
+  'bingoNotValid': 'Bingo is not valid.',
+  'uploadValidFile': 'Please upload a valid .bingoCards file.',
+};
+
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => translations[key] || key,
+  useLocale: () => 'en',
+}));
+
 // Mock motion/react
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 jest.mock('motion/react', () => ({
@@ -49,9 +76,12 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
+// Setup localStorage mock before tests
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+  });
+}
 
 describe('BingoGame', () => {
   beforeEach(() => {
@@ -61,12 +91,12 @@ describe('BingoGame', () => {
 
   it('should render without crashing', () => {
     render(<BingoGame />);
-    expect(screen.getByText(/Iniciar Jogo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Start Game/i)).toBeInTheDocument();
   });
 
   it('should show start game button when no game is loaded', () => {
     render(<BingoGame />);
-    const startButton = screen.getByText(/Iniciar Jogo/i);
+    const startButton = screen.getByText(/Start Game/i);
     expect(startButton).toBeInTheDocument();
   });
 
@@ -131,9 +161,11 @@ describe('BingoGame', () => {
   it('should have audio and TTS controls', () => {
     render(<BingoGame />);
 
-    // Check for audio and TTS labels
-    const elements = screen.getAllByText(/🔊|🗣️|Voz|Som/i);
-    expect(elements.length).toBeGreaterThan(0);
+    // Check for audio and TTS labels using English translations
+    const audioElement = screen.getByText(/🔊 Audio/i);
+    const ttsElement = screen.getByText(/🗣️ Voice/i);
+    expect(audioElement).toBeInTheDocument();
+    expect(ttsElement).toBeInTheDocument();
   });
 
   it('should render balls grid with all numbers 1-89', () => {

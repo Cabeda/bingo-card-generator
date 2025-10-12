@@ -1,6 +1,29 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Navbar from './Navbar';
+
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      'cardGenerator': 'Card Generator',
+      'playGame': 'Play Game',
+    };
+    return translations[key] || key;
+  },
+  useLocale: () => 'en',
+}));
+
+// Mock LanguageSelector component
+jest.mock('./LanguageSelector', () => ({
+  LanguageSelector: () => <div data-testid="language-selector">Language Selector</div>,
+}));
+
+// Mock ThemeToggle component
+jest.mock('./ThemeToggle', () => ({
+  ThemeToggle: () => <div data-testid="theme-toggle">Theme Toggle</div>,
+}));
+
 // Mock routing module
 jest.mock('../routing', () => ({
   Link: ({ children, href }: { children: React.ReactNode; href: string }) => {
@@ -28,15 +51,15 @@ describe('Navbar', () => {
   it('should render navigation links', () => {
     render(<Navbar />);
     
-    expect(screen.getByText('common.cardGenerator')).toBeInTheDocument();
-    expect(screen.getByText('common.playGame')).toBeInTheDocument();
+    expect(screen.getByText('Card Generator')).toBeInTheDocument();
+    expect(screen.getByText('Play Game')).toBeInTheDocument();
   });
 
   it('should have correct href attributes', () => {
     render(<Navbar />);
     
-    const cardGeneratorLink = screen.getByText('common.cardGenerator').closest('a');
-    const playGameLink = screen.getByText('common.playGame').closest('a');
+    const cardGeneratorLink = screen.getByText('Card Generator').closest('a');
+    const playGameLink = screen.getByText('Play Game').closest('a');
     
     expect(cardGeneratorLink).toHaveAttribute('href', '/');
     expect(playGameLink).toHaveAttribute('href', '/game');

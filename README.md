@@ -133,7 +133,7 @@ bun run build      # Build for production
 bun run start      # Start production server
 bun run lint       # Run ESLint
 bun run lint:fix   # Fix ESLint issues automatically
-bun test           # Run Jest tests
+bun run test       # Run Jest tests
 ```
 
 ### Testing
@@ -141,11 +141,12 @@ bun test           # Run Jest tests
 Tests are written using Jest and located alongside the code they test:
 
 ```bash
-bun test           # Run all tests
-bun test --watch   # Run tests in watch mode
+bun run test          # Run all tests
+bun run test:watch    # Run tests in watch mode
+bun run test:coverage # Run tests with coverage report
 ```
 
-> **Note:** Tests use Jest through Bun. The `bun test` command runs Jest with the proper
+> **Note:** Tests use Jest through Bun. The `bun run test` command runs Jest with the proper
 > configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
 
 ### Code Style
