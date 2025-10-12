@@ -156,6 +156,20 @@ h3 {
   gap: 0.25rem; /* Add some gap between cells */
 }
 
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card-placeholder {
+  width: 100%;
+}
+
 /* Navbar styles */
 .navbar {
   background-color: #333;
