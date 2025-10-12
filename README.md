@@ -1,6 +1,6 @@
 # Bingo Card Generator
 
-![Test & Build](https://github.com/Cabeda/bingo-card-generator/workflows/Test%20&%20Build/badge.svg)
+![Test & Build](https://github.com/Cabeda/bingo-card-generator/actions/workflows/test.yml/badge.svg?branch=main)
 ![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
 ![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
 ![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
