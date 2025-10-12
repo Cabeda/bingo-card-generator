@@ -25,5 +25,5 @@ jobs:
       run: bun install
 
     - name: Run Jest tests with coverage
-      run: bun test --coverage
+      run: NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage
 

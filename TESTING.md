@@ -36,6 +36,10 @@ bun run test:watch
 bun run test:coverage
 ```
 
+**Note:** The project uses Jest through Bun. The `bun test` command is configured in
+`package.json` to run `NODE_OPTIONS='--experimental-vm-modules' bunx jest`, which ensures
+Jest runs correctly with Bun's runtime.
+
 ### Coverage Reports
 
 Coverage reports are generated in the `coverage/` directory and include:

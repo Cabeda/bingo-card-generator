@@ -139,6 +139,9 @@ bun test           # Run all tests
 bun test --watch   # Run tests in watch mode
 ```
 
+> **Note:** Tests use Jest through Bun. The `bun test` command runs Jest with the proper
+> configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
+
 ### Code Style
 
 - TypeScript strict mode is enabled
