@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
-import { Card, Game } from "../utils/bingo.interface";
-import { generateBingoCard, parseBingoCards } from "../utils/utils";
+import { Game } from "../utils/bingo.interface";
+import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -42,22 +42,6 @@ export function FileUpload() {
       filename: `${getCurrentDate()}-${eventHeader}`,
       cards: generatedCards,
     });
-  };
-
-  const generateRandomBingoCards = (numberOfCards: number): Card[] => {
-    const generatedCards: Card[] = [];
-    const generatedCardNumbers = new Set<string>();
-
-    for (let i = 0; i < numberOfCards; i++) {
-      let card: Card;
-      do {
-        card = generateBingoCard(`${i + 1}`);
-      } while (generatedCardNumbers.has(card.numbers.toString()));
-      generatedCardNumbers.add(card.numbers.toString());
-      generatedCards.push(card);
-    }
-
-    return generatedCards;
   };
 
   const generatePDF = async () => {

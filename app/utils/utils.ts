@@ -103,6 +103,22 @@ export function generateBingoCard(cardNumber: string): Card {
     };
 }
 
+export function generateRandomBingoCards(numberOfCards: number): Card[] {
+    const generatedCards: Card[] = [];
+    const generatedCardNumbers = new Set<string>();
+
+    for (let i = 0; i < numberOfCards; i++) {
+        let card: Card;
+        do {
+            card = generateBingoCard(`${i + 1}`);
+        } while (generatedCardNumbers.has(card.numbers.toString()));
+        generatedCardNumbers.add(card.numbers.toString());
+        generatedCards.push(card);
+    }
+
+    return generatedCards;
+}
+
 export function parseBingoCards(filename: string, content: string): Game {
     const cards: Card[] = content
         .split('|')
