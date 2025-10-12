@@ -63,6 +63,21 @@ h3 {
   font-weight: normal;
 }
 
+/* Responsive typography for mobile */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.8em;
+  }
+  
+  h2 {
+    font-size: 1.5em;
+  }
+  
+  h3 {
+    font-size: 1.3em;
+  }
+}
+
 .bingo-cell {
   background-color: var(--primary-color);
   border: 0.125rem solid var(--secondary-color); /* Thicker border */
@@ -72,11 +87,35 @@ h3 {
   color: white;
   font-weight: bold;
   min-width: 60px;
+  aspect-ratio: 1;
   border-radius: 0.25rem; /* Slightly rounded corners */
 }
 
 .bingo-cell.empty {
   background-color: var(--background);
+}
+
+/* Responsive bingo cells for mobile */
+@media (max-width: 768px) {
+  .bingo-cell {
+    min-width: 30px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-cell {
+    min-width: 25px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Print styles - maintain fixed layout for PDF */
+@media print {
+  .bingo-cell {
+    min-width: 60px;
+    font-size: 2rem;
+  }
 }
 
 .cardNumber {
@@ -85,11 +124,39 @@ h3 {
   color: var(--foreground);
 }
 
+/* Responsive card number for mobile */
+@media (max-width: 768px) {
+  .cardNumber {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardNumber {
+    font-size: 0.6rem;
+  }
+}
+
+/* Print styles - maintain fixed layout for PDF */
+@media print {
+  .cardNumber {
+    font-size: 0.75rem;
+  }
+}
+
 .file-upload {
   padding: 20px;
   font-family: 'Roboto', sans-serif;
   max-width: 600px; /* Set your desired maximum width */
   width: 100%;
+}
+
+/* Responsive file upload for mobile */
+@media (max-width: 768px) {
+  .file-upload {
+    padding: 10px;
+    max-width: 100%;
+  }
 }
 
 .margin-bottom-20 {
@@ -102,6 +169,14 @@ h3 {
   box-sizing: border-box;
   border: 0.125rem solid var(--primary-color); /* Edgy border */
   border-radius: 0.25rem; /* Slightly rounded corners */
+  min-height: 44px; /* Minimum touch target size for mobile */
+}
+
+/* Responsive input for mobile */
+@media (max-width: 768px) {
+  .input-style {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
 }
 
 .hidden {
@@ -120,11 +195,21 @@ h3 {
   border-radius: 0.25rem; /* Slightly rounded corners */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, transform 0.3s ease;
+  width: 100%;
+  min-height: 44px; /* Minimum touch target size for mobile */
 }
 
 .button-style:hover {
   background-color: var(--secondary-color);
   transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Responsive button for mobile */
+@media (max-width: 768px) {
+  .button-style {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
 }
 
 .progress-bar-container {
@@ -147,6 +232,7 @@ h3 {
   border-radius: 0.25rem;
   border: 0.125rem solid var(--secondary-color);
   width: auto; /* Let the width adjust based on content */
+  max-width: 100%;
 }
 
 .grid-container {
@@ -154,6 +240,43 @@ h3 {
   grid-template-columns: repeat(9, auto);
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
+}
+
+/* Responsive bingo card for mobile */
+@media (max-width: 768px) {
+  .bingo-card {
+    padding: 8px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .grid-container {
+    gap: 0.15rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-card {
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .grid-container {
+    gap: 0.1rem;
+  }
+}
+
+/* Print styles - maintain fixed layout for PDF */
+@media print {
+  .bingo-card {
+    width: auto;
+    padding: 10px;
+  }
+  
+  .grid-container {
+    gap: 0.25rem;
+  }
 }
 
 /* Navbar styles */
@@ -238,4 +361,13 @@ h3 {
   display: grid;
   place-items: center;
   width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* Responsive container for mobile */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 5px;
+  }
 }
