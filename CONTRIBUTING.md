@@ -32,7 +32,7 @@ This project and everyone participating in it is governed by our [Code of Conduc
    ```
 4. **Install dependencies**:
    ```bash
-   npm install
+   bun install
    ```
 
 ## Development Setup
@@ -40,14 +40,14 @@ This project and everyone participating in it is governed by our [Code of Conduc
 ### Prerequisites
 
 - Node.js 18.x or higher
-- npm, yarn, pnpm, or bun
+- bun
 - Git
 - A code editor (VS Code recommended)
 
 ### Running the Development Server
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 The application will be available at [http://localhost:3000](http://localhost:3000).
@@ -55,23 +55,23 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### Running Tests
 
 ```bash
-npm run test           # Run all tests
-npm run test -- --watch  # Run tests in watch mode
-npm run test -- --coverage  # Run tests with coverage report
+bun test           # Run all tests
+bun test --watch   # Run tests in watch mode
+bun test --coverage  # Run tests with coverage report
 ```
 
 ### Linting
 
 ```bash
-npm run lint           # Check for linting errors
-npm run lint:fix       # Automatically fix linting errors
+bun run lint           # Check for linting errors
+bun run lint:fix       # Automatically fix linting errors
 ```
 
 ### Building
 
 ```bash
-npm run build          # Build for production
-npm run start          # Start production server
+bun run build          # Build for production
+bun run start          # Start production server
 ```
 
 ## How to Contribute
@@ -113,8 +113,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 4. **Run tests and linting**:
    ```bash
-   npm run test
-   npm run lint
+   bun test
+   bun run lint
    ```
 
 5. **Commit your changes** with clear, descriptive messages:

@@ -20,11 +20,11 @@ This is a Next.js application for generating and managing bingo cards. The appli
 ## Build, Test, and Lint Commands
 
 ```bash
-npm run dev      # Start development server on http://localhost:3000
-npm run build    # Build the production application
-npm run start    # Start the production server
-npm run lint     # Run ESLint checks
-npm run test     # Run Jest tests
+bun run dev      # Start development server on http://localhost:3000
+bun run build    # Build the production application
+bun run start    # Start the production server
+bun run lint     # Run ESLint checks
+bun test         # Run Jest tests
 ```
 
 ## Code Style and Formatting
@@ -83,7 +83,7 @@ describe('functionName', () => {
 - **Bingo card generation**: Validate card structure, number ranges, and uniqueness
 
 ### Running Tests
-- Run all tests with `npm run test`
+- Run all tests with `bun test`
 - Tests should pass before committing code
 - Write tests for new functionality before implementing features (TDD approach encouraged)
 
@@ -125,7 +125,7 @@ Bingo cards in this application follow specific rules:
 ### Adding New Dependencies
 - Prefer packages already in use when possible
 - Check package popularity and maintenance status
-- Update `package.json` and run `npm install`
+- Update `package.json` and run `bun install`
 - Avoid dependencies with known security vulnerabilities
 
 ### Current Key Dependencies
