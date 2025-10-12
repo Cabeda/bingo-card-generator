@@ -67,7 +67,11 @@ export function FileUpload() {
         if (cardIndex >= totalCards) break;
         const cardRef = cardRefs.current[cardIndex];
         if (cardRef) {
-          const imgDataUrl = await htmlToImage.toPng(cardRef, { quality: 0.3 });
+          const imgDataUrl = await htmlToImage.toPng(cardRef, { 
+            quality: 0.3,
+            skipFonts: true, // Skip font processing to avoid font errors
+            cacheBust: true, // Ensure fresh capture
+          });
           const img = new Image();
           img.src = imgDataUrl;
           await new Promise((resolve) => {
@@ -138,6 +142,7 @@ export function FileUpload() {
             onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
             placeholder="Número de cartões"
             min={1}
+            max={5000}
             className="input-style"
           />
         </div>

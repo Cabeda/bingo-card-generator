@@ -7,6 +7,7 @@
 
 .ball-container.small {
   margin: 5px;
+  position: relative;
 }
 
 .ball {
@@ -30,6 +31,23 @@
   width: 55px;
   height: 55px;
   border-width: 2px;
+}
+
+/* Smooth pulse animation when ball becomes drawn (only for small balls) */
+.ball-container.small .ball.drawn {
+  animation: markDrawn 0.4s ease-out;
+}
+
+@keyframes markDrawn {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .ball-number {

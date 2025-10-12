@@ -1,3 +1,58 @@
+/* Desktop Layout - Side by side with sticky sidebar */
+.desktop_layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Desktop: Side-by-side layout with sticky sidebar */
+@media (min-width: 1024px) {
+  .desktop_layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    min-height: 100vh;
+  }
+
+  .main_content {
+    flex: 1;
+    min-width: 0; /* Allows flexbox to shrink properly */
+  }
+
+  .sidebar {
+    width: 360px;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Smooth scrollbar for sidebar if needed */
+  .sidebar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
 .card_modal {
   min-width: 300px;
   max-width: 90%;
@@ -47,45 +102,28 @@
     grid-template-columns: auto;
     grid-template-rows: repeat(10, 1fr);
     grid-auto-flow: column; 
-    gap: 1px;
+    gap: 5px;
     height: 100%;
     margin: 0 auto;
-    padding: 1px;
-    
+    padding: 10px;
+    max-width: 900px;
 }
 
 .all_numbers {
-    margin: 20px 0;
+    margin: 20px auto;
     text-align: center;
+    position: relative;
 }
 
 .game_controls {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 20px auto;
   max-width: 1200px;
-  padding: 0 20px;
+  padding: 20px;
 }
 
-.control_column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 300px;
-}
-
-.current_number {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-  width: 100%;
-  flex-grow: 1;
-}
 
 .button_row {
   display: flex;
@@ -101,14 +139,259 @@
   white-space: nowrap;
 }
 
+/* Desktop: Stack buttons vertically in sidebar */
+@media (min-width: 1024px) {
+  .button_row {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .button_row button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animation for draw button */
+.draw_button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.draw_button:active {
+  transform: scale(0.95);
+  animation: buttonPress 0.3s ease;
+}
+
+@keyframes buttonPress {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+}
+
+/* Ripple effect on click */
+.draw_button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.draw_button:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Pulse effect when ready */
+.draw_button:hover:not(.disabled) {
+  animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(255, 0, 127, 0.4);
+  }
+}
+
+/* Disabled state during animation */
+.draw_button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 @media (max-width: 768px) {
   .game_controls {
-    grid-template-columns: 1fr;
+    padding: 10px;
   }
 
   .button_row {
     flex-direction: column;
     align-items: stretch;
   }
+
+  .button_row button {
+    width: 100%;
+  }
+  
+  .numbers_grid {
+    gap: 3px;
+    padding: 5px;
+  }
+
+  .recent_list {
+    justify-content: center;
+  }
+
+  .validation_controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card_input {
+    width: 100%;
+  }
+}
+
+/* Recent Numbers */
+.recent_numbers {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Desktop: Remove bottom margin in sidebar */
+@media (min-width: 1024px) {
+  .recent_numbers {
+    margin-bottom: 0;
+  }
+}
+
+.recent_numbers h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recent_list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.recent_number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  min-width: 40px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Settings Row */
+.settings_row {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+/* Desktop: Adjust settings layout in sidebar */
+@media (min-width: 1024px) {
+  .settings_row {
+    margin: 0;
+    justify-content: space-around;
+  }
+}
+
+.setting_item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.setting_item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Validation Panel */
+.validation_panel {
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Desktop: Remove top margin in sidebar */
+@media (min-width: 1024px) {
+  .validation_panel {
+    margin-top: 0;
+  }
+}
+
+.validation_panel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #334155;
+}
+
+.validation_controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Desktop: Stack validation controls vertically */
+@media (min-width: 1024px) {
+  .validation_controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .validation_controls button {
+    width: 100%;
+  }
+}
+
+.card_input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 150px;
+  transition: border-color 0.2s;
+}
+
+/* Desktop: Full width input in sidebar */
+@media (min-width: 1024px) {
+  .card_input {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+.card_input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.card_input::placeholder {
+  color: #94a3b8;
+}
+
+.validation_controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
