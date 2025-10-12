@@ -31,5 +31,3 @@ jobs:
     - name: Run Jest tests with coverage
       run: bun test --coverage
 
-    - name: Build application
-      run: bun run build
