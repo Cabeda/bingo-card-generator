@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from './Navbar.module.css';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Navbar() {
   return (
@@ -17,6 +18,9 @@ export default function Navbar() {
           <Link href="/game" className={styles.navLink}>
             Play Game
           </Link>
+        </li>
+        <li className={styles.navItem}>
+          <ThemeToggle />
         </li>
       </ul>
     </nav>

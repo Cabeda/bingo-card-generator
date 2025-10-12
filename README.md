@@ -1,21 +1,29 @@
 # Bingo Card Generator
 
+![Test & Build](https://github.com/Cabeda/bingo-card-generator/actions/workflows/test.yml/badge.svg?branch=main)
+![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
+![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
+![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
+
 A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
 
 ## ✨ Features
 
 ### 🎴 Card Generation
+
 - **Generate Random Bingo Cards**: Create multiple bingo cards with configurable quantities
 - **Customizable Events**: Add custom headers/event names to your cards
-- **Export Options**: 
+- **Export Options**:
   - Export cards to PDF format with customizable cards-per-page layout
   - Export to custom `.bingoCards` format for later use
 
 ### 📤 Import & Upload
+
 - **File Upload**: Upload previously saved `.bingoCards` files
 - **Parse and Display**: Automatically parse and display uploaded bingo cards
 
 ### 🎮 Play Mode
+
 - **Interactive Game**: Play bingo games with generated or uploaded cards
 - **Number Drawing**: Randomly draw numbers from 1-89
 - **Game State Persistence**: Game progress is saved in browser localStorage
@@ -24,7 +32,9 @@ A modern web application for generating, managing, and playing bingo games. Buil
 - **Game Controls**: Start new games, draw numbers, restart, and validate winners
 
 ### 🎯 Bingo Card Rules
+
 Cards follow traditional bingo rules:
+
 - 3 rows × 9 columns (27 cells total)
 - Each row has exactly 5 numbers and 4 empty cells
 - Each column has at least 1 number
@@ -39,28 +49,30 @@ Cards follow traditional bingo rules:
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- bun package manager
+- [Bun](https://bun.sh) 1.0 or higher
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Cabeda/bingo-card-generator.git
 cd bingo-card-generator
 ```
 
-2. Install dependencies:
+1. Install dependencies:
+
 ```bash
 bun install
 ```
 
-3. Run the development server:
+1. Run the development server:
+
 ```bash
 bun run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+1. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ### Building for Production
 
@@ -80,7 +92,7 @@ bun run start
 
 ## 📁 Project Structure
 
-```
+```text
 bingo-card-generator/
 ├── app/
 │   ├── components/       # React components
@@ -157,11 +169,13 @@ bun test --watch   # Run tests in watch mode
 ### File Format
 
 The `.bingoCards` format structure:
-```
+
+```text
 |CardNo.1;number1;number2;...;number27|CardNo.2;number1;...
 ```
 
 Each card entry:
+
 - Starts with `|CardNo.{number}`
 - Followed by 27 numbers (or `null` for empty cells) separated by `;`
 - Numbers represent a 3×9 grid (row-major order)
@@ -169,6 +183,7 @@ Each card entry:
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details on:
+
 - How to set up your development environment
 - Our code style and standards
 - How to submit pull requests

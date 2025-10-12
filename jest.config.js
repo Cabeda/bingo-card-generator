@@ -7,28 +7,17 @@ module.exports = {
   },
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react',
-      },
-    }],
+    '^.+\\.tsx?$': 'ts-jest'
   },
-  collectCoverageFrom: [
-    'app/**/*.{ts,tsx}',
-    '!app/**/*.d.ts',
-    '!app/**/*.test.{ts,tsx}',
-    '!app/**/*.spec.{ts,tsx}',
-    '!app/layout.tsx',
-    '!app/page.tsx',
-    '!app/game/page.tsx',
-    '!app/utils/benchmark.ts'
-  ],
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
   coverageThreshold: {
     global: {
-      branches: 40,
-      functions: 42,
-      lines: 46,
-      statements: 47
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     }
   }
 };

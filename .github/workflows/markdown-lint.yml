@@ -1,13 +1,9 @@
-name: Run Jest Tests
+name: Lint Markdown
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  test:
+  markdown-lint:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -24,6 +20,5 @@ jobs:
     - name: Install dependencies
       run: bun install
 
-    - name: Run Jest tests with coverage
-      run: bun test --coverage
-
+    - name: Lint Markdown
+      run: bun run lint:md

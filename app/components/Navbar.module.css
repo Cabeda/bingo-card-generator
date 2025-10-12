@@ -1,5 +1,5 @@
 .navbar {
-  background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: var(--navbar-bg);
   padding: 1rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   position: sticky;
@@ -8,6 +8,7 @@
   right: 0;
   width: 100%;
   z-index: 100;
+  transition: background 0.3s ease;
 }
 
 .navList {
@@ -16,10 +17,15 @@
   padding: 0;
   display: flex;
   gap: 2rem;
+  align-items: center;
 }
 
 .navItem {
   position: relative;
+}
+
+.navItem:last-child {
+  margin-left: auto;
 }
 
 .navLink {
@@ -53,6 +59,10 @@
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+  
   .navList {
     gap: 1rem;
   }

@@ -39,10 +39,12 @@ bun run test:coverage
 ### Coverage Reports
 
 Coverage reports are generated in the `coverage/` directory and include:
+
 - HTML report: `coverage/lcov-report/index.html`
 - Terminal summary when running with `--coverage`
 
 Current coverage thresholds:
+
 - Statements: 47%
 - Branches: 40%
 - Functions: 42%
@@ -51,6 +53,7 @@ Current coverage thresholds:
 ## Test Structure
 
 Tests are co-located with the code they test:
+
 - `app/utils/utils.test.ts` - Tests for utility functions
 - `app/components/*.test.tsx` - Tests for React components
 
@@ -146,11 +149,13 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 ## Test Coverage by Component
 
 ### Fully Tested (100%)
+
 - ✅ Navbar component
 - ✅ ViewTransition component
 - ✅ utils.ts (98%)
 
 ### Partially Tested
+
 - ⚠️ Ball component (56%)
 - ⚠️ FileUpload component (39%)
 - ⚠️ BingoGame component (23%)
@@ -158,6 +163,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 ### Areas for Improvement
 
 **BingoGame Component:**
+
 - Draw number functionality
 - Card validation logic
 - Win condition checking
@@ -165,12 +171,14 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 - Modal interactions
 
 **FileUpload Component:**
+
 - PDF generation flow
 - File upload and parsing
 - Progress tracking
 - Error handling
 
 **Ball Component:**
+
 - Animation state management
 - User interaction with drawn balls
 
@@ -196,6 +204,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 ## Continuous Integration
 
 Tests are run automatically on:
+
 - Every pull request
 - Every commit to main branch
 - Before production deployments
@@ -205,16 +214,20 @@ Tests are run automatically on:
 ### Common Issues
 
 **"Cannot find module" errors:**
+
 - Ensure `moduleNameMapper` in `jest.config.js` includes the missing extension
 - Check that the import path is correct
 
 **"ReferenceError: localStorage is not defined":**
+
 - Add localStorage mock in test setup or individual test file
 
 **"React does not recognize the prop on a DOM element":**
+
 - Mock the component library properly (e.g., motion/react props)
 
 **Tests timing out:**
+
 - Check for unresolved promises
 - Ensure async operations are properly awaited
 - Increase timeout in jest.config.js if needed
