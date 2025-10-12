@@ -34,10 +34,10 @@ describe('Navbar', () => {
     expect(container.querySelector('nav')).toBeInTheDocument();
   });
 
-  it('should render two navigation items', () => {
+  it('should render three navigation items (two links + theme toggle)', () => {
     const { container } = render(<Navbar />);
     
     const navItems = container.querySelectorAll('li');
-    expect(navItems).toHaveLength(2);
+    expect(navItems).toHaveLength(3);
   });
 });
