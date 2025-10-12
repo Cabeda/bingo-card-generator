@@ -177,5 +177,80 @@ describe('BingoGame', () => {
       expect(ball).toBeInTheDocument();
     }
   });
+
+  // Internationalization tests
+  describe('Internationalization', () => {
+    it('should render translated "Start Game" button text', () => {
+      render(<BingoGame />);
+      expect(screen.getByText('Start Game')).toBeInTheDocument();
+    });
+
+    it('should render translated "Restart" button when game is loaded', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      expect(screen.getByText('Restart')).toBeInTheDocument();
+      localStorageMock.clear();
+    });
+
+    it('should render translated audio control label', () => {
+      render(<BingoGame />);
+      expect(screen.getByText(/🔊 Audio/i)).toBeInTheDocument();
+    });
+
+    it('should render translated TTS control label', () => {
+      render(<BingoGame />);
+      expect(screen.getByText(/🗣️ Voice/i)).toBeInTheDocument();
+    });
+
+    it('should render translated "Validate Card" heading', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      expect(screen.getByText('Validate Card')).toBeInTheDocument();
+      localStorageMock.clear();
+    });
+
+    it('should render translated button text for "Next Ball"', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      expect(screen.getByText(/Next Ball/i)).toBeInTheDocument();
+      localStorageMock.clear();
+    });
+  });
 });
 

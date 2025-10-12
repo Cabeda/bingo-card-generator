@@ -77,4 +77,41 @@ describe('Navbar', () => {
     const navItems = container.querySelectorAll('li');
     expect(navItems).toHaveLength(4);
   });
+
+  // Internationalization tests
+  describe('Internationalization', () => {
+    it('should render LanguageSelector component', () => {
+      render(<Navbar />);
+      expect(screen.getByTestId('language-selector')).toBeInTheDocument();
+    });
+
+    it('should render translated "Card Generator" link text', () => {
+      render(<Navbar />);
+      const link = screen.getByText('Card Generator');
+      expect(link).toBeInTheDocument();
+      expect(link.closest('a')).toHaveAttribute('href', '/');
+    });
+
+    it('should render translated "Play Game" link text', () => {
+      render(<Navbar />);
+      const link = screen.getByText('Play Game');
+      expect(link).toBeInTheDocument();
+      expect(link.closest('a')).toHaveAttribute('href', '/game');
+    });
+
+    it('should have both translated navigation links in correct order', () => {
+      render(<Navbar />);
+      const cardGeneratorLink = screen.getByText('Card Generator');
+      const playGameLink = screen.getByText('Play Game');
+      
+      expect(cardGeneratorLink).toBeInTheDocument();
+      expect(playGameLink).toBeInTheDocument();
+    });
+
+    it('should render ThemeToggle alongside language selector', () => {
+      render(<Navbar />);
+      expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+      expect(screen.getByTestId('language-selector')).toBeInTheDocument();
+    });
+  });
 });

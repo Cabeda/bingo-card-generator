@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useLocale } from 'next-intl';
 import { type Locale, routing, usePathname, useRouter } from '../routing';
 import styles from './LanguageSelector.module.css';
