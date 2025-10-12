@@ -1,10 +1,12 @@
+import { CardId, GameId } from './types';
+
 export interface Card {
-  cardTitle: string;
+  cardTitle: CardId;
   cardNumber: number;
   numbers: (number | null)[];
 }
 
 export interface Game {
-  filename: string;
+  filename: GameId;
   cards: Card[];
 }

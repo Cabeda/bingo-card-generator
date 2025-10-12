@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styles from './Navbar.module.css';
 import { ThemeToggle } from './ThemeToggle';
 
-export default function Navbar() {
+export default function Navbar(): React.JSX.Element {
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navList}>

@@ -3,12 +3,19 @@ import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { Game } from "../utils/bingo.interface";
 import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
+import { 
+  CardsPerPage, 
+  QualityLevel, 
+  isValidCardsPerPage, 
+  getQualityValue,
+  createGameId 
+} from "../utils/types";
 
-export function FileUpload() {
+export function FileUpload(): React.JSX.Element {
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
-  const [bingoPercard, setBingoPercard] = useState<number>(2); // New state for bingoPercard
+  const [bingoPercard, setBingoPercard] = useState<CardsPerPage>(2);
   const [eventHeader, setEventHeader] = useState<string>(
     `Magusto ${new Date().getFullYear()}`
   );
@@ -20,7 +27,7 @@ export function FileUpload() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const selectedFile = event.target.files?.[0];
 
     if (selectedFile && selectedFile.name.endsWith(".bingoCards")) {
@@ -38,12 +45,12 @@ export function FileUpload() {
     }
   };
 
-  const handleGenerateRandomCards = () => {
+  const handleGenerateRandomCards = (): void => {
     setIsGenerating(true);
     
     const generatedCards = generateRandomBingoCards(numCards);
     setBingoCards({
-      filename: `${getCurrentDate()}-${eventHeader}`,
+      filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
       cards: generatedCards,
     });
     setIsGenerating(false);
@@ -57,7 +64,7 @@ export function FileUpload() {
     []
   );
 
-  const generatePDF = async () => {
+  const generatePDF = async (): Promise<void> => {
     if (!bingoCards) return;
     
     setIsGeneratingPDF(true);
@@ -76,7 +83,7 @@ export function FileUpload() {
       // Batch size for parallel processing
       const batchSize = 100; // Increased from 5 to 10 for faster processing
       const imgOptions = {
-        quality: 0.7, // Reduced from 1 to 0.95 for faster processing with minimal quality loss
+        quality: getQualityValue(QualityLevel.MEDIUM), // Use QualityLevel enum
         pixelRatio: 2, // Use 2x pixel ratio for crisp images
         skipFonts: true,
         cacheBust: false, // Disable cache busting for speed
@@ -167,7 +174,7 @@ export function FileUpload() {
     }
   };
 
-  const getCurrentDate = () => {
+  const getCurrentDate = (): string => {
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -177,7 +184,7 @@ export function FileUpload() {
     return `${year}${month}${day}-${hours}${minutes}`;
   };
 
-  const exportBingoGame = () => {
+  const exportBingoGame = (): void => {
     if (!bingoCards) return;
 
     const content = bingoCards.cards
@@ -219,7 +226,12 @@ export function FileUpload() {
           <input
             type="range"
             value={bingoPercard}
-            onChange={(e) => setBingoPercard(parseInt(e.target.value, 10))}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (isValidCardsPerPage(value)) {
+                setBingoPercard(value);
+              }
+            }}
             min={1}
             max={3}
             step={1}

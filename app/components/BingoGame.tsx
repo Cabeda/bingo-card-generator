@@ -7,7 +7,7 @@ import { parseBingoCards } from "../utils/utils";
 import Ball from "./Ball";
 import styles from './BingoGame.module.css';
 
-export default function BingoGame() {
+export default function BingoGame(): React.JSX.Element {
   const [bingoGame, setBingoGame] = useState<Game | null>(null);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [modalMessage, setModalMessage] = useState("");
@@ -36,19 +36,19 @@ export default function BingoGame() {
     }
   }, []); // Added to initialize for localStorage
 
-  const showModal = (message: string, onConfirm?: () => void) => {
+  const showModal = (message: string, onConfirm?: () => void): void => {
     setModalMessage(message);
     setIsModalOpen(true);
     setConfirmAction(() => onConfirm || null);
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = (): void => {
     setIsModalOpen(false);
     setModalMessage("");
     setConfirmAction(null);
   };
 
-  const handleStartGame = () => {
+  const handleStartGame = (): void => {
     if (bingoGame) {
       showModal(
         "Já existe um jogo em curso. Queres começar um novo?",
@@ -61,7 +61,7 @@ export default function BingoGame() {
     startNewGame();
   };
 
-  const startNewGame = () => {
+  const startNewGame = (): void => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".bingoCards";
@@ -90,7 +90,7 @@ export default function BingoGame() {
     input.click();
   };
 
-  const handleRestartGame = () => {
+  const handleRestartGame = (): void => {
     setDrawnNumbers([]);
     localStorage.removeItem("drawnNumbers");
   };
@@ -177,7 +177,7 @@ export default function BingoGame() {
 
   // Keyboard shortcuts - must be after handleDrawNumber is defined
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyPress = (e: KeyboardEvent): void => {
       // Space or Enter to draw next ball
       if ((e.key === ' ' || e.key === 'Enter') && !isAnimating && bingoGame) {
         e.preventDefault();
@@ -188,7 +188,7 @@ export default function BingoGame() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isAnimating, bingoGame, handleDrawNumber]);
 
-  const handleCheckLine = (cardNumberInput?: string) => {
+  const handleCheckLine = (cardNumberInput?: string): void => {
     const cardNumber = cardNumberInput || cardToValidate;
     if (!cardNumber || !bingoGame) {
       showModal("Por favor insira o número do cartão.");
@@ -214,7 +214,7 @@ export default function BingoGame() {
     }
   };
 
-  const handleCheckBingo = (cardNumberInput?: string) => {
+  const handleCheckBingo = (cardNumberInput?: string): void => {
     const cardNumber = cardNumberInput || cardToValidate;
     if (!cardNumber || !bingoGame) {
       showModal("Por favor insira o número do cartão.");
