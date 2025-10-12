@@ -4,6 +4,36 @@ import * as htmlToImage from "html-to-image";
 import { Game } from "../utils/bingo.interface";
 import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
 
+/**
+ * FileUpload component for managing bingo card generation and export.
+ * 
+ * This component provides a complete interface for:
+ * - Uploading and parsing `.bingoCards` files
+ * - Generating random bingo cards with customizable quantities
+ * - Exporting cards to PDF format with customizable layout
+ * - Exporting cards to `.bingoCards` format for reuse
+ * - Configuring event details (header, location, cards per page)
+ * 
+ * **Features:**
+ * - Real-time card preview
+ * - PDF generation with progress tracking
+ * - Batch image processing for efficient PDF creation
+ * - Responsive card layout
+ * 
+ * @example
+ * ```tsx
+ * // Used in the main page
+ * import { FileUpload } from './components/FileUpload';
+ * 
+ * export default function Home() {
+ *   return <FileUpload />;
+ * }
+ * ```
+ * 
+ * @component
+ * @see {@link parseBingoCards} for file parsing logic
+ * @see {@link generateRandomBingoCards} for card generation
+ */
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
@@ -20,6 +50,26 @@ export function FileUpload() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  /**
+   * Handles file selection and parsing of `.bingoCards` files.
+   * 
+   * Validates that the selected file has the `.bingoCards` extension,
+   * then reads and parses it using the FileReader API. Successfully
+   * parsed cards are stored in component state for display and export.
+   * 
+   * @param event - React change event from file input element
+   * 
+   * @example
+   * ```tsx
+   * <input
+   *   type="file"
+   *   accept=".bingoCards"
+   *   onChange={handleFileChange}
+   * />
+   * ```
+   * 
+   * @see {@link parseBingoCards} for the parsing logic
+   */
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
 
@@ -38,6 +88,22 @@ export function FileUpload() {
     }
   };
 
+  /**
+   * Generates a specified number of random bingo cards.
+   * 
+   * Creates new cards using the current configuration (number of cards,
+   * event header) and stores them in component state. Shows a loading
+   * indicator during generation.
+   * 
+   * @example
+   * ```tsx
+   * <button onClick={handleGenerateRandomCards}>
+   *   Generate Bingo Cards
+   * </button>
+   * ```
+   * 
+   * @see {@link generateRandomBingoCards} for card generation logic
+   */
   const handleGenerateRandomCards = () => {
     setIsGenerating(true);
     
@@ -57,6 +123,39 @@ export function FileUpload() {
     []
   );
 
+  /**
+   * Generates a PDF document containing all bingo cards with optimized performance.
+   * 
+   * This function creates a professional PDF with:
+   * - Configurable cards per page (1-3 cards)
+   * - Event header at the top of each page
+   * - Location footer at the bottom of each page
+   * - Progress tracking for long operations
+   * 
+   * **Performance Optimization:**
+   * - Converts cards to images in parallel batches (100 cards at a time)
+   * - Uses reduced quality (0.7) for faster processing
+   * - Shows real-time progress updates (0-80% conversion, 80-100% assembly)
+   * - Typically processes 1000+ cards in under a few seconds
+   * 
+   * **Process:**
+   * 1. Convert all card DOM elements to PNG images in batches
+   * 2. Add images to PDF pages with proper layout
+   * 3. Add headers and footers to each page
+   * 4. Save the final PDF file
+   * 
+   * @async
+   * @throws {Error} If PDF generation fails or DOM elements are unavailable
+   * 
+   * @example
+   * ```tsx
+   * <button onClick={generatePDF} disabled={isGeneratingPDF}>
+   *   Generate PDF
+   * </button>
+   * ```
+   * 
+   * @see {@link htmlToImage.toPng} for DOM-to-image conversion
+   */
   const generatePDF = async () => {
     if (!bingoCards) return;
     
@@ -167,6 +266,27 @@ export function FileUpload() {
     }
   };
 
+  /**
+   * Generates a formatted date-time string for file naming.
+   * 
+   * Creates a timestamp in the format: `YYYYMMDD-HHMM`
+   * This format is:
+   * - Sortable (chronological ordering)
+   * - Filesystem-safe (no special characters)
+   * - Human-readable
+   * - Suitable for use in filenames
+   * 
+   * @returns Formatted date-time string (e.g., "20241225-1430")
+   * 
+   * @example
+   * ```typescript
+   * const timestamp = getCurrentDate();
+   * console.log(timestamp); // "20241225-1430"
+   * 
+   * const filename = `${timestamp}-${eventName}.pdf`;
+   * // Result: "20241225-1430-Christmas-Bingo.pdf"
+   * ```
+   */
   const getCurrentDate = () => {
     const date = new Date();
     const year = date.getFullYear();
@@ -177,6 +297,32 @@ export function FileUpload() {
     return `${year}${month}${day}-${hours}${minutes}`;
   };
 
+  /**
+   * Exports the current bingo game to a `.bingoCards` file.
+   * 
+   * Creates a downloadable file in the custom `.bingoCards` format:
+   * - Cards are separated by pipe (`|`) characters
+   * - Each card format: `|CardNo.{number};{num1};{num2};...`
+   * - Empty cells are represented by empty strings between semicolons
+   * - File is saved with UTF-8 encoding
+   * 
+   * The exported file can be re-imported later to restore the exact
+   * same set of cards.
+   * 
+   * @example
+   * ```tsx
+   * <button onClick={exportBingoGame}>
+   *   Export to .bingoCards
+   * </button>
+   * ```
+   * 
+   * **File format example:**
+   * ```
+   * |CardNo.1;1;;3;;5;6;;8;9;10;...|CardNo.2;2;11;;23;...
+   * ```
+   * 
+   * @see {@link parseBingoCards} for importing these files
+   */
   const exportBingoGame = () => {
     if (!bingoCards) return;
 
