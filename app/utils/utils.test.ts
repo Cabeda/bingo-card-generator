@@ -1,4 +1,4 @@
-import { generateBingoCard, parseBingoCards, generateRandomBingoCards } from './utils';
+import { generateBingoCard, generateRandomBingoCards, parseBingoCards } from './utils';
 import { Card, Game } from './bingo.interface';
 
 describe('generateBingoCard', () => {

@@ -25,4 +25,18 @@ export default defineConfig([
         ]
     },
     ...compat.extends("next/core-web-vitals", "next/typescript"),
+    {
+        rules: {
+            'sort-imports': [
+                'error',
+                {
+                    ignoreCase: true,
+                    ignoreDeclarationSort: true,
+                    ignoreMemberSort: false,
+                    memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+                    allowSeparatedGroups: true
+                }
+            ]
+        }
+    }
 ]);

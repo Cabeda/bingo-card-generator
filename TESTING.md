@@ -27,7 +27,7 @@ Tests are configured in `jest.config.js` with the following key settings:
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run tests in watch mode (for development)
 bun run test:watch
@@ -36,7 +36,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-**Note:** The project uses Jest through Bun. The `bun test` command is configured in
+**Note:** The project uses Jest through Bun. The `bun run test` command is configured in
 `package.json` to run `NODE_OPTIONS='--experimental-vm-modules' bunx jest`, which ensures
 Jest runs correctly with Bun's runtime.
 

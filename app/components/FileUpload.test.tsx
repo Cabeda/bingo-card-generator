@@ -1,7 +1,35 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FileUpload } from './FileUpload';
 import { generateRandomBingoCards, parseBingoCards } from '../utils/utils';
+
+// Mock next-intl with translations
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      'title': 'Bingo Card Generator',
+      'numCards': 'Number of Cards',
+      'numCardsPlaceholder': 'Number of cards',
+      'cardsPerPage': 'Cards per Page',
+      'eventName': 'Event Name',
+      'eventNamePlaceholder': 'Event Name',
+      'location': 'Location',
+      'locationPlaceholder': 'Location',
+      'uploadFile': 'Upload .bingoCards File:',
+      'selectedFile': 'Selected file: {filename}',
+      'generateCards': 'Generate Bingo Cards',
+      'generating': 'Generating cards...',
+      'bingoCards': 'Bingo Cards',
+      'exportBingoCards': 'Generate .bingoCards',
+      'generatePdf': 'Generate PDF',
+      'generatingPdf': 'Generating PDF... {progress}%',
+      'errorGeneratingPdf': 'Error generating PDF. Please try again.',
+      'uploadError': 'Please upload a file with the .bingoCards extension.',
+    };
+    return translations[key] || key;
+  },
+  useLocale: () => 'en',
+}));
 
 // Mock jsPDF
 jest.mock('jspdf', () => {
@@ -56,19 +84,19 @@ describe('FileUpload', () => {
 
   it('should render without crashing', () => {
     render(<FileUpload />);
-    expect(screen.getByText(/Gerar cartões de Bingo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Generate Bingo Cards/i)).toBeInTheDocument();
   });
 
   it('should have input for number of cards', () => {
     render(<FileUpload />);
-    const input = screen.getByPlaceholderText(/Número de cartões/i);
+    const input = screen.getByPlaceholderText(/Number of cards/i);
     expect(input).toBeInTheDocument();
     expect(input).toHaveValue(10); // Default value
   });
 
   it('should update card count when input changes', () => {
     render(<FileUpload />);
-    const input = screen.getByPlaceholderText(/Número de cartões/i) as HTMLInputElement;
+    const input = screen.getByPlaceholderText(/Number of cards/i) as HTMLInputElement;
     
     fireEvent.change(input, { target: { value: '20' } });
     
@@ -83,20 +111,20 @@ describe('FileUpload', () => {
 
   it('should have input for event header', () => {
     render(<FileUpload />);
-    const input = screen.getByPlaceholderText(/Event Header/i);
+    const input = screen.getByPlaceholderText(/Event Name/i);
     expect(input).toBeInTheDocument();
   });
 
   it('should have input for location footer', () => {
     render(<FileUpload />);
-    const input = screen.getByPlaceholderText(/Location Footer/i);
+    const input = screen.getByPlaceholderText(/Location/i);
     expect(input).toBeInTheDocument();
   });
 
   it('should generate cards when button is clicked', () => {
     render(<FileUpload />);
     
-    const generateButton = screen.getByText(/Gerar cartões de Bingo/i);
+    const generateButton = screen.getByText(/Generate Bingo Cards/i);
     fireEvent.click(generateButton);
     
     expect(mockGenerateRandomBingoCards).toHaveBeenCalledWith(10);
@@ -105,10 +133,10 @@ describe('FileUpload', () => {
   it('should update number of cards to generate', () => {
     render(<FileUpload />);
     
-    const input = screen.getByPlaceholderText(/Número de cartões/i) as HTMLInputElement;
+    const input = screen.getByPlaceholderText(/Number of cards/i) as HTMLInputElement;
     fireEvent.change(input, { target: { value: '25' } });
     
-    const generateButton = screen.getByText(/Gerar cartões de Bingo/i);
+    const generateButton = screen.getByText(/Generate Bingo Cards/i);
     fireEvent.click(generateButton);
     
     expect(mockGenerateRandomBingoCards).toHaveBeenCalledWith(25);
@@ -117,11 +145,11 @@ describe('FileUpload', () => {
   it('should show export buttons after generating cards', () => {
     render(<FileUpload />);
     
-    const generateButton = screen.getByText(/Gerar cartões de Bingo/i);
+    const generateButton = screen.getByText(/Generate Bingo Cards/i);
     fireEvent.click(generateButton);
     
-    expect(screen.getByText(/Gerar PDF/i)).toBeInTheDocument();
-    expect(screen.getByText(/Gerar .bingoCards/i)).toBeInTheDocument();
+    expect(screen.getByText(/Generate PDF/i)).toBeInTheDocument();
+    expect(screen.getByText(/Generate .bingoCards/i)).toBeInTheDocument();
   });
 
   it('should validate file upload format', () => {
@@ -165,18 +193,18 @@ describe('FileUpload', () => {
     render(<FileUpload />);
     
     // Before generating cards, export buttons should not be visible
-    expect(screen.queryByText(/Gerar PDF/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Generate PDF/i)).not.toBeInTheDocument();
   });
 
   it('should show progress during PDF generation', async () => {
     render(<FileUpload />);
     
     // Generate cards first
-    const generateButton = screen.getByText(/Gerar cartões de Bingo/i);
+    const generateButton = screen.getByText(/Generate Bingo Cards/i);
     fireEvent.click(generateButton);
     
     // Now try to export to PDF
-    const pdfButton = screen.getByText(/Gerar PDF/i);
+    const pdfButton = screen.getByText(/Generate PDF/i);
     fireEvent.click(pdfButton);
     
     // Check if progress-related elements appear (implementation-specific)
@@ -186,7 +214,7 @@ describe('FileUpload', () => {
   it('should have default event header with current year', () => {
     render(<FileUpload />);
     
-    const input = screen.getByPlaceholderText(/Event Header/i) as HTMLInputElement;
+    const input = screen.getByPlaceholderText(/Event Name/i) as HTMLInputElement;
     const currentYear = new Date().getFullYear();
     
     expect(input.value).toContain(currentYear.toString());
@@ -195,8 +223,80 @@ describe('FileUpload', () => {
   it('should have default location footer', () => {
     render(<FileUpload />);
     
-    const input = screen.getByPlaceholderText(/Location Footer/i) as HTMLInputElement;
+    const input = screen.getByPlaceholderText(/Location/i) as HTMLInputElement;
     
     expect(input.value).toBe('Paróquia Nossa Senhora da Areosa');
+  });
+
+  // Internationalization tests
+  describe('Internationalization', () => {
+    it('should render translated title', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Bingo Card Generator')).toBeInTheDocument();
+    });
+
+    it('should render translated "Number of Cards" label', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Number of Cards')).toBeInTheDocument();
+    });
+
+    it('should render translated "Cards per Page" label', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Cards per Page')).toBeInTheDocument();
+    });
+
+    it('should render translated "Event Name" label', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Event Name')).toBeInTheDocument();
+    });
+
+    it('should render translated "Location" label', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Location')).toBeInTheDocument();
+    });
+
+    it('should render translated placeholder for number of cards', () => {
+      render(<FileUpload />);
+      expect(screen.getByPlaceholderText('Number of cards')).toBeInTheDocument();
+    });
+
+    it('should render translated placeholder for event name', () => {
+      render(<FileUpload />);
+      expect(screen.getByPlaceholderText('Event Name')).toBeInTheDocument();
+    });
+
+    it('should render translated placeholder for location', () => {
+      render(<FileUpload />);
+      expect(screen.getByPlaceholderText('Location')).toBeInTheDocument();
+    });
+
+    it('should render translated "Generate Bingo Cards" button', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Generate Bingo Cards')).toBeInTheDocument();
+    });
+
+    it('should render translated export buttons after generating cards', () => {
+      render(<FileUpload />);
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      expect(screen.getByText('Generate PDF')).toBeInTheDocument();
+      expect(screen.getByText('Generate .bingoCards')).toBeInTheDocument();
+    });
+
+    it('should render translated "Upload .bingoCards File:" label', () => {
+      render(<FileUpload />);
+      expect(screen.getByText('Upload .bingoCards File:')).toBeInTheDocument();
+    });
+
+    it('should render translated "Bingo Cards" heading after generating', () => {
+      render(<FileUpload />);
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      expect(screen.getByText('Bingo Cards')).toBeInTheDocument();
+    });
   });
 });
