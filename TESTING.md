@@ -27,13 +27,13 @@ Tests are configured in `jest.config.js` with the following key settings:
 
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run tests in watch mode (for development)
-npm run test:watch
+bun run test:watch
 
 # Run tests with coverage report
-npm run test:coverage
+bun run test:coverage
 ```
 
 ### Coverage Reports

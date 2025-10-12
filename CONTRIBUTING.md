@@ -233,9 +233,9 @@ Place test files next to the code they test:
 
 1. **Update documentation** if you've changed functionality
 2. **Add or update tests** for your changes
-3. **Run all tests** and ensure they pass: `npm run test`
-4. **Run linting** and fix any issues: `npm run lint:fix`
-5. **Build the project** to ensure no build errors: `npm run build`
+3. **Run all tests** and ensure they pass: `bun test`
+4. **Run linting** and fix any issues: `bun run lint:fix`
+5. **Build the project** to ensure no build errors: `bun run build`
 6. **Update the README** if you've added features or changed usage
 
 ### PR Guidelines
