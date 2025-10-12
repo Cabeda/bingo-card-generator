@@ -258,6 +258,7 @@ Place test files next to the code they test:
 4. **Run linting** and fix any issues: `bun run lint:fix`
 5. **Build the project** to ensure no build errors: `bun run build`
 6. **Update the README** if you've added features or changed usage
+7. **Update the CHANGELOG.md** under the `[Unreleased]` section with your changes
 
 ### PR Guidelines
 
