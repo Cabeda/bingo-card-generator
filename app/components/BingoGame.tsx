@@ -321,7 +321,7 @@ export default function BingoGame() {
             </motion.button>
             <motion.button 
               onClick={handleDrawNumber} 
-              className={`button-style ${styles.draw_button} ${isAnimating ? 'styles.disabled' : ''}`}
+              className={`button-style ${styles.draw_button} ${isAnimating ? styles.disabled : ''}`}
               // disabled={isAnimating}
               title="Pressione Espaço ou Enter"
               whileHover={!isAnimating ? { scale: 1.05 } : {}}
