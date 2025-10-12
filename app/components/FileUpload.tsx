@@ -161,7 +161,10 @@ export function FileUpload() {
             const img = new Image();
             img.src = imgDataUrl;
             const imgWidth = pageWidth - 40;
-            const imgHeight = (cardRefs.current[cardIndex]?.offsetHeight || 400) * (imgWidth / (cardRefs.current[cardIndex]?.offsetWidth || 400));
+            const cardRef = cardRefs.current[cardIndex];
+            const cardWidth = cardRef?.offsetWidth || 400;
+            const cardHeight = cardRef?.offsetHeight || 400;
+            const imgHeight = cardHeight * (imgWidth / cardWidth);
             const positionY = j * (pageHeight / cardsPerPage) + 50;
             
             pdf.addImage(
