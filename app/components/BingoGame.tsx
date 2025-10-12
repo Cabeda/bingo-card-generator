@@ -1,6 +1,6 @@
 // components/BingoGame.tsx
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Game, Card } from "../utils/bingo.interface";
 import { parseBingoCards } from "../utils/utils";
 import Ball from "./Ball";
@@ -16,6 +16,9 @@ export default function BingoGame() {
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [animatingNumber, setAnimatingNumber] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [cardToValidate, setCardToValidate] = useState("");
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
 
   // Load game state from localStorage on component mount
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function BingoGame() {
       const numbers = JSON.parse(storedNumbers);
       setDrawnNumbers(numbers);
     }
-  }, []);
+  }, []); // Added to initialize for localStorage
 
   const showModal = (message: string, onConfirm?: () => void) => {
     setModalMessage(message);
@@ -91,7 +94,7 @@ export default function BingoGame() {
     localStorage.removeItem("drawnNumbers");
   };
 
-  const handleDrawNumber = () => {
+  const handleDrawNumber = useCallback(() => {
     // Prevent overlapping animations
     if (isAnimating) {
       return;
@@ -133,6 +136,35 @@ export default function BingoGame() {
       );
       console.log([...drawnNumbers, newNumber]);
       setDrawnNumbers([...drawnNumbers, newNumber]);
+      
+      // Audio feedback
+      if (audioEnabled && typeof Audio !== 'undefined') {
+        // Simple beep sound using Web Audio API
+        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const audioContext = new AudioContextClass();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      }
+      
+      // Text-to-speech
+      if (ttsEnabled && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(`Número ${newNumber}`);
+        utterance.lang = 'pt-PT';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
     }, 100);
     
     // Reset animation after it completes
@@ -140,11 +172,27 @@ export default function BingoGame() {
       setAnimatingNumber(null);
       setIsAnimating(false);
     }, 2550);
-  };
+  }, [isAnimating, bingoGame, drawnNumbers, audioEnabled, ttsEnabled]);
 
-  const handleCheckLine = () => {
-    const cardNumber = prompt("Insira o número do cartão:");
-    if (!cardNumber || !bingoGame) return;
+  // Keyboard shortcuts - must be after handleDrawNumber is defined
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Space or Enter to draw next ball
+      if ((e.key === ' ' || e.key === 'Enter') && !isAnimating && bingoGame) {
+        e.preventDefault();
+        handleDrawNumber();
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isAnimating, bingoGame, handleDrawNumber]);
+
+  const handleCheckLine = (cardNumberInput?: string) => {
+    const cardNumber = cardNumberInput || cardToValidate;
+    if (!cardNumber || !bingoGame) {
+      showModal("Por favor insira o número do cartão.");
+      return;
+    }
 
     const card = bingoGame.cards.find(
       (c) => c.cardNumber === parseInt(cardNumber)
@@ -158,21 +206,25 @@ export default function BingoGame() {
     if (hasLine) {
       setValidCard(card);
       setIsCardModalOpen(true);
+      setCardToValidate("");
     } else {
       setValidCard(null);
       showModal("Linha não é válida.");
     }
   };
 
-  const handleCheckBingo = () => {
-    const cardNumber = prompt("Insira número do cartão (ultimos dígitos após ultimo '-'):");
-    if (!cardNumber || !bingoGame) return;
+  const handleCheckBingo = (cardNumberInput?: string) => {
+    const cardNumber = cardNumberInput || cardToValidate;
+    if (!cardNumber || !bingoGame) {
+      showModal("Por favor insira o número do cartão.");
+      return;
+    }
 
     const card = bingoGame.cards.find(
       (c) => c.cardNumber === parseInt(cardNumber)
     );
     if (!card) {
-      showModal("cartão não encontrado.");
+      showModal("Cartão não encontrado.");
       return;
     }
 
@@ -180,50 +232,123 @@ export default function BingoGame() {
     if (hasBingo) {
       setValidCard(card);
       setIsCardModalOpen(true);
-      showModal("Bingo!");
+      setCardToValidate("");
+      showModal("🎉 Bingo! 🎉");
     } else {
       setValidCard(null);
-      showModal("Bing não é válido.");
+      showModal("Bingo não é válido.");
     }
   };
 
   return (
     <div className="game-page">
-      <div className={styles.game_controls}>
-        <div className={styles.all_numbers}>
-          <div className={styles.numbers_grid}>
-            {Array.from({ length: 89 }, (_, i) => i + 1).map((num) => (
-              <Ball 
-                key={num} 
-                number={num} 
-                small 
-                drawn={drawnNumbers.includes(num)}
-                animate={animatingNumber === num}
-              />
-            ))}
+      <div className={styles.desktop_layout}>
+        {/* Main content area - Numbers Grid */}
+        <div className={styles.main_content}>
+          <div className={styles.game_controls}>
+            <div className={styles.all_numbers}>
+              <div className={styles.numbers_grid}>
+                {Array.from({ length: 89 }, (_, i) => i + 1).map((num) => (
+                  <Ball 
+                    key={num} 
+                    number={num} 
+                    small 
+                    drawn={drawnNumbers.includes(num)}
+                    animate={animatingNumber === num}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className={`${styles.button_row} ${styles.flex_wrap}`}>
-        <button onClick={handleStartGame} className="button-style">
-          Iniciar Jogo
-        </button>
-        <button onClick={handleRestartGame} className="button-style">
-          Recomeçar
-        </button>
-        <button 
-          onClick={handleDrawNumber} 
-          className={`button-style ${styles.draw_button} ${isAnimating ? styles.disabled : ''}`}
-          disabled={isAnimating}
-        >
-          Próxima Bola 🎱
-        </button>
-        <button onClick={handleCheckLine} className="button-style">
-          Validar Linha
-        </button>
-        <button onClick={handleCheckBingo} className="button-style">
-          Validar Bingo
-        </button>
+
+        {/* Sidebar - Controls and Recent Numbers (Sticky on Desktop) */}
+        <aside className={styles.sidebar}>
+          {/* Recent Numbers */}
+          {drawnNumbers.length > 0 && (
+            <div className={styles.recent_numbers}>
+              <h3>Últimas Bolas</h3>
+              <div className={styles.recent_list}>
+                {drawnNumbers.slice(-10).reverse().map((num, idx) => (
+                  <span key={idx} className={styles.recent_number}>
+                    {num}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Game Controls */}
+          <div className={styles.button_row}>
+            <button onClick={handleStartGame} className="button-style">
+              Iniciar Jogo
+            </button>
+            <button onClick={handleRestartGame} className="button-style">
+              Recomeçar
+            </button>
+            <button 
+              onClick={handleDrawNumber} 
+              className={`button-style ${styles.draw_button} ${isAnimating ? styles.disabled : ''}`}
+              disabled={isAnimating}
+              title="Pressione Espaço ou Enter"
+            >
+              Próxima Bola 🎱
+            </button>
+          </div>
+
+          {/* Audio/TTS Settings */}
+          <div className={styles.settings_row}>
+            <label className={styles.setting_item}>
+              <input 
+                type="checkbox" 
+                checked={audioEnabled}
+                onChange={(e) => setAudioEnabled(e.target.checked)}
+              />
+              <span>🔊 Som</span>
+            </label>
+            <label className={styles.setting_item}>
+              <input 
+                type="checkbox" 
+                checked={ttsEnabled}
+                onChange={(e) => setTtsEnabled(e.target.checked)}
+              />
+              <span>🗣️ Voz</span>
+            </label>
+          </div>
+
+          {/* Validation Panel */}
+          <div className={styles.validation_panel}>
+            <h3>Validar Cartão</h3>
+            <div className={styles.validation_controls}>
+              <input 
+                type="number" 
+                placeholder="Nº do Cartão"
+                value={cardToValidate}
+                onChange={(e) => setCardToValidate(e.target.value)}
+                className={styles.card_input}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && cardToValidate) {
+                    handleCheckLine(cardToValidate);
+                  }
+                }}
+              />
+              <button 
+                onClick={() => handleCheckLine(cardToValidate)} 
+                className="button-style"
+                disabled={!cardToValidate}
+              >
+                Validar Linha
+              </button>
+              <button 
+                onClick={() => handleCheckBingo(cardToValidate)} 
+                className="button-style"
+                disabled={!cardToValidate}
+              >
+                Validar Bingo
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
       {validCard && isCardModalOpen && (
         <div className={styles.modal_overlay}>
