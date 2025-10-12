@@ -1,6 +1,7 @@
 # Contributing to Bingo Card Generator
 
-Thank you for your interest in contributing to the Bingo Card Generator! We welcome contributions from the community and are grateful for your support.
+Thank you for your interest in contributing to the Bingo Card Generator! We welcome contributions from the community
+and are grateful for your support.
 
 ## Table of Contents
 
@@ -16,21 +17,27 @@ Thank you for your interest in contributing to the Bingo Card Generator! We welc
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By
+participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
 
 ## Getting Started
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/bingo-card-generator.git
    cd bingo-card-generator
    ```
+
 3. **Add upstream remote**:
+
    ```bash
    git remote add upstream https://github.com/Cabeda/bingo-card-generator.git
    ```
+
 4. **Install dependencies**:
+
    ```bash
    bun install
    ```
@@ -79,10 +86,12 @@ bun run start          # Start production server
 ### Reporting Bugs
 
 Before creating a bug report:
+
 1. Check the [existing issues](https://github.com/Cabeda/bingo-card-generator/issues) to avoid duplicates
 2. Ensure the bug is reproducible in the latest version
 
 When creating a bug report, include:
+
 - A clear and descriptive title
 - Steps to reproduce the behavior
 - Expected behavior
@@ -93,6 +102,7 @@ When creating a bug report, include:
 ### Suggesting Enhancements
 
 Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion:
+
 - Use a clear and descriptive title
 - Provide a detailed description of the proposed feature
 - Explain why this enhancement would be useful
@@ -101,6 +111,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 ### Making Code Changes
 
 1. **Create a new branch** from `main`:
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -112,12 +123,14 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 3. **Write or update tests** for your changes
 
 4. **Run tests and linting**:
+
    ```bash
    bun test
    bun run lint
    ```
 
 5. **Commit your changes** with clear, descriptive messages:
+
    ```bash
    git commit -m "feat: add new feature description"
    # or
@@ -125,6 +138,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
    ```
 
 6. **Push to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -175,6 +189,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 - **Formatting**: Let ESLint and Prettier handle formatting
 
 Example JSDoc:
+
 ```typescript
 /**
  * Generates a bingo card with the specified card number.
@@ -218,6 +233,7 @@ describe('functionName', () => {
 ### Test Co-location
 
 Place test files next to the code they test:
+
 - `utils.ts` → `utils.test.ts`
 - Component tests should be in the same directory as the component
 
@@ -257,7 +273,7 @@ Place test files next to the code they test:
 
 Follow conventional commits format:
 
-```
+```text
 type(scope): brief description
 
 Longer description if needed
@@ -266,6 +282,7 @@ Closes #123
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -275,7 +292,8 @@ Types:
 - `chore`: Maintenance tasks, dependency updates
 
 Examples:
-```
+
+```text
 feat(card-generation): add support for custom card sizes
 fix(game): resolve issue with number drawing validation
 docs(readme): update installation instructions
@@ -293,15 +311,18 @@ test(utils): add tests for edge cases in parseBingoCards
 
 1. Delete your feature branch (GitHub can do this automatically)
 2. Update your local main branch:
+
    ```bash
    git checkout main
    git pull upstream main
    ```
+
 3. Celebrate! 🎉 You've contributed to open source!
 
 ## Bingo Card Rules Reference
 
 When working on card generation or validation, remember these rules:
+
 - Each card has 3 rows and 9 columns (27 cells total)
 - Each row must have exactly 5 numbers and 4 empty cells
 - Each column must have at least 1 number (no completely empty columns)
