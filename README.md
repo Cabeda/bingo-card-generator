@@ -32,7 +32,7 @@ Cards follow traditional bingo rules:
 - Column number ranges:
   - Column 0: 1-9
   - Columns 1-7: (col × 10) to (col × 10 + 9)
-  - Column 8: 80-90
+  - Column 8: 80-89
 - All numbers on a card are unique
 
 ## 🚀 Getting Started

@@ -142,7 +142,6 @@ export function FileUpload() {
             onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
             placeholder="Número de cartões"
             min={1}
-            max={5000}
             className="input-style"
           />
         </div>
