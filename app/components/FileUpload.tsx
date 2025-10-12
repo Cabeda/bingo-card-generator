@@ -8,7 +8,7 @@ import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
-  const [numCards, setNumCards] = useState<number>(100);
+  const [numCards, setNumCards] = useState<number>(10);
   const [bingoPercard, setBingoPercard] = useState<number>(2); // New state for bingoPercard
   const [eventHeader, setEventHeader] = useState<string>(
     `Magusto ${new Date().getFullYear()}`
@@ -18,6 +18,7 @@ export function FileUpload() {
   );
   const [progress, setProgress] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -105,56 +106,92 @@ export function FileUpload() {
 
   const generatePDF = async () => {
     if (!bingoCards) return;
-    const pdf = new jsPDF("p", "pt", "a4");
-    const cardsPerPage = bingoPercard; // Use bingoPercard for cards per page
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const totalCards = bingoCards.cards.length;
+    
+    setIsGeneratingPDF(true);
     setProgress(0);
+    
+    try {
+      const pdf = new jsPDF("p", "pt", "a4");
+      const cardsPerPage = bingoPercard; // Use bingoPercard for cards per page
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const totalCards = bingoCards.cards.length;
 
-    for (let i = 0; i < totalCards; i += cardsPerPage) {
-      if (i > 0) {
-        pdf.addPage();
-      }
-      pdf.text(eventHeader, pageWidth / 2, 30, { align: "center" });
-      pdf.text(locationFooter, pageWidth / 2, pageHeight - 30, {
-        align: "center",
-      });
+      // Batch size for parallel processing
+      const batchSize = 5;
+      const imgOptions = {
+        quality: 1,
+        skipFonts: true,
+        cacheBust: false, // Disable cache busting for speed
+      };
 
-      for (let j = 0; j < cardsPerPage; j++) {
-        const cardIndex = i + j;
-        if (cardIndex >= totalCards) break;
-        const cardRef = cardRefs.current[cardIndex];
-        if (cardRef) {
-          const imgDataUrl = await htmlToImage.toPng(cardRef, { 
-            quality: 0.3,
-            skipFonts: true, // Skip font processing to avoid font errors
-            cacheBust: true, // Ensure fresh capture
-          });
-          const img = new Image();
-          img.src = imgDataUrl;
-          await new Promise((resolve) => {
-            img.onload = () => {
-              const imgWidth = pageWidth - 40;
-              const imgHeight = (img.height * imgWidth) / img.width;
-              const positionY = j * (pageHeight / cardsPerPage) + 50;
-              pdf.addImage(
-                imgDataUrl,
-                "PNG",
-                20,
-                positionY,
-                imgWidth,
-                imgHeight
-              );
-              resolve(null);
-            };
-          });
+      // Pre-convert all card images in batches for parallel processing
+      const allImageUrls: string[] = [];
+      for (let batch = 0; batch < totalCards; batch += batchSize) {
+        const batchPromises = [];
+        for (let i = batch; i < Math.min(batch + batchSize, totalCards); i++) {
+          const cardRef = cardRefs.current[i];
+          if (cardRef) {
+            batchPromises.push(htmlToImage.toPng(cardRef, imgOptions));
+          } else {
+            batchPromises.push(Promise.resolve("")); // Empty placeholder
+          }
         }
+        const batchResults = await Promise.all(batchPromises);
+        allImageUrls.push(...batchResults);
+        setProgress((batch / totalCards) * 80); // 0-80% for image conversion
       }
-      setProgress(((i + cardsPerPage) / totalCards) * 100);
+
+      // Add images to PDF pages (fast operation)
+      for (let i = 0; i < totalCards; i += cardsPerPage) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        pdf.text(eventHeader, pageWidth / 2, 30, { align: "center" });
+        pdf.text(locationFooter, pageWidth / 2, pageHeight - 30, {
+          align: "center",
+        });
+
+        for (let j = 0; j < cardsPerPage; j++) {
+          const cardIndex = i + j;
+          if (cardIndex >= totalCards) break;
+          const imgDataUrl = allImageUrls[cardIndex];
+          if (imgDataUrl) {
+            // Calculate dimensions synchronously
+            const img = new Image();
+            img.src = imgDataUrl;
+            const imgWidth = pageWidth - 40;
+            const imgHeight = (cardRefs.current[cardIndex]?.offsetHeight || 400) * (imgWidth / (cardRefs.current[cardIndex]?.offsetWidth || 400));
+            const positionY = j * (pageHeight / cardsPerPage) + 50;
+            
+            pdf.addImage(
+              imgDataUrl,
+              "PNG",
+              20,
+              positionY,
+              imgWidth,
+              imgHeight,
+              undefined,
+              "FAST" // Use fast compression
+            );
+          }
+        }
+        setProgress(80 + ((i + cardsPerPage) / totalCards) * 20); // 80-100% for PDF assembly
+      }
+      pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
+      setProgress(100);
+      
+      // Reset after a short delay
+      setTimeout(() => {
+        setProgress(0);
+        setIsGeneratingPDF(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Erro ao gerar PDF. Por favor, tente novamente.");
+      setIsGeneratingPDF(false);
+      setProgress(0);
     }
-    pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
-    setProgress(100);
   };
 
   const getCurrentDate = () => {
@@ -308,10 +345,43 @@ export function FileUpload() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              disabled={isGeneratingPDF}
+              style={{
+                opacity: isGeneratingPDF ? 0.6 : 1,
+                cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+              }}
             >
               Gerar PDF
             </motion.button>
-            {progress > 0 && progress < 100 && (
+            {isGeneratingPDF && (
+              <motion.div
+                className="margin-bottom-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ textAlign: "center", marginTop: "20px" }}
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    border: "4px solid var(--primary-color)",
+                    borderTopColor: "transparent",
+                    borderRadius: "50%",
+                    margin: "0 auto",
+                  }}
+                />
+                <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
+                  A gerar PDF... {Math.round(progress)}%
+                </p>
+              </motion.div>
+            )}
+            {progress > 0 && progress < 100 && !isGeneratingPDF && (
               <div className="margin-bottom-20">
                 <div className="progress-bar-container">
                   <div

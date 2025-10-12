@@ -121,7 +121,9 @@ export function generateBingoCard(cardNumber: string): Card {
  * This is much faster than toString() for large datasets.
  */
 function hashCardNumbers(numbers: (number | null)[]): string {
-    // Use a simple but fast hash: join with a delimiter that won't appear in numbers
+    // Use a simple but fast hash: join with a delimiter (comma) that won't appear in numbers.  
+    // This is safe because all numbers are integers (no commas in their string representation),  
+    // and null values become empty strings when joined, so there is no ambiguity.
     return numbers.join(',');
 }
 
