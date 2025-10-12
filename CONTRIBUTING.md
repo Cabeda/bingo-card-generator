@@ -224,8 +224,11 @@ Place test files next to the code they test:
 ### Test Coverage
 
 - Aim for at least 80% code coverage for new features
+- Coverage threshold enforced at 70% (enforced by Codecov)
 - All bug fixes should include tests that would have caught the bug
 - Test edge cases and error conditions
+- Coverage reports are automatically generated on every push and PR
+- View coverage reports at [Codecov](https://codecov.io/gh/Cabeda/bingo-card-generator)
 
 ## Pull Request Process
 
