@@ -6,6 +6,12 @@
   --color-input-text: #000000;
   --color-primary: #ff007f;
   --color-secondary: #000000;
+  --color-card-bg: #ffffff;
+  --color-border: #e5e5e5;
+  --color-modal-bg: #ffffff;
+  --color-navbar-bg: #1a1a1a;
+  --color-navbar-hover: #2d2d2d;
+  --color-progress-bg: #f3f3f3;
 }
 
 :root {
@@ -14,6 +20,64 @@
   --input-text-color: var(--color-input-text);
   --primary-color: var(--color-primary);
   --secondary-color: var(--color-secondary);
+  --card-bg: var(--color-card-bg);
+  --border-color: var(--color-border);
+  --modal-bg: var(--color-modal-bg);
+  --navbar-bg: var(--color-navbar-bg);
+  --navbar-hover: var(--color-navbar-hover);
+  --progress-bg: var(--color-progress-bg);
+  
+  /* Smooth theme transitions */
+  color-scheme: light;
+}
+
+/* Dark mode support via system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+    --color-input-text: #ededed;
+    --color-primary: #ff3d9a;
+    --color-secondary: #ffffff;
+    --color-card-bg: #1a1a1a;
+    --color-border: #333333;
+    --color-modal-bg: #1a1a1a;
+    --color-navbar-bg: #0d0d0d;
+    --color-navbar-hover: #1a1a1a;
+    --color-progress-bg: #2a2a2a;
+    color-scheme: dark;
+  }
+}
+
+/* Manual theme toggle support */
+[data-theme='dark'] {
+  --color-background: #0a0a0a;
+  --color-foreground: #ededed;
+  --color-input-text: #ededed;
+  --color-primary: #ff3d9a;
+  --color-secondary: #ffffff;
+  --color-card-bg: #1a1a1a;
+  --color-border: #333333;
+  --color-modal-bg: #1a1a1a;
+  --color-navbar-bg: #0d0d0d;
+  --color-navbar-hover: #1a1a1a;
+  --color-progress-bg: #2a2a2a;
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-input-text: #000000;
+  --color-primary: #ff007f;
+  --color-secondary: #000000;
+  --color-card-bg: #ffffff;
+  --color-border: #e5e5e5;
+  --color-modal-bg: #ffffff;
+  --color-navbar-bg: #1a1a1a;
+  --color-navbar-hover: #2d2d2d;
+  --color-progress-bg: #f3f3f3;
+  color-scheme: light;
 }
 
 input {
@@ -23,6 +87,7 @@ input {
 html {
   overflow-x: hidden;
   width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -33,11 +98,25 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Screen reader only class for accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 }
 
@@ -129,7 +208,7 @@ h3 {
 
 .progress-bar-container {
   width: 100%;
-  background-color: #f3f3f3;
+  background-color: var(--progress-bg);
   border-radius: 0.25rem; /* Slightly rounded corners */
   overflow: hidden;
 }
@@ -232,7 +311,8 @@ h3 {
 }
 
 .modal-box {
-  background-color: #fff;
+  background-color: var(--modal-bg);
+  color: var(--foreground);
   padding: 20px;
   border-radius: 8px;
   text-align: center;

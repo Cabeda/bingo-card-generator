@@ -39,17 +39,17 @@
   }
 
   .sidebar::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--progress-bg);
     border-radius: 4px;
   }
 
   .sidebar::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--border-color);
     border-radius: 4px;
   }
 
   .sidebar::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--foreground);
   }
 }
 
@@ -74,7 +74,8 @@
 }
 
 .close_button:hover {
-  color: #666;
+  color: var(--foreground);
+  opacity: 0.7;
 }
 
 .modal_overlay {
@@ -91,7 +92,8 @@
 }
 
 .modal_box {
-  background: white;
+  background: var(--modal-bg);
+  color: var(--foreground);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -248,11 +250,12 @@
 
 /* Recent Numbers */
 .recent_numbers {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1.5rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Desktop: Remove bottom margin in sidebar */
@@ -265,9 +268,10 @@
 .recent_numbers h3 {
   margin: 0 0 0.75rem 0;
   font-size: 1rem;
-  color: #475569;
+  color: var(--foreground);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  opacity: 0.7;
 }
 
 .recent_list {
@@ -295,8 +299,10 @@
   justify-content: center;
   margin: 1rem 0;
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Desktop: Adjust settings layout in sidebar */
@@ -324,11 +330,12 @@
 
 /* Validation Panel */
 .validation_panel {
-  background: #f1f5f9;
-  border: 2px solid #cbd5e1;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
   margin-top: 1.5rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Desktop: Remove top margin in sidebar */
@@ -341,7 +348,7 @@
 .validation_panel h3 {
   margin: 0 0 1rem 0;
   font-size: 1.2rem;
-  color: #334155;
+  color: var(--foreground);
 }
 
 .validation_controls {
@@ -365,12 +372,14 @@
 
 .card_input {
   padding: 0.75rem 1rem;
-  border: 2px solid #cbd5e1;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
   flex: 1;
   min-width: 150px;
   transition: border-color 0.2s;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 /* Desktop: Full width input in sidebar */
@@ -383,7 +392,7 @@
 
 .card_input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--primary-color);
 }
 
 .card_input::placeholder {

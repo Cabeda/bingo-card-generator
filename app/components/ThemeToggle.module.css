@@ -1,0 +1,51 @@
+.themeToggle {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.themeToggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.themeToggle:focus {
+  outline: 2px solid #ffeb3b;
+  outline-offset: 2px;
+}
+
+.themeToggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .themeToggle {
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+}
