@@ -5,8 +5,8 @@ import { FileUpload } from "./components/FileUpload";
 
 export default function Home() {
   return (
-    <div>
+    <main style={{ viewTransitionName: 'home-page' }}>
       <FileUpload />
-    </div>
+    </main>
   );
 }

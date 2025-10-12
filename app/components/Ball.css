@@ -19,6 +19,7 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
 }
 
 .ball.drawn {
@@ -26,10 +27,101 @@
   border-color: #ffc107;
 }
 
+/* Animation for new ball appearing - dramatic zoom from grid */
+.ball-container.small.animate-new-ball {
+  position: relative;
+  z-index: 9999;
+  animation: ballZoomInOut 2.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ball-container.small.animate-new-ball .ball {
+  animation: ballEnlarge 2.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 60px rgba(255, 193, 7, 0.9);
+}
+
+@keyframes ballZoomInOut {
+  0% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(6);
+    z-index: 9999;
+  }
+  75% {
+    transform: scale(6);
+    z-index: 9999;
+  }
+  88% {
+    transform: scale(3.5);
+    z-index: 9999;
+  }
+  94% {
+    transform: scale(1.8);
+  }
+  97% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ballEnlarge {
+  0% {
+    background-color: white;
+    border-color: black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+  15% {
+    background-color: #ffeb3b;
+    border-color: #ffc107;
+    box-shadow: 0 0 80px rgba(255, 193, 7, 1);
+  }
+  75% {
+    background-color: #ffeb3b;
+    border-color: #ffc107;
+    box-shadow: 0 0 80px rgba(255, 193, 7, 1);
+  }
+  88% {
+    box-shadow: 0 0 40px rgba(255, 193, 7, 0.7);
+  }
+  94% {
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+  }
+  100% {
+    background-color: #ffeb3b;
+    border-color: #ffc107;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+  }
+}
+
+
+
 .ball-container.small .ball {
   width: 55px;
   height: 55px;
   border-width: 2px;
+}
+
+/* Smooth transition when ball becomes drawn */
+.ball-container.small .ball.drawn {
+  animation: markDrawn 0.4s ease-out;
+}
+
+@keyframes markDrawn {
+  0% {
+    background-color: white;
+    border-color: black;
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    background-color: #ffeb3b;
+    border-color: #ffc107;
+    transform: scale(1);
+  }
 }
 
 .ball-number {

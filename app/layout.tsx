@@ -1,5 +1,6 @@
 // app/layout.tsx
 import Navbar from "./components/Navbar";
+import ViewTransition from "./components/ViewTransition";
 import "./globals.css";
 
 export default function RootLayout({
@@ -10,6 +11,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ViewTransition />
         <Navbar />
         {children}
       </body>

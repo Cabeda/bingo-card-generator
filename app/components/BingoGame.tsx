@@ -9,18 +9,18 @@ import styles from './BingoGame.module.css';
 export default function BingoGame() {
   const [bingoGame, setBingoGame] = useState<Game | null>(null);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
-  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [modalMessage, setModalMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
   const [validCard, setValidCard] = useState<Card | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [animatingNumber, setAnimatingNumber] = useState<number | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Load game state from localStorage on component mount
   useEffect(() => {
     const storedGame = localStorage.getItem("bingoGame");
     const storedNumbers = localStorage.getItem("drawnNumbers");
-    const storedCurrentNumber = localStorage.getItem("currentNumber");
 
     if (storedGame) {
       setBingoGame(JSON.parse(storedGame));
@@ -29,10 +29,6 @@ export default function BingoGame() {
     if (storedNumbers) {
       const numbers = JSON.parse(storedNumbers);
       setDrawnNumbers(numbers);
-    }
-
-    if (storedCurrentNumber) {
-      setCurrentNumber(2);
     }
   }, []);
 
@@ -78,10 +74,8 @@ export default function BingoGame() {
           const bingoGame = parseBingoCards(filename, content);
           setBingoGame(bingoGame);
           setDrawnNumbers([]);
-          setCurrentNumber(null);
           localStorage.setItem("bingoGame", JSON.stringify(bingoGame));
           localStorage.removeItem("drawnNumbers");
-          localStorage.removeItem("currentNumber");
         };
         reader.readAsText(selectedFile);
       } else {
@@ -94,12 +88,15 @@ export default function BingoGame() {
 
   const handleRestartGame = () => {
     setDrawnNumbers([]);
-    setCurrentNumber(null);
     localStorage.removeItem("drawnNumbers");
-    localStorage.removeItem("currentNumber");
   };
 
   const handleDrawNumber = () => {
+    // Prevent overlapping animations
+    if (isAnimating) {
+      return;
+    }
+
     if (!bingoGame) {
       showModal("Please start the game first.");
       return;
@@ -116,14 +113,33 @@ export default function BingoGame() {
 
     const randomIndex = Math.floor(Math.random() * availableNumbers.length);
     const newNumber = availableNumbers[randomIndex];
-    localStorage.setItem("currentNumber", JSON.stringify(currentNumber));
-    localStorage.setItem(
-      "drawnNumbers",
-      JSON.stringify([...drawnNumbers, newNumber])
-    );
-    console.log([...drawnNumbers, newNumber]);
-    setCurrentNumber(newNumber);
-    setDrawnNumbers([...drawnNumbers, newNumber]);
+    
+    // Set animating state to prevent clicks
+    setIsAnimating(true);
+    
+    // Force clear any previous animation state
+    setAnimatingNumber(null);
+    
+    // Trigger animation on the specific ball (small delay to ensure clean state)
+    setTimeout(() => {
+      setAnimatingNumber(newNumber);
+    }, 50);
+    
+    // Update state after a brief delay to let animation start
+    setTimeout(() => {
+      localStorage.setItem(
+        "drawnNumbers",
+        JSON.stringify([...drawnNumbers, newNumber])
+      );
+      console.log([...drawnNumbers, newNumber]);
+      setDrawnNumbers([...drawnNumbers, newNumber]);
+    }, 100);
+    
+    // Reset animation after it completes
+    setTimeout(() => {
+      setAnimatingNumber(null);
+      setIsAnimating(false);
+    }, 2550);
   };
 
   const handleCheckLine = () => {
@@ -174,11 +190,6 @@ export default function BingoGame() {
   return (
     <div className="game-page">
       <div className={styles.game_controls}>
-        <div className={styles.control_column}>
-          <div className={styles.current_number}>
-            {currentNumber && <Ball number={currentNumber} />}
-          </div>
-        </div>
         <div className={styles.all_numbers}>
           <div className={styles.numbers_grid}>
             {Array.from({ length: 89 }, (_, i) => i + 1).map((num) => (
@@ -187,6 +198,7 @@ export default function BingoGame() {
                 number={num} 
                 small 
                 drawn={drawnNumbers.includes(num)}
+                animate={animatingNumber === num}
               />
             ))}
           </div>
@@ -199,7 +211,11 @@ export default function BingoGame() {
         <button onClick={handleRestartGame} className="button-style">
           Recomeçar
         </button>
-        <button onClick={handleDrawNumber} className="button-style">
+        <button 
+          onClick={handleDrawNumber} 
+          className={`button-style ${styles.draw_button} ${isAnimating ? styles.disabled : ''}`}
+          disabled={isAnimating}
+        >
           Próxima Bola 🎱
         </button>
         <button onClick={handleCheckLine} className="button-style">

@@ -5,8 +5,8 @@ import BingoGame from "../components/BingoGame";
 
 export default function GamePage() {
   return (
-    <div>
+    <main style={{ viewTransitionName: 'game-page' }}>
       <BingoGame />
-    </div>
+    </main>
   );
 }
