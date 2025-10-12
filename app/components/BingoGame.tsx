@@ -39,7 +39,7 @@ export default function BingoGame() {
   const showModal = (message: string, onConfirm?: () => void) => {
     setModalMessage(message);
     setIsModalOpen(true);
-    setConfirmAction(onConfirm || null);
+    setConfirmAction(() => onConfirm || null);
   };
 
   const handleModalClose = () => {
