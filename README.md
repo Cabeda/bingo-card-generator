@@ -221,6 +221,10 @@ To add a new language or update existing translations, see [docs/I18N.md](./docs
   - State management patterns
   - Core algorithms and performance considerations
   - File formats and security considerations
+- **[SECURITY_HEADERS.md](./docs/SECURITY_HEADERS.md)**: Security headers implementation
+  - Detailed explanation of all security headers
+  - Configuration and verification guides
+  - Browser DevTools testing instructions
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines and coding standards
 - **API Documentation**: All functions and interfaces include JSDoc comments
   - Type definitions in `app/utils/bingo.interface.ts`
