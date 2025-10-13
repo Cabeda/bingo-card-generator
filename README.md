@@ -203,6 +203,26 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for de
 
 To add a new language or update existing translations, see [docs/I18N.md](./docs/I18N.md) for detailed instructions.
 
+## 📚 Documentation
+
+### For Developers
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Comprehensive architecture overview
+  - Component hierarchy and data flow
+  - State management patterns
+  - Core algorithms and performance considerations
+  - File formats and security considerations
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines and coding standards
+- **API Documentation**: All functions and interfaces include JSDoc comments
+  - Type definitions in `app/utils/bingo.interface.ts`
+  - Core utilities in `app/utils/utils.ts`
+  - Component documentation in respective files
+
+### For Users
+
+- **README.md** (this file): Getting started and usage guide
+- **In-app Help**: Tooltips and interface guidance
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

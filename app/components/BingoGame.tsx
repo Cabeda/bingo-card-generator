@@ -8,6 +8,49 @@ import { parseBingoCards } from "../utils/utils";
 import Ball from "./Ball";
 import styles from './BingoGame.module.css';
 
+/**
+ * BingoGame component for hosting and managing live bingo games.
+ * 
+ * This component provides a complete bingo game interface with:
+ * - Loading bingo card sets from `.bingoCards` files
+ * - Drawing random numbers with visual animations
+ * - Real-time tracking of drawn numbers
+ * - Card validation (line and full bingo)
+ * - Audio feedback and text-to-speech announcements
+ * - Keyboard shortcuts (Space/Enter to draw)
+ * - Persistent game state (survives page refreshes)
+ * - Responsive layout with sidebar controls
+ * - Internationalization support
+ * 
+ * **Game Flow:**
+ * 1. Start game by uploading a `.bingoCards` file
+ * 2. Draw numbers one at a time (animated)
+ * 3. Validate player cards for line or full bingo
+ * 4. View recent numbers and complete game history
+ * 5. Restart or continue games across sessions
+ * 
+ * **Features:**
+ * - State persistence via localStorage
+ * - Smooth animations using Framer Motion
+ * - Audio beeps and text-to-speech (locale-aware)
+ * - Modal dialogs for card validation results
+ * - Visual highlighting of drawn numbers
+ * 
+ * @example
+ * ```tsx
+ * // Used in the game page
+ * import BingoGame from '../components/BingoGame';
+ * 
+ * export default function GamePage() {
+ *   return <BingoGame />;
+ * }
+ * ```
+ * 
+ * @component
+ * @see {@link checkLine} for line validation logic
+ * @see {@link checkBingo} for full bingo validation logic
+ * @see {@link parseBingoCards} for loading card data
+ */
 export default function BingoGame(): React.JSX.Element {
   const t = useTranslations('bingoGame');
   const locale = useLocale();
@@ -511,6 +554,35 @@ export default function BingoGame(): React.JSX.Element {
 }
 
 // Utility functions
+/**
+ * Checks if a bingo card has achieved a valid line (row).
+ * 
+ * A valid line is achieved when all non-null numbers in any row
+ * have been drawn. Each row consists of 9 cells (indexes 0-8, 9-17, 18-26),
+ * with exactly 5 numbers and 4 null cells per row.
+ * 
+ * **Validation Logic:**
+ * - Checks all three rows independently
+ * - For each row, verifies that all non-null numbers appear in drawnNumbers
+ * - Returns true if any row is completely marked
+ * - Null cells don't need to be "marked" (they're always considered valid)
+ * 
+ * @param numbers - Array of 27 numbers representing the card (3 rows × 9 columns)
+ * @param drawnNumbers - Array of numbers that have been drawn so far
+ * @returns `true` if any complete line exists, `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * const card = [1, null, 3, null, 5, null, 7, null, 9, ...]; // 27 numbers
+ * const drawn = [1, 3, 5, 7, 9];
+ * console.log(checkLine(card, drawn)); // true - first row complete
+ * 
+ * const drawn2 = [1, 3, 5];
+ * console.log(checkLine(card, drawn2)); // false - row incomplete
+ * ```
+ * 
+ * @see {@link checkBingo} for full card validation
+ */
 function checkLine(
   numbers: (number | null)[],
   drawnNumbers: number[]
@@ -529,6 +601,35 @@ function checkLine(
   );
 }
 
+/**
+ * Checks if a bingo card has achieved a full bingo (all numbers marked).
+ * 
+ * A full bingo is achieved when all non-null numbers on the entire card
+ * have been drawn. A standard bingo card has 15 numbers (5 per row × 3 rows)
+ * and 12 null cells, for a total of 27 cells.
+ * 
+ * **Validation Logic:**
+ * - Iterates through all 27 cells on the card
+ * - For each non-null number, verifies it appears in drawnNumbers
+ * - Returns true only if ALL numbers have been drawn
+ * - Null cells are ignored (always considered valid)
+ * 
+ * @param numbers - Array of 27 numbers representing the card (3 rows × 9 columns)
+ * @param drawnNumbers - Array of numbers that have been drawn so far
+ * @returns `true` if all numbers are marked, `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * const card = [1, null, 3, null, 5, null, 7, null, 9, ...]; // 15 numbers total
+ * const allNumbers = [1, 3, 5, 7, 9, ...]; // All 15 numbers from card
+ * console.log(checkBingo(card, allNumbers)); // true - full bingo!
+ * 
+ * const someNumbers = [1, 3, 5];
+ * console.log(checkBingo(card, someNumbers)); // false - incomplete
+ * ```
+ * 
+ * @see {@link checkLine} for line/row validation
+ */
 function checkBingo(
   numbers: (number | null)[],
   drawnNumbers: number[]
