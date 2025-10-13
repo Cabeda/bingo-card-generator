@@ -238,6 +238,22 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 🔒 Security
 
+### Security Headers
+
+This application implements comprehensive security headers to protect against common web vulnerabilities:
+
+- **Content Security Policy (CSP)**: Restricts resource loading to prevent XSS attacks
+- **Strict Transport Security (HSTS)**: Enforces HTTPS connections
+- **X-Frame-Options**: Prevents clickjacking attacks
+- **X-Content-Type-Options**: Prevents MIME-sniffing
+- **X-XSS-Protection**: Enables browser XSS filtering
+- **Referrer Policy**: Controls referrer information
+- **Permissions Policy**: Restricts access to device features
+
+All security headers are configured in `next.config.ts` and automatically applied to all routes.
+
+### Reporting Vulnerabilities
+
 If you discover a security vulnerability, please see [SECURITY.md](./SECURITY.md) for information on how to report it responsibly.
 
 ## 📞 Support
