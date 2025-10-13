@@ -38,3 +38,7 @@ next-env.d.ts
 
 # tailwind v3 backup
 tailwind.config.ts.backup
+
+# PWA
+/public/sw.js
+/public/workbox-*.js

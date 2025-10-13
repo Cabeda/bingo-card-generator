@@ -21,7 +21,9 @@ export default defineConfig([
             'out/**',
             'build/**',
             'dist/**',
-            'next-env.d.ts'
+            'next-env.d.ts',
+            'public/sw.js',
+            'public/workbox-*.js'
         ]
     },
     ...compat.extends("next/core-web-vitals", "next/typescript"),
