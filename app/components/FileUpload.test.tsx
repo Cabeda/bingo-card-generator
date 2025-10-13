@@ -11,6 +11,10 @@ jest.mock('next-intl', () => ({
       'numCards': 'Number of Cards',
       'numCardsPlaceholder': 'Number of cards',
       'cardsPerPage': 'Cards per Page',
+      'qualityMode': 'Quality Mode',
+      'qualityFast': 'Fast (Low Quality)',
+      'qualityBalanced': 'Balanced',
+      'qualityHigh': 'High Quality',
       'eventName': 'Event Name',
       'eventNamePlaceholder': 'Event Name',
       'location': 'Location',
@@ -23,6 +27,9 @@ jest.mock('next-intl', () => ({
       'exportBingoCards': 'Generate .bingoCards',
       'generatePdf': 'Generate PDF',
       'generatingPdf': 'Generating PDF... {progress}%',
+      'generatingPdfWithTime': 'Generating PDF... {progress}% (Est. {timeRemaining}s remaining)',
+      'cancelPdf': 'Cancel',
+      'pdfCancelled': 'PDF generation cancelled.',
       'errorGeneratingPdf': 'Error generating PDF. Please try again.',
       'uploadError': 'Please upload a file with the .bingoCards extension.',
     };
@@ -42,6 +49,7 @@ jest.mock('jspdf', () => {
     },
     addImage: jest.fn(),
     addPage: jest.fn(),
+    text: jest.fn(),
     save: jest.fn(),
   }));
 });
@@ -226,6 +234,24 @@ describe('FileUpload', () => {
     const input = screen.getByPlaceholderText(/Location/i) as HTMLInputElement;
     
     expect(input.value).toBe('Paróquia Nossa Senhora da Areosa');
+  });
+
+  it('should have quality mode selector with default value', () => {
+    render(<FileUpload />);
+    
+    const select = screen.getByRole('combobox');
+    expect(select).toBeInTheDocument();
+    expect(select).toHaveValue('balanced');
+  });
+
+  it('should update quality mode when selector changes', () => {
+    render(<FileUpload />);
+    
+    const select = screen.getByRole('combobox') as HTMLSelectElement;
+    
+    fireEvent.change(select, { target: { value: 'fast' } });
+    
+    expect(select.value).toBe('fast');
   });
 
   // Internationalization tests

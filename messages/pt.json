@@ -20,6 +20,13 @@
     "exportBingoCards": "Gerar .bingoCards",
     "generatePdf": "Gerar PDF",
     "generatingPdf": "A gerar PDF... {progress}%",
+    "generatingPdfWithTime": "A gerar PDF... {progress}% (Est. {timeRemaining}s restantes)",
+    "cancelPdf": "Cancelar",
+    "pdfCancelled": "Geração de PDF cancelada.",
+    "qualityMode": "Modo de Qualidade",
+    "qualityFast": "Rápido (Baixa Qualidade)",
+    "qualityBalanced": "Equilibrado",
+    "qualityHigh": "Alta Qualidade",
     "errorGeneratingPdf": "Erro ao gerar PDF. Por favor, tente novamente.",
     "uploadError": "Por favor, carregue um ficheiro com a extensão .bingoCards."
   },
