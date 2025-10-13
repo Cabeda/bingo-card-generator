@@ -195,7 +195,18 @@ export function FileUpload() {
       const endTime = performance.now();
       console.log(`PDF generation completed in ${Math.round(endTime - startTime)}ms`);
       
-      pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
+      // Use blob approach for better iOS compatibility
+      const pdfBlob = pdf.output('blob');
+      const filename = `${getCurrentDate()}-${eventHeader}.pdf`;
+      
+      const element = document.createElement("a");
+      element.href = URL.createObjectURL(pdfBlob);
+      element.download = filename;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      URL.revokeObjectURL(element.href); // Clean up the blob URL
+      
       setProgress(100);
       
       // Reset after a short delay
