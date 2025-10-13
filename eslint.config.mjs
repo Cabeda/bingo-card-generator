@@ -14,7 +14,29 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     {
-        ignores: ['.next/**', 'out/**', 'node_modules/**', 'coverage/**', 'dist/**', 'build/**', 'next-env.d.ts']
+        ignores: [
+            '.next/**',
+            'coverage/**',
+            'node_modules/**',
+            'out/**',
+            'build/**',
+            'dist/**',
+            'next-env.d.ts'
+        ]
     },
     ...compat.extends("next/core-web-vitals", "next/typescript"),
+    {
+        rules: {
+            'sort-imports': [
+                'error',
+                {
+                    ignoreCase: true,
+                    ignoreDeclarationSort: true,
+                    ignoreMemberSort: false,
+                    memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+                    allowSeparatedGroups: true
+                }
+            ]
+        }
+    }
 ]);

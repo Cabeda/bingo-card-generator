@@ -1,13 +1,19 @@
 # Bingo Card Generator
 
 ![Test & Build](https://github.com/Cabeda/bingo-card-generator/actions/workflows/test.yml/badge.svg?branch=main)
-![Jest Tests](https://github.com/Cabeda/bingo-card-generator/workflows/Run%20Jest%20Tests/badge.svg)
 ![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
 ![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
 
 A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
 
 ## ✨ Features
+
+### 🌍 Internationalization
+
+- **Multi-language Support**: Available in English, Portuguese, Spanish, and French
+- **Language Selector**: Easy-to-use dropdown in the navigation bar
+- **Persistent Preference**: Language selection is saved in localStorage
+- **Localized TTS**: Text-to-speech announces numbers in the selected language
 
 ### 🎴 Card Generation
 
@@ -127,7 +133,7 @@ bun run build      # Build for production
 bun run start      # Start production server
 bun run lint       # Run ESLint
 bun run lint:fix   # Fix ESLint issues automatically
-bun test           # Run Jest tests
+bun run test       # Run Jest tests
 ```
 
 ### Testing
@@ -135,9 +141,13 @@ bun test           # Run Jest tests
 Tests are written using Jest and located alongside the code they test:
 
 ```bash
-bun test           # Run all tests
-bun test --watch   # Run tests in watch mode
+bun run test          # Run all tests
+bun run test:watch    # Run tests in watch mode
+bun run test:coverage # Run tests with coverage report
 ```
+
+> **Note:** Tests use Jest through Bun. The `bun run test` command runs Jest with the proper
+> configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
 
 ### Code Style
 
@@ -188,6 +198,10 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for de
 - Our code style and standards
 - How to submit pull requests
 - Testing requirements
+
+### 🌍 Adding Translations
+
+To add a new language or update existing translations, see [docs/I18N.md](./docs/I18N.md) for detailed instructions.
 
 ## 📚 Documentation
 

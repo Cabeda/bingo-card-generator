@@ -1,3 +1,5 @@
+import { CardId, GameId } from './types';
+
 /**
  * Represents a single bingo card with its unique identifier and number grid.
  * 
@@ -26,7 +28,7 @@
  * @see {@link generateBingoCard} for creating new cards
  */
 export interface Card {
-  cardTitle: string;
+  cardTitle: CardId;
   cardNumber: number;
   numbers: (number | null)[];
 }
@@ -53,6 +55,6 @@ export interface Card {
  * @see {@link generateRandomBingoCards} for creating new games
  */
 export interface Game {
-  filename: string;
+  filename: GameId;
   cards: Card[];
 }

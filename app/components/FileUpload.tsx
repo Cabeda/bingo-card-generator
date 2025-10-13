@@ -1,8 +1,16 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
+import { useTranslations } from "next-intl";
 import { Game } from "../utils/bingo.interface";
-import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
+import { generateRandomBingoCards, parseBingoCards } from "../utils/utils";
+import { 
+  CardsPerPage, 
+  createGameId,
+  isValidCardsPerPage 
+} from "../utils/types";
+
+type QualityMode = 'fast' | 'balanced' | 'high';
 
 /**
  * FileUpload component for managing bingo card generation and export.
@@ -10,14 +18,16 @@ import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
  * This component provides a complete interface for:
  * - Uploading and parsing `.bingoCards` files
  * - Generating random bingo cards with customizable quantities
- * - Exporting cards to PDF format with customizable layout
+ * - Exporting cards to PDF format with customizable layout (fast/balanced/high quality)
  * - Exporting cards to `.bingoCards` format for reuse
  * - Configuring event details (header, location, cards per page)
  * 
  * **Features:**
  * - Real-time card preview
- * - PDF generation with progress tracking
+ * - PDF generation with progress tracking and quality modes
+ * - Cancellable PDF generation
  * - Batch image processing for efficient PDF creation
+ * - Internationalization support
  * - Responsive card layout
  * 
  * @example
@@ -34,11 +44,12 @@ import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
  * @see {@link parseBingoCards} for file parsing logic
  * @see {@link generateRandomBingoCards} for card generation
  */
-export function FileUpload() {
+export function FileUpload(): React.JSX.Element {
+  const t = useTranslations('fileUpload');
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
-  const [bingoPercard, setBingoPercard] = useState<number>(2); // New state for bingoPercard
+  const [bingoPercard, setBingoPercard] = useState<CardsPerPage>(2);
   const [eventHeader, setEventHeader] = useState<string>(
     `Magusto ${new Date().getFullYear()}`
   );
@@ -48,6 +59,9 @@ export function FileUpload() {
   const [progress, setProgress] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
+  const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number>(0);
+  const cancelPdfRef = useRef<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   /**
@@ -70,7 +84,7 @@ export function FileUpload() {
    * 
    * @see {@link parseBingoCards} for the parsing logic
    */
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const selectedFile = event.target.files?.[0];
 
     if (selectedFile && selectedFile.name.endsWith(".bingoCards")) {
@@ -84,7 +98,7 @@ export function FileUpload() {
       };
       reader.readAsText(selectedFile);
     } else {
-      alert("Please upload a file with the .bingoCards extension.");
+      alert(t('uploadError'));
     }
   };
 
@@ -104,12 +118,12 @@ export function FileUpload() {
    * 
    * @see {@link generateRandomBingoCards} for card generation logic
    */
-  const handleGenerateRandomCards = () => {
+  const handleGenerateRandomCards = (): void => {
     setIsGenerating(true);
     
     const generatedCards = generateRandomBingoCards(numCards);
     setBingoCards({
-      filename: `${getCurrentDate()}-${eventHeader}`,
+      filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
       cards: generatedCards,
     });
     setIsGenerating(false);
@@ -128,21 +142,23 @@ export function FileUpload() {
    * 
    * This function creates a professional PDF with:
    * - Configurable cards per page (1-3 cards)
+   * - Quality mode selection (fast/balanced/high)
    * - Event header at the top of each page
    * - Location footer at the bottom of each page
    * - Progress tracking for long operations
+   * - Cancellation support
    * 
    * **Performance Optimization:**
    * - Converts cards to images in parallel batches (100 cards at a time)
-   * - Uses reduced quality (0.7) for faster processing
+   * - Adjustable quality based on selected mode
    * - Shows real-time progress updates (0-80% conversion, 80-100% assembly)
-   * - Typically processes 1000+ cards in under a few seconds
+   * - Estimated time remaining displayed during generation
    * 
    * **Process:**
    * 1. Convert all card DOM elements to PNG images in batches
    * 2. Add images to PDF pages with proper layout
    * 3. Add headers and footers to each page
-   * 4. Save the final PDF file
+   * 4. Save the final PDF file using blob approach (Firefox iOS compatible)
    * 
    * @async
    * @throws {Error} If PDF generation fails or DOM elements are unavailable
@@ -156,11 +172,13 @@ export function FileUpload() {
    * 
    * @see {@link htmlToImage.toPng} for DOM-to-image conversion
    */
-  const generatePDF = async () => {
+  const generatePDF = async (): Promise<void> => {
     if (!bingoCards) return;
     
     setIsGeneratingPDF(true);
     setProgress(0);
+    setEstimatedTimeRemaining(0);
+    cancelPdfRef.current = false;
     
     try {
       const pdf = new jsPDF("p", "pt", "a4");
@@ -172,11 +190,17 @@ export function FileUpload() {
       // Wait for DOM to be ready
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-      // Batch size for parallel processing
-      const batchSize = 100; // Increased from 5 to 10 for faster processing
+      // Quality settings based on selected mode
+      const qualitySettings = {
+        fast: { quality: 0.5, pixelRatio: 1, batchSize: 50 },
+        balanced: { quality: 0.7, pixelRatio: 1.5, batchSize: 30 },
+        high: { quality: 0.95, pixelRatio: 2, batchSize: 20 },
+      };
+      
+      const settings = qualitySettings[qualityMode];
       const imgOptions = {
-        quality: 0.7, // Reduced from 1 to 0.95 for faster processing with minimal quality loss
-        pixelRatio: 2, // Use 2x pixel ratio for crisp images
+        quality: settings.quality,
+        pixelRatio: settings.pixelRatio,
         skipFonts: true,
         cacheBust: false, // Disable cache busting for speed
       };
@@ -185,10 +209,20 @@ export function FileUpload() {
       const allImageUrls: string[] = [];
       const startTime = performance.now();
       
-      for (let batch = 0; batch < totalCards; batch += batchSize) {
+      for (let batch = 0; batch < totalCards; batch += settings.batchSize) {
+        // Check if cancelled
+        if (cancelPdfRef.current) {
+          console.log('PDF generation cancelled by user');
+          setIsGeneratingPDF(false);
+          setProgress(0);
+          setEstimatedTimeRemaining(0);
+          alert(t('pdfCancelled'));
+          return;
+        }
+
         const batchStartTime = performance.now();
         const batchPromises = [];
-        for (let i = batch; i < Math.min(batch + batchSize, totalCards); i++) {
+        for (let i = batch; i < Math.min(batch + settings.batchSize, totalCards); i++) {
           const cardRef = cardRefs.current[i];
           if (cardRef) {
             batchPromises.push(htmlToImage.toPng(cardRef, imgOptions));
@@ -200,7 +234,16 @@ export function FileUpload() {
         const batchResults = await Promise.all(batchPromises);
         allImageUrls.push(...batchResults);
         const batchEndTime = performance.now();
-        console.log(`Batch ${Math.floor(batch/batchSize) + 1} (${batchResults.length} cards) took ${Math.round(batchEndTime - batchStartTime)}ms`);
+        
+        // Calculate estimated time remaining
+        const elapsedTime = batchEndTime - startTime;
+        const processedCards = batch + batchResults.length;
+        const progressRatio = processedCards / totalCards;
+        const estimatedTotalTime = elapsedTime / progressRatio;
+        const timeRemaining = Math.ceil((estimatedTotalTime - elapsedTime) / 1000);
+        setEstimatedTimeRemaining(timeRemaining > 0 ? timeRemaining : 0);
+        
+        console.log(`Batch ${Math.floor(batch/settings.batchSize) + 1} (${batchResults.length} cards) took ${Math.round(batchEndTime - batchStartTime)}ms`);
         setProgress((batch / totalCards) * 80); // 0-80% for image conversion
       }
       
@@ -209,6 +252,16 @@ export function FileUpload() {
 
       // Add images to PDF pages (fast operation)
       for (let i = 0; i < totalCards; i += cardsPerPage) {
+        // Check if cancelled
+        if (cancelPdfRef.current) {
+          console.log('PDF generation cancelled by user');
+          setIsGeneratingPDF(false);
+          setProgress(0);
+          setEstimatedTimeRemaining(0);
+          alert(t('pdfCancelled'));
+          return;
+        }
+
         if (i > 0) {
           pdf.addPage();
         }
@@ -250,20 +303,37 @@ export function FileUpload() {
       const endTime = performance.now();
       console.log(`PDF generation completed in ${Math.round(endTime - startTime)}ms`);
       
-      pdf.save(`${getCurrentDate()}-${eventHeader}.pdf`);
+      // Use blob approach for better iOS compatibility
+      const pdfBlob = pdf.output('blob');
+      const filename = `${getCurrentDate()}-${eventHeader}.pdf`;
+      
+      const element = document.createElement("a");
+      element.href = URL.createObjectURL(pdfBlob);
+      element.download = filename;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      URL.revokeObjectURL(element.href); // Clean up the blob URL
+      
       setProgress(100);
       
       // Reset after a short delay
       setTimeout(() => {
         setProgress(0);
         setIsGeneratingPDF(false);
+        setEstimatedTimeRemaining(0);
       }, 1000);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Erro ao gerar PDF. Por favor, tente novamente.");
+      alert(t('errorGeneratingPdf'));
       setIsGeneratingPDF(false);
       setProgress(0);
+      setEstimatedTimeRemaining(0);
     }
+  };
+
+  const cancelPdfGeneration = (): void => {
+    cancelPdfRef.current = true;
   };
 
   /**
@@ -287,7 +357,7 @@ export function FileUpload() {
    * // Result: "20241225-1430-Christmas-Bingo.pdf"
    * ```
    */
-  const getCurrentDate = () => {
+  const getCurrentDate = (): string => {
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -323,7 +393,7 @@ export function FileUpload() {
    * 
    * @see {@link parseBingoCards} for importing these files
    */
-  const exportBingoGame = () => {
+  const exportBingoGame = (): void => {
     if (!bingoCards) return;
 
     const content = bingoCards.cards
@@ -348,24 +418,29 @@ export function FileUpload() {
   return (
     <div className="container">
       <div className="file-upload">
-        <h1>Gerador de cartões de Bingo</h1>
+        <h1>{t('title')}</h1>
         <div className="margin-bottom-20">
-          <label className="label-style">Número de cartões</label>
+          <label className="label-style">{t('numCards')}</label>
           <input
             type="number"
             value={numCards}
             onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
-            placeholder="Número de cartões"
+            placeholder={t('numCardsPlaceholder')}
             min={1}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Cartões por página</label>
+          <label className="label-style">{t('cardsPerPage')}</label>
           <input
             type="range"
             value={bingoPercard}
-            onChange={(e) => setBingoPercard(parseInt(e.target.value, 10))}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (isValidCardsPerPage(value)) {
+                setBingoPercard(value);
+              }
+            }}
             min={1}
             max={3}
             step={1}
@@ -374,38 +449,51 @@ export function FileUpload() {
           <span>{bingoPercard}</span>
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Nome do evento</label>
+          <label className="label-style">{t('qualityMode')}</label>
+          <select
+            value={qualityMode}
+            onChange={(e) => setQualityMode(e.target.value as QualityMode)}
+            className="input-style"
+            style={{ width: '100%' }}
+          >
+            <option value="fast">{t('qualityFast')}</option>
+            <option value="balanced">{t('qualityBalanced')}</option>
+            <option value="high">{t('qualityHigh')}</option>
+          </select>
+        </div>
+        <div className="margin-bottom-20">
+          <label className="label-style">{t('eventName')}</label>
           <input
             type="text"
             value={eventHeader}
             onChange={(e) => setEventHeader(e.target.value)}
-            placeholder="Event Header"
+            placeholder={t('eventNamePlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Local</label>
+          <label className="label-style">{t('location')}</label>
           <input
             type="text"
             value={locationFooter}
             onChange={(e) => setLocationFooter(e.target.value)}
-            placeholder="Location Footer"
+            placeholder={t('locationPlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20 hidden">
-          <label className="label-style">Upload .bingoCards File:</label>
+          <label className="label-style">{t('uploadFile')}</label>
           <input
             type="file"
             accept=".bingoCards"
             onChange={handleFileChange}
             className="input-style"
           />
-          {file && <p>Selected file: {file.name}</p>}
+          {file && <p>{t('selectedFile', { filename: file.name })}</p>}
         </div>
         <div className="margin-bottom-20">
           <button onClick={handleGenerateRandomCards} className="button-style">
-            Gerar cartões de Bingo
+            {t('generateCards')}
           </button>
         </div>
         {isGenerating && (
@@ -425,18 +513,18 @@ export function FileUpload() {
               }}
             />
             <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-              A gerar cartões...
+              {t('generating')}
             </p>
           </div>
         )}
         {bingoCards && (
           <div>
-            <h3>Cartões de bingo</h3>
+            <h3>{t('bingoCards')}</h3>
             <button
               onClick={exportBingoGame}
               className="button-style"
             >
-              Gerar .bingoCards
+              {t('exportBingoCards')}
             </button>
             <button
               onClick={generatePDF}
@@ -447,7 +535,7 @@ export function FileUpload() {
                 cursor: isGeneratingPDF ? "not-allowed" : "pointer",
               }}
             >
-              Gerar PDF
+              {t('generatePdf')}
             </button>
             {isGeneratingPDF && (
               <div
@@ -466,8 +554,17 @@ export function FileUpload() {
                   }}
                 />
                 <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-                  A gerar PDF... {Math.round(progress)}%
+                  {estimatedTimeRemaining > 0 
+                    ? t('generatingPdfWithTime', { progress: Math.round(progress), timeRemaining: estimatedTimeRemaining })
+                    : t('generatingPdf', { progress: Math.round(progress) })}
                 </p>
+                <button
+                  onClick={cancelPdfGeneration}
+                  className="button-style"
+                  style={{ marginTop: "10px", backgroundColor: "#d32f2f" }}
+                >
+                  {t('cancelPdf')}
+                </button>
               </div>
             )}
             {progress > 0 && progress < 100 && !isGeneratingPDF && (
