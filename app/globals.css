@@ -142,6 +142,21 @@ h3 {
   font-weight: normal;
 }
 
+/* Mobile typography adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  h3 {
+    font-size: 1.25em;
+  }
+}
+
 .bingo-cell {
   background-color: var(--primary-color);
   border: 0.125rem solid var(--secondary-color); /* Thicker border */
@@ -151,6 +166,7 @@ h3 {
   color: white;
   font-weight: bold;
   min-width: 60px;
+  min-height: 60px;
   border-radius: 0.25rem; /* Slightly rounded corners */
 }
 
@@ -164,11 +180,46 @@ h3 {
   color: var(--foreground);
 }
 
+/* Mobile responsive bingo cells */
+@media (max-width: 768px) {
+  .bingo-cell {
+    font-size: 1rem;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.25rem;
+  }
+  
+  .cardNumber {
+    font-size: 0.625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-cell {
+    font-size: 0.875rem;
+    min-width: 25px;
+    min-height: 25px;
+  }
+}
+
 .file-upload {
   padding: 20px;
   font-family: 'Roboto', sans-serif;
   max-width: 600px; /* Set your desired maximum width */
   width: 100%;
+}
+
+/* Mobile responsive file upload */
+@media (max-width: 768px) {
+  .file-upload {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .file-upload {
+    padding: 2rem;
+  }
 }
 
 .margin-bottom-20 {
@@ -181,6 +232,8 @@ h3 {
   box-sizing: border-box;
   border: 0.125rem solid var(--primary-color); /* Edgy border */
   border-radius: 0.25rem; /* Slightly rounded corners */
+  min-height: 44px; /* Touch-friendly minimum height */
+  font-size: 16px; /* Prevents zoom on iOS */
 }
 
 .hidden {
@@ -199,11 +252,39 @@ h3 {
   border-radius: 0.25rem; /* Slightly rounded corners */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, transform 0.3s ease;
+  min-height: 48px; /* Touch-friendly minimum height */
+  min-width: 48px; /* Touch-friendly minimum width */
+  font-size: 1rem;
 }
 
 .button-style:hover {
   background-color: var(--secondary-color);
   transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Mobile button adjustments */
+@media (max-width: 640px) {
+  .button-style {
+    width: 100%;
+    padding: 12px 24px;
+  }
+}
+
+/* Button group for stacking buttons on mobile */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .button-group .button-style {
+    width: 100%;
+  }
 }
 
 .progress-bar-container {
@@ -226,13 +307,36 @@ h3 {
   border-radius: 0.25rem;
   border: 0.125rem solid var(--secondary-color);
   width: auto; /* Let the width adjust based on content */
+  max-width: 500px; /* Maximum width for better display */
+}
+
+/* Mobile responsive bingo card */
+@media (max-width: 768px) {
+  .bingo-card {
+    width: 100%;
+    margin: 0 auto 1rem;
+    padding: 0.5rem;
+  }
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(9, auto);
+  grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
+}
+
+/* Mobile responsive grid */
+@media (max-width: 768px) {
+  .grid-container {
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    gap: 1px;
+  }
 }
 
 /* Loading spinner animation */
@@ -284,9 +388,23 @@ h3 {
   padding: 20px;
 }
 
+/* Mobile responsive game page */
+@media (max-width: 768px) {
+  .game-page {
+    padding: 10px;
+  }
+}
+
 .button-style {
   margin: 5px;
   padding: 10px 20px;
+}
+
+/* Mobile - remove margin to allow full width */
+@media (max-width: 640px) {
+  .button-style {
+    margin: 5px 0;
+  }
 }
 
 .current-number h2 {
@@ -308,6 +426,7 @@ h3 {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
 }
 
 .modal-box {
@@ -316,6 +435,15 @@ h3 {
   padding: 20px;
   border-radius: 8px;
   text-align: center;
+  max-width: 90%;
+  width: 100%;
+}
+
+/* Mobile responsive modal */
+@media (min-width: 640px) {
+  .modal-box {
+    max-width: 500px;
+  }
 }
 
 .modal-box p {

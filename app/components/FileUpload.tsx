@@ -288,23 +288,25 @@ export function FileUpload() {
         {bingoCards && (
           <div>
             <h3>{t('bingoCards')}</h3>
-            <button
-              onClick={exportBingoGame}
-              className="button-style"
-            >
-              {t('exportBingoCards')}
-            </button>
-            <button
-              onClick={generatePDF}
-              className="button-style"
-              disabled={isGeneratingPDF}
-              style={{
-                opacity: isGeneratingPDF ? 0.6 : 1,
-                cursor: isGeneratingPDF ? "not-allowed" : "pointer",
-              }}
-            >
-              {t('generatePdf')}
-            </button>
+            <div className="button-group">
+              <button
+                onClick={exportBingoGame}
+                className="button-style"
+              >
+                {t('exportBingoCards')}
+              </button>
+              <button
+                onClick={generatePDF}
+                className="button-style"
+                disabled={isGeneratingPDF}
+                style={{
+                  opacity: isGeneratingPDF ? 0.6 : 1,
+                  cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+                }}
+              >
+                {t('generatePdf')}
+              </button>
+            </div>
             {isGeneratingPDF && (
               <div
                 className="margin-bottom-20"

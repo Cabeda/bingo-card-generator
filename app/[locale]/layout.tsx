@@ -6,6 +6,18 @@ import { routing } from '../routing';
 import Navbar from "../components/Navbar";
 import ViewTransition from "../components/ViewTransition";
 import "../globals.css";
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+export const metadata: Metadata = {
+  title: 'Bingo Card Generator',
+  description: 'Generate and play bingo cards',
+};
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
