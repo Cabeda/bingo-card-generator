@@ -51,6 +51,7 @@ jest.mock('jspdf', () => {
     addPage: jest.fn(),
     text: jest.fn(),
     save: jest.fn(),
+    output: jest.fn().mockReturnValue(new Blob(['fake pdf content'], { type: 'application/pdf' })),
   }));
 });
 
@@ -64,6 +65,10 @@ jest.mock('../utils/utils');
 
 const mockGenerateRandomBingoCards = generateRandomBingoCards as jest.MockedFunction<typeof generateRandomBingoCards>;
 const mockParseBingoCards = parseBingoCards as jest.MockedFunction<typeof parseBingoCards>;
+
+// Mock URL.createObjectURL and URL.revokeObjectURL
+global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+global.URL.revokeObjectURL = jest.fn();
 
 describe('FileUpload', () => {
   beforeEach(() => {
