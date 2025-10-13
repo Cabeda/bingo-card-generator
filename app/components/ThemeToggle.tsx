@@ -1,7 +1,7 @@
 // components/ThemeToggle.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ThemeToggle.module.css';
 
 type Theme = 'light' | 'dark' | 'system';

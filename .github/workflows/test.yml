@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
@@ -28,7 +28,7 @@ jobs:
       run: bun run lint
 
     - name: Run tests with coverage
-      run: bun test --coverage
+      run: NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage
 
     - name: Build application
       run: bun run build

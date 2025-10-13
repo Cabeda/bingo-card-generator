@@ -61,10 +61,13 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### Running Tests
 
 ```bash
-bun test           # Run all tests
-bun test --watch   # Run tests in watch mode
-bun test --coverage  # Run tests with coverage report
+bun run test          # Run all tests
+bun run test:watch    # Run tests in watch mode
+bun run test:coverage # Run tests with coverage report
 ```
+
+> **Note:** The project uses Jest through Bun. All test commands are configured in
+> `package.json` to run Jest with the proper Node options for compatibility.
 
 ### Linting
 
@@ -124,7 +127,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 4. **Run tests and linting**:
 
    ```bash
-   bun test
+   bun run test
    bun run lint
    ```
 
@@ -251,10 +254,11 @@ Place test files next to the code they test:
 
 1. **Update documentation** if you've changed functionality
 2. **Add or update tests** for your changes
-3. **Run all tests** and ensure they pass: `bun test`
+3. **Run all tests** and ensure they pass: `bun run test`
 4. **Run linting** and fix any issues: `bun run lint:fix`
 5. **Build the project** to ensure no build errors: `bun run build`
 6. **Update the README** if you've added features or changed usage
+7. **Update the CHANGELOG.md** under the `[Unreleased]` section with your changes
 
 ### PR Guidelines
 

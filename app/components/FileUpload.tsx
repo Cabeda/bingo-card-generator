@@ -1,17 +1,19 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
+import { useTranslations } from "next-intl";
 import { Game } from "../utils/bingo.interface";
-import { parseBingoCards, generateRandomBingoCards } from "../utils/utils";
+import { generateRandomBingoCards, parseBingoCards } from "../utils/utils";
 import { 
   CardsPerPage, 
-  QualityLevel, 
-  isValidCardsPerPage, 
-  getQualityValue,
-  createGameId 
+  createGameId,
+  isValidCardsPerPage 
 } from "../utils/types";
 
+type QualityMode = 'fast' | 'balanced' | 'high';
+
 export function FileUpload(): React.JSX.Element {
+  const t = useTranslations('fileUpload');
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
@@ -25,6 +27,9 @@ export function FileUpload(): React.JSX.Element {
   const [progress, setProgress] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
+  const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number>(0);
+  const cancelPdfRef = useRef<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -41,7 +46,7 @@ export function FileUpload(): React.JSX.Element {
       };
       reader.readAsText(selectedFile);
     } else {
-      alert("Please upload a file with the .bingoCards extension.");
+      alert(t('uploadError'));
     }
   };
 
@@ -69,6 +74,8 @@ export function FileUpload(): React.JSX.Element {
     
     setIsGeneratingPDF(true);
     setProgress(0);
+    setEstimatedTimeRemaining(0);
+    cancelPdfRef.current = false;
     
     try {
       const pdf = new jsPDF("p", "pt", "a4");
@@ -80,11 +87,17 @@ export function FileUpload(): React.JSX.Element {
       // Wait for DOM to be ready
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-      // Batch size for parallel processing
-      const batchSize = 100; // Increased from 5 to 10 for faster processing
+      // Quality settings based on selected mode
+      const qualitySettings = {
+        fast: { quality: 0.5, pixelRatio: 1, batchSize: 50 },
+        balanced: { quality: 0.7, pixelRatio: 1.5, batchSize: 30 },
+        high: { quality: 0.95, pixelRatio: 2, batchSize: 20 },
+      };
+      
+      const settings = qualitySettings[qualityMode];
       const imgOptions = {
-        quality: getQualityValue(QualityLevel.MEDIUM), // Use QualityLevel enum
-        pixelRatio: 2, // Use 2x pixel ratio for crisp images
+        quality: settings.quality,
+        pixelRatio: settings.pixelRatio,
         skipFonts: true,
         cacheBust: false, // Disable cache busting for speed
       };
@@ -93,10 +106,20 @@ export function FileUpload(): React.JSX.Element {
       const allImageUrls: string[] = [];
       const startTime = performance.now();
       
-      for (let batch = 0; batch < totalCards; batch += batchSize) {
+      for (let batch = 0; batch < totalCards; batch += settings.batchSize) {
+        // Check if cancelled
+        if (cancelPdfRef.current) {
+          console.log('PDF generation cancelled by user');
+          setIsGeneratingPDF(false);
+          setProgress(0);
+          setEstimatedTimeRemaining(0);
+          alert(t('pdfCancelled'));
+          return;
+        }
+
         const batchStartTime = performance.now();
         const batchPromises = [];
-        for (let i = batch; i < Math.min(batch + batchSize, totalCards); i++) {
+        for (let i = batch; i < Math.min(batch + settings.batchSize, totalCards); i++) {
           const cardRef = cardRefs.current[i];
           if (cardRef) {
             batchPromises.push(htmlToImage.toPng(cardRef, imgOptions));
@@ -108,7 +131,16 @@ export function FileUpload(): React.JSX.Element {
         const batchResults = await Promise.all(batchPromises);
         allImageUrls.push(...batchResults);
         const batchEndTime = performance.now();
-        console.log(`Batch ${Math.floor(batch/batchSize) + 1} (${batchResults.length} cards) took ${Math.round(batchEndTime - batchStartTime)}ms`);
+        
+        // Calculate estimated time remaining
+        const elapsedTime = batchEndTime - startTime;
+        const processedCards = batch + batchResults.length;
+        const progressRatio = processedCards / totalCards;
+        const estimatedTotalTime = elapsedTime / progressRatio;
+        const timeRemaining = Math.ceil((estimatedTotalTime - elapsedTime) / 1000);
+        setEstimatedTimeRemaining(timeRemaining > 0 ? timeRemaining : 0);
+        
+        console.log(`Batch ${Math.floor(batch/settings.batchSize) + 1} (${batchResults.length} cards) took ${Math.round(batchEndTime - batchStartTime)}ms`);
         setProgress((batch / totalCards) * 80); // 0-80% for image conversion
       }
       
@@ -117,6 +149,16 @@ export function FileUpload(): React.JSX.Element {
 
       // Add images to PDF pages (fast operation)
       for (let i = 0; i < totalCards; i += cardsPerPage) {
+        // Check if cancelled
+        if (cancelPdfRef.current) {
+          console.log('PDF generation cancelled by user');
+          setIsGeneratingPDF(false);
+          setProgress(0);
+          setEstimatedTimeRemaining(0);
+          alert(t('pdfCancelled'));
+          return;
+        }
+
         if (i > 0) {
           pdf.addPage();
         }
@@ -165,13 +207,19 @@ export function FileUpload(): React.JSX.Element {
       setTimeout(() => {
         setProgress(0);
         setIsGeneratingPDF(false);
+        setEstimatedTimeRemaining(0);
       }, 1000);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Erro ao gerar PDF. Por favor, tente novamente.");
+      alert(t('errorGeneratingPdf'));
       setIsGeneratingPDF(false);
       setProgress(0);
+      setEstimatedTimeRemaining(0);
     }
+  };
+
+  const cancelPdfGeneration = (): void => {
+    cancelPdfRef.current = true;
   };
 
   const getCurrentDate = (): string => {
@@ -209,20 +257,20 @@ export function FileUpload(): React.JSX.Element {
   return (
     <div className="container">
       <div className="file-upload">
-        <h1>Gerador de cartões de Bingo</h1>
+        <h1>{t('title')}</h1>
         <div className="margin-bottom-20">
-          <label className="label-style">Número de cartões</label>
+          <label className="label-style">{t('numCards')}</label>
           <input
             type="number"
             value={numCards}
             onChange={(e) => setNumCards(parseInt(e.target.value, 10))}
-            placeholder="Número de cartões"
+            placeholder={t('numCardsPlaceholder')}
             min={1}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Cartões por página</label>
+          <label className="label-style">{t('cardsPerPage')}</label>
           <input
             type="range"
             value={bingoPercard}
@@ -240,38 +288,51 @@ export function FileUpload(): React.JSX.Element {
           <span>{bingoPercard}</span>
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Nome do evento</label>
+          <label className="label-style">{t('qualityMode')}</label>
+          <select
+            value={qualityMode}
+            onChange={(e) => setQualityMode(e.target.value as QualityMode)}
+            className="input-style"
+            style={{ width: '100%' }}
+          >
+            <option value="fast">{t('qualityFast')}</option>
+            <option value="balanced">{t('qualityBalanced')}</option>
+            <option value="high">{t('qualityHigh')}</option>
+          </select>
+        </div>
+        <div className="margin-bottom-20">
+          <label className="label-style">{t('eventName')}</label>
           <input
             type="text"
             value={eventHeader}
             onChange={(e) => setEventHeader(e.target.value)}
-            placeholder="Event Header"
+            placeholder={t('eventNamePlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20">
-          <label className="label-style">Local</label>
+          <label className="label-style">{t('location')}</label>
           <input
             type="text"
             value={locationFooter}
             onChange={(e) => setLocationFooter(e.target.value)}
-            placeholder="Location Footer"
+            placeholder={t('locationPlaceholder')}
             className="input-style"
           />
         </div>
         <div className="margin-bottom-20 hidden">
-          <label className="label-style">Upload .bingoCards File:</label>
+          <label className="label-style">{t('uploadFile')}</label>
           <input
             type="file"
             accept=".bingoCards"
             onChange={handleFileChange}
             className="input-style"
           />
-          {file && <p>Selected file: {file.name}</p>}
+          {file && <p>{t('selectedFile', { filename: file.name })}</p>}
         </div>
         <div className="margin-bottom-20">
           <button onClick={handleGenerateRandomCards} className="button-style">
-            Gerar cartões de Bingo
+            {t('generateCards')}
           </button>
         </div>
         {isGenerating && (
@@ -291,18 +352,18 @@ export function FileUpload(): React.JSX.Element {
               }}
             />
             <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-              A gerar cartões...
+              {t('generating')}
             </p>
           </div>
         )}
         {bingoCards && (
           <div>
-            <h3>Cartões de bingo</h3>
+            <h3>{t('bingoCards')}</h3>
             <button
               onClick={exportBingoGame}
               className="button-style"
             >
-              Gerar .bingoCards
+              {t('exportBingoCards')}
             </button>
             <button
               onClick={generatePDF}
@@ -313,7 +374,7 @@ export function FileUpload(): React.JSX.Element {
                 cursor: isGeneratingPDF ? "not-allowed" : "pointer",
               }}
             >
-              Gerar PDF
+              {t('generatePdf')}
             </button>
             {isGeneratingPDF && (
               <div
@@ -332,8 +393,17 @@ export function FileUpload(): React.JSX.Element {
                   }}
                 />
                 <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-                  A gerar PDF... {Math.round(progress)}%
+                  {estimatedTimeRemaining > 0 
+                    ? t('generatingPdfWithTime', { progress: Math.round(progress), timeRemaining: estimatedTimeRemaining })
+                    : t('generatingPdf', { progress: Math.round(progress) })}
                 </p>
+                <button
+                  onClick={cancelPdfGeneration}
+                  className="button-style"
+                  style={{ marginTop: "10px", backgroundColor: "#d32f2f" }}
+                >
+                  {t('cancelPdf')}
+                </button>
               </div>
             )}
             {progress > 0 && progress < 100 && !isGeneratingPDF && (

@@ -1,12 +1,12 @@
 import {
-  GenerationState,
-  ExportFormat,
-  QualityLevel,
   CardsPerPage,
   createCardId,
   createGameId,
-  isValidCardsPerPage,
+  ExportFormat,
+  GenerationState,
   getQualityValue,
+  isValidCardsPerPage,
+  QualityMode,
 } from './types';
 
 describe('Type System', () => {
@@ -24,10 +24,10 @@ describe('Type System', () => {
       expect(ExportFormat.PNG).toBe('png');
     });
 
-    it('should have correct QualityLevel values', () => {
-      expect(QualityLevel.LOW).toBe('low');
-      expect(QualityLevel.MEDIUM).toBe('medium');
-      expect(QualityLevel.HIGH).toBe('high');
+    it('should have correct QualityMode values', () => {
+      expect(QualityMode.FAST).toBe('fast');
+      expect(QualityMode.BALANCED).toBe('balanced');
+      expect(QualityMode.HIGH).toBe('high');
     });
   });
 
@@ -58,16 +58,16 @@ describe('Type System', () => {
   });
 
   describe('Quality Value Mapping', () => {
-    it('should map QualityLevel.LOW to 0.5', () => {
-      expect(getQualityValue(QualityLevel.LOW)).toBe(0.5);
+    it('should map QualityMode.FAST to 0.5', () => {
+      expect(getQualityValue(QualityMode.FAST)).toBe(0.5);
     });
 
-    it('should map QualityLevel.MEDIUM to 0.7', () => {
-      expect(getQualityValue(QualityLevel.MEDIUM)).toBe(0.7);
+    it('should map QualityMode.BALANCED to 0.7', () => {
+      expect(getQualityValue(QualityMode.BALANCED)).toBe(0.7);
     });
 
-    it('should map QualityLevel.HIGH to 1.0', () => {
-      expect(getQualityValue(QualityLevel.HIGH)).toBe(1.0);
+    it('should map QualityMode.HIGH to 0.95', () => {
+      expect(getQualityValue(QualityMode.HIGH)).toBe(0.95);
     });
   });
 

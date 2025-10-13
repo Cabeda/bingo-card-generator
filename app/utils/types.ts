@@ -22,11 +22,11 @@ export enum ExportFormat {
 }
 
 /**
- * Quality levels for PDF/image generation
+ * Quality modes for PDF/image generation
  */
-export enum QualityLevel {
-  LOW = 'low',
-  MEDIUM = 'medium',
+export enum QualityMode {
+  FAST = 'fast',
+  BALANCED = 'balanced',
   HIGH = 'high'
 }
 
@@ -49,7 +49,7 @@ export type GameId = string & { __brand: 'GameId' };
  * PDF generation configuration options
  */
 export interface PdfGenerationOptions {
-  quality: QualityLevel;
+  quality: QualityMode;
   cardsPerPage: CardsPerPage;
   pixelRatio: number;
   format: ExportFormat;
@@ -97,15 +97,15 @@ export function isValidCardsPerPage(value: number): value is CardsPerPage {
 }
 
 /**
- * Maps quality level enum to numeric quality value (0-1)
+ * Maps quality mode enum to numeric quality value (0-1)
  */
-export function getQualityValue(level: QualityLevel): number {
-  switch (level) {
-    case QualityLevel.LOW:
+export function getQualityValue(mode: QualityMode): number {
+  switch (mode) {
+    case QualityMode.FAST:
       return 0.5;
-    case QualityLevel.MEDIUM:
+    case QualityMode.BALANCED:
       return 0.7;
-    case QualityLevel.HIGH:
-      return 1.0;
+    case QualityMode.HIGH:
+      return 0.95;
   }
 }
