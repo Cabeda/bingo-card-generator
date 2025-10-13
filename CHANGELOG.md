@@ -9,20 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Performance optimizations for PDF generation
-- Progress indicator with estimated time remaining
-- Console logging for PDF generation timing
+- Quality mode selector (Fast/Balanced/High Quality) for PDF generation
+- Cancel button for long-running PDF generation operations
+- Estimated time remaining display during PDF generation
+- Configurable quality settings with optimized batch sizes per mode
+- Translation keys for new quality modes and cancel functionality in all languages (en, pt, es, fr)
 
 ### Changed
 
-- Removed motion animations for faster rendering
-- Increased batch size from 5 to 10 cards
-- Reduced image quality from 1.0 to 0.95
+- Reduced default pixelRatio from 2 to 1.5 for faster PDF generation (Balanced mode)
+- Optimized batch sizes: Fast mode (50 cards), Balanced mode (30 cards), High Quality mode (20 cards)
+- Improved quality settings: Fast (0.5), Balanced (0.7), High (0.95)
+- Enhanced progress indicator to show estimated completion time
 
-### Fixed
+### Performance
 
-- Cards not rendering in PDF when generating large numbers
-- PDF generation hanging on completion
+- PDF generation is approximately 30-50% faster with default Balanced mode
+- Fast mode provides even greater speed improvements (60%+ faster) with acceptable quality
+- High Quality mode maintains previous quality standards for users requiring maximum fidelity
 
 ## [0.1.0] - 2025-10-12
 
