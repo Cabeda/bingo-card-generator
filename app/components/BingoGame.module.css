@@ -101,7 +101,8 @@
 
 .numbers_grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(55px, 55px));
+    justify-content: center;
     gap: 5px;
     margin: 0 auto;
     padding: 10px;
@@ -239,7 +240,7 @@
   .numbers_grid {
     gap: 3px;
     padding: 5px;
-    grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(50px, 50px));
   }
 
   .recent_list {
@@ -265,7 +266,7 @@
   .numbers_grid {
     gap: 2px;
     padding: 3px;
-    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(45px, 45px));
   }
 
   .recent_numbers {
