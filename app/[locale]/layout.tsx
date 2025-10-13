@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '../routing';
 import Navbar from "../components/Navbar";
+import { PWARegister } from "../components/PWARegister";
 import ViewTransition from "../components/ViewTransition";
 import "../globals.css";
 import type { Metadata, Viewport } from 'next';
@@ -49,6 +50,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
+          <PWARegister />
           <ViewTransition />
           <Navbar />
           {children}
