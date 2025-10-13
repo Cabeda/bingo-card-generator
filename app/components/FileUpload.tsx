@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { useTranslations } from "next-intl";
+import { motion } from "motion/react";
 import { Game } from "../utils/bingo.interface";
 import { generateRandomBingoCards, parseBingoCards } from "../utils/utils";
 import { 
@@ -9,6 +10,9 @@ import {
   createGameId,
   isValidCardsPerPage 
 } from "../utils/types";
+import { useToast } from "./ToastProvider";
+import { LoadingOverlay } from "./LoadingOverlay";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type QualityMode = 'fast' | 'balanced' | 'high';
 
@@ -46,6 +50,7 @@ type QualityMode = 'fast' | 'balanced' | 'high';
  */
 export function FileUpload(): React.JSX.Element {
   const t = useTranslations('fileUpload');
+  const { showSuccess, showError } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
   const [numCards, setNumCards] = useState<number>(10);
@@ -61,6 +66,8 @@ export function FileUpload(): React.JSX.Element {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
   const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number>(0);
+  const [batchInfo, setBatchInfo] = useState<string>("");
+  const [showConfirmClear, setShowConfirmClear] = useState<boolean>(false);
   const cancelPdfRef = useRef<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -95,10 +102,11 @@ export function FileUpload(): React.JSX.Element {
         const content = e.target?.result as string;
         const bingoGame = parseBingoCards(filename, content);
         setBingoCards(bingoGame);
+        showSuccess(t('cardsGeneratedSuccess', { count: bingoGame.cards.length }));
       };
       reader.readAsText(selectedFile);
     } else {
-      alert(t('uploadError'));
+      showError(t('uploadError'));
     }
   };
 
@@ -121,12 +129,16 @@ export function FileUpload(): React.JSX.Element {
   const handleGenerateRandomCards = (): void => {
     setIsGenerating(true);
     
-    const generatedCards = generateRandomBingoCards(numCards);
-    setBingoCards({
-      filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
-      cards: generatedCards,
-    });
-    setIsGenerating(false);
+    // Use setTimeout to allow UI to update before heavy operation
+    setTimeout(() => {
+      const generatedCards = generateRandomBingoCards(numCards);
+      setBingoCards({
+        filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
+        cards: generatedCards,
+      });
+      setIsGenerating(false);
+      showSuccess(t('cardsGeneratedSuccess', { count: numCards }));
+    }, 50);
   };
 
   // Callback to set card ref
@@ -216,12 +228,17 @@ export function FileUpload(): React.JSX.Element {
           setIsGeneratingPDF(false);
           setProgress(0);
           setEstimatedTimeRemaining(0);
-          alert(t('pdfCancelled'));
+          setBatchInfo("");
+          showError(t('pdfCancelled'));
           return;
         }
 
         const batchStartTime = performance.now();
         const batchPromises = [];
+        const currentBatch = Math.floor(batch / settings.batchSize) + 1;
+        const totalBatches = Math.ceil(totalCards / settings.batchSize);
+        setBatchInfo(t('processingBatch', { current: currentBatch, total: totalBatches }));
+        
         for (let i = batch; i < Math.min(batch + settings.batchSize, totalCards); i++) {
           const cardRef = cardRefs.current[i];
           if (cardRef) {
@@ -249,6 +266,7 @@ export function FileUpload(): React.JSX.Element {
       
       const imageConversionTime = performance.now();
       console.log(`Image conversion completed in ${Math.round(imageConversionTime - startTime)}ms`);
+      setBatchInfo(t('assemblingPdf'));
 
       // Add images to PDF pages (fast operation)
       for (let i = 0; i < totalCards; i += cardsPerPage) {
@@ -258,7 +276,8 @@ export function FileUpload(): React.JSX.Element {
           setIsGeneratingPDF(false);
           setProgress(0);
           setEstimatedTimeRemaining(0);
-          alert(t('pdfCancelled'));
+          setBatchInfo("");
+          showError(t('pdfCancelled'));
           return;
         }
 
@@ -317,18 +336,21 @@ export function FileUpload(): React.JSX.Element {
       
       setProgress(100);
       
-      // Reset after a short delay
+      // Show success toast and reset after a short delay
+      showSuccess(t('pdfGeneratedSuccess'));
       setTimeout(() => {
         setProgress(0);
         setIsGeneratingPDF(false);
         setEstimatedTimeRemaining(0);
+        setBatchInfo("");
       }, 1000);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert(t('errorGeneratingPdf'));
+      showError(t('errorGeneratingPdf'));
       setIsGeneratingPDF(false);
       setProgress(0);
       setEstimatedTimeRemaining(0);
+      setBatchInfo("");
     }
   };
 
@@ -413,10 +435,55 @@ export function FileUpload(): React.JSX.Element {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    
+    showSuccess(t('bingoCardsExportedSuccess'));
+  };
+
+  const handleClearCards = (): void => {
+    setShowConfirmClear(true);
+  };
+
+  const confirmClearCards = (): void => {
+    setBingoCards(null);
+    setProgress(0);
+    setShowConfirmClear(false);
+    showSuccess(t('clear'));
   };
 
   return (
     <div className="container">
+      {/* Loading overlay for card generation */}
+      <LoadingOverlay
+        isVisible={isGenerating}
+        message={t('generating')}
+        showProgress={false}
+      />
+
+      {/* Loading overlay for PDF generation */}
+      <LoadingOverlay
+        isVisible={isGeneratingPDF}
+        message={estimatedTimeRemaining > 0 
+          ? t('generatingPdfWithTime', { progress: Math.round(progress), timeRemaining: estimatedTimeRemaining })
+          : t('generatingPdf', { progress: Math.round(progress) })}
+        progress={progress}
+        showProgress={true}
+        subMessage={batchInfo}
+        onCancel={cancelPdfGeneration}
+        cancelText={t('cancelPdf')}
+      />
+
+      {/* Confirm dialog for clearing cards */}
+      <ConfirmDialog
+        isOpen={showConfirmClear}
+        title={t('confirmClearCards')}
+        message={t('confirmClearCardsMessage')}
+        confirmText={t('clear')}
+        cancelText={t('cancel')}
+        confirmVariant="danger"
+        onConfirm={confirmClearCards}
+        onCancel={() => setShowConfirmClear(false)}
+      />
+
       <div className="file-upload">
         <h1>{t('title')}</h1>
         <div className="margin-bottom-20">
@@ -492,97 +559,68 @@ export function FileUpload(): React.JSX.Element {
           {file && <p>{t('selectedFile', { filename: file.name })}</p>}
         </div>
         <div className="margin-bottom-20">
-          <button onClick={handleGenerateRandomCards} className="button-style">
+          <button 
+            onClick={handleGenerateRandomCards} 
+            className="button-style"
+            disabled={isGenerating || isGeneratingPDF}
+            style={{
+              opacity: (isGenerating || isGeneratingPDF) ? 0.6 : 1,
+              cursor: (isGenerating || isGeneratingPDF) ? "not-allowed" : "pointer",
+            }}
+          >
             {t('generateCards')}
           </button>
         </div>
-        {isGenerating && (
-          <div
-            className="margin-bottom-20"
-            style={{ textAlign: "center" }}
-          >
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                border: "4px solid var(--primary-color)",
-                borderTopColor: "transparent",
-                borderRadius: "50%",
-                margin: "0 auto",
-                animation: "spin 1s linear infinite",
-              }}
-            />
-            <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-              {t('generating')}
-            </p>
-          </div>
-        )}
         {bingoCards && (
           <div>
             <h3>{t('bingoCards')}</h3>
-            <button
-              onClick={exportBingoGame}
-              className="button-style"
-            >
-              {t('exportBingoCards')}
-            </button>
-            <button
-              onClick={generatePDF}
-              className="button-style"
-              disabled={isGeneratingPDF}
-              style={{
-                opacity: isGeneratingPDF ? 0.6 : 1,
-                cursor: isGeneratingPDF ? "not-allowed" : "pointer",
-              }}
-            >
-              {t('generatePdf')}
-            </button>
-            {isGeneratingPDF && (
-              <div
-                className="margin-bottom-20"
-                style={{ textAlign: "center", marginTop: "20px" }}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+              <button
+                onClick={exportBingoGame}
+                className="button-style"
+                disabled={isGeneratingPDF}
+                style={{
+                  opacity: isGeneratingPDF ? 0.6 : 1,
+                  cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+                }}
               >
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    border: "4px solid var(--primary-color)",
-                    borderTopColor: "transparent",
-                    borderRadius: "50%",
-                    margin: "0 auto",
-                    animation: "spin 1s linear infinite",
-                  }}
-                />
-                <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-                  {estimatedTimeRemaining > 0 
-                    ? t('generatingPdfWithTime', { progress: Math.round(progress), timeRemaining: estimatedTimeRemaining })
-                    : t('generatingPdf', { progress: Math.round(progress) })}
-                </p>
-                <button
-                  onClick={cancelPdfGeneration}
-                  className="button-style"
-                  style={{ marginTop: "10px", backgroundColor: "#d32f2f" }}
-                >
-                  {t('cancelPdf')}
-                </button>
-              </div>
-            )}
-            {progress > 0 && progress < 100 && !isGeneratingPDF && (
-              <div className="margin-bottom-20">
-                <div className="progress-bar-container">
-                  <div
-                    className="progress-bar"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                <p>{Math.round(progress)}%</p>
-              </div>
-            )}
+                {t('exportBingoCards')}
+              </button>
+              <button
+                onClick={generatePDF}
+                className="button-style"
+                disabled={isGeneratingPDF}
+                style={{
+                  opacity: isGeneratingPDF ? 0.6 : 1,
+                  cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+                }}
+              >
+                {t('generatePdf')}
+              </button>
+              <button
+                onClick={handleClearCards}
+                className="button-style"
+                disabled={isGeneratingPDF}
+                style={{
+                  opacity: isGeneratingPDF ? 0.6 : 1,
+                  cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+                  backgroundColor: "#d32f2f",
+                }}
+              >
+                {t('clear')}
+              </button>
+            </div>
             {bingoCards.cards.map((card, index) => (
-              <div
+              <motion.div
                 key={card.cardTitle}
                 className="bingo-card"
                 ref={setCardRef(index)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: Math.min(index * 0.05, 2) // Stagger animation, max 2s delay
+                }}
               >
                 <div className="grid-container">
                   {card.numbers.map((num, idx) => (
@@ -597,7 +635,7 @@ export function FileUpload(): React.JSX.Element {
                 <p className="cardNumber">
                   {getCurrentDate()}-{card.cardTitle}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

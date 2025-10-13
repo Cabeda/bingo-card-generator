@@ -6,6 +6,7 @@ import { routing } from '../routing';
 import Navbar from "../components/Navbar";
 import { PWARegister } from "../components/PWARegister";
 import ViewTransition from "../components/ViewTransition";
+import { ToastProvider } from "../components/ToastProvider";
 import "../globals.css";
 import type { Metadata, Viewport } from 'next';
 
@@ -50,10 +51,12 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <PWARegister />
-          <ViewTransition />
-          <Navbar />
-          {children}
+          <ToastProvider>
+            <PWARegister />
+            <ViewTransition />
+            <Navbar />
+            {children}
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

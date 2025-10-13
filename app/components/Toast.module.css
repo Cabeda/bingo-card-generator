@@ -1,0 +1,108 @@
+.container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  max-width: 500px;
+  pointer-events: auto;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.icon {
+  font-size: 20px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+/* Toast types */
+.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.success .closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.error {
+  background-color: #f44336;
+  color: white;
+}
+
+.error .closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.warning .closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.info {
+  background-color: #2196f3;
+  color: white;
+}
+
+.info .closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    top: 70px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .toast {
+    min-width: unset;
+    width: 100%;
+  }
+}

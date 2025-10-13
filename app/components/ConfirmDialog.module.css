@@ -1,0 +1,134 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  backdrop-filter: blur(2px);
+}
+
+.dialog {
+  background: var(--background-color, #ffffff);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-color, #333333);
+}
+
+.message {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--text-color-secondary, #666666);
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background: var(--secondary-button-bg, #e0e0e0);
+  color: var(--secondary-button-text, #333333);
+}
+
+.cancelButton:hover {
+  background: var(--secondary-button-hover, #d0d0d0);
+}
+
+.confirmButton {
+  color: white;
+}
+
+.confirmButton.primary {
+  background: var(--primary-color, #4caf50);
+}
+
+.confirmButton.primary:hover {
+  background: var(--primary-color-dark, #45a049);
+}
+
+.confirmButton.danger {
+  background: #f44336;
+}
+
+.confirmButton.danger:hover {
+  background: #d32f2f;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dialog {
+    background: var(--background-color, #1e1e1e);
+  }
+
+  .title {
+    color: var(--text-color, #ffffff);
+  }
+
+  .message {
+    color: var(--text-color-secondary, #b0b0b0);
+  }
+
+  .cancelButton {
+    background: var(--secondary-button-bg, #333333);
+    color: var(--secondary-button-text, #ffffff);
+  }
+
+  .cancelButton:hover {
+    background: var(--secondary-button-hover, #444444);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dialog {
+    padding: 24px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .message {
+    font-size: 14px;
+  }
+
+  .buttonContainer {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .confirmButton {
+    width: 100%;
+  }
+}
