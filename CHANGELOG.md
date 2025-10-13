@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved quality settings: Fast (0.5), Balanced (0.7), High (0.95)
 - Enhanced progress indicator to show estimated completion time
 
+### Fixed
+
+- PDF download now works on Firefox iOS by using blob-based download method instead of jsPDF's save() method
+
 ### Performance
 
 - PDF generation is approximately 30-50% faster with default Balanced mode
