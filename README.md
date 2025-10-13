@@ -51,6 +51,14 @@ Cards follow traditional bingo rules:
   - Column 8: 80-89
 - All numbers on a card are unique
 
+### 📱 Progressive Web App (PWA)
+
+- **Offline Support**: Works offline after initial visit
+- **Installable**: Can be installed on mobile and desktop devices
+- **App-like Experience**: Runs in standalone mode when installed
+- **Service Worker**: Automatically caches assets for faster loading
+- **Fast Performance**: Instant loading on repeat visits
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -93,6 +101,7 @@ bun run start
 - **Language**: [TypeScript](https://www.typescriptlang.org/) (strict mode)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/) with custom CSS modules
 - **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF) with [html-to-image](https://github.com/bubkoo/html-to-image)
+- **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa) for Progressive Web App support
 - **Testing**: [Jest](https://jestjs.io/) with ts-jest and jsdom
 - **Linting**: [ESLint](https://eslint.org/) with Next.js configuration
 
