@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document describes the Error Boundary implementation added to the Bingo Card Generator application to provide graceful error handling and improve user experience.
+This document describes the Error Boundary implementation added to the Bingo Card Generator application to provide
+graceful error handling and improve user experience.
 
 ## Implementation Details
 
@@ -13,6 +14,7 @@ This document describes the Error Boundary implementation added to the Bingo Car
 A React class component that catches JavaScript errors in child component trees.
 
 **Key Features:**
+
 - Catches errors using `getDerivedStateFromError` and `componentDidCatch`
 - Displays user-friendly error message with recovery option
 - Logs errors to console (ready for integration with error tracking services)
@@ -21,6 +23,7 @@ A React class component that catches JavaScript errors in child component trees.
 - Provides "Try Again" button to reset error state
 
 **Usage Example:**
+
 ```tsx
 <ErrorBoundary>
   <YourComponent />
@@ -28,6 +31,7 @@ A React class component that catches JavaScript errors in child component trees.
 ```
 
 **Custom Fallback Example:**
+
 ```tsx
 <ErrorBoundary fallback={<CustomErrorUI />}>
   <YourComponent />
@@ -43,6 +47,7 @@ A wrapper component that allows ErrorBoundary to be used in server components (l
 The ErrorBoundary has been integrated at three strategic levels:
 
 #### 1. **Page Level** - FileUpload Component (`app/[locale]/page.tsx`)
+
 ```tsx
 <main>
   <ErrorBoundary>
@@ -50,17 +55,21 @@ The ErrorBoundary has been integrated at three strategic levels:
   </ErrorBoundary>
 </main>
 ```
+
 Protects the main card generation functionality.
 
 #### 2. **Page Level** - BingoGame Component (`app/[locale]/game/page.tsx`)
+
 ```tsx
 <ErrorBoundary>
   <BingoGame />
 </ErrorBoundary>
 ```
+
 Protects the live game functionality.
 
 #### 3. **App Level** - Layout (`app/[locale]/layout.tsx`)
+
 ```tsx
 <NextIntlClientProvider messages={messages}>
   <ClientErrorBoundary>
@@ -71,6 +80,7 @@ Protects the live game functionality.
   </ClientErrorBoundary>
 </NextIntlClientProvider>
 ```
+
 Provides app-wide protection as a fallback for any unhandled errors.
 
 ## Error UI
@@ -78,6 +88,7 @@ Provides app-wide protection as a fallback for any unhandled errors.
 ### User-Facing Error Display
 
 When an error occurs, users see:
+
 - ⚠️ Friendly error icon
 - Clear message: "Something went wrong"
 - Reassurance: "We encountered an unexpected error. Don't worry, your data should be safe."
@@ -86,6 +97,7 @@ When an error occurs, users see:
 ### Development Mode Features
 
 In development mode, additional information is displayed:
+
 - Full error message
 - Component stack trace
 - Expandable details section
@@ -94,7 +106,7 @@ This information is hidden in production to avoid exposing technical details to 
 
 ## Error Handling Flow
 
-```
+```text
 User Action
     ↓
 Component Throws Error
@@ -115,6 +127,7 @@ Component Re-renders
 ## Testing
 
 Comprehensive test suite with 11 test cases covering:
+
 - ✅ Normal rendering (no errors)
 - ✅ Error catching and fallback display
 - ✅ "Try Again" button functionality
@@ -130,18 +143,21 @@ Comprehensive test suite with 11 test cases covering:
 ## Benefits
 
 ### User Experience
+
 - **No Blank Screens**: Errors no longer crash the entire app
 - **Clear Communication**: Users understand something went wrong
 - **Easy Recovery**: One-click recovery without losing context or refreshing
 - **Data Safety**: Error messages reassure users their data is safe
 
 ### Developer Experience
+
 - **Better Debugging**: Errors are logged with full context
 - **Development Details**: Stack traces visible in dev mode
 - **Ready for Production**: Clean error UI for production
 - **Integration Ready**: Prepared for error tracking services (Sentry, etc.)
 
 ### Reliability
+
 - **Fault Isolation**: Errors in one component don't crash the whole app
 - **Multiple Boundaries**: Strategic placement at different levels
 - **Graceful Degradation**: App continues to function in unaffected areas
@@ -169,6 +185,7 @@ componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 ```
 
 ### Possible Improvements
+
 - Add error reporting to external service (Sentry, LogRocket, etc.)
 - Implement retry strategies with exponential backoff
 - Add telemetry to track error frequency and types
@@ -187,21 +204,27 @@ componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 ## Example Scenarios
 
 ### Scenario 1: File Upload Error
+
 If the FileUpload component encounters an error (e.g., invalid file format causing parsing failure):
+
 1. ErrorBoundary catches the error
 2. User sees error message instead of blank screen
 3. User clicks "Try Again"
 4. FileUpload re-renders and user can try again
 
 ### Scenario 2: Game Component Error
+
 If BingoGame encounters an error during gameplay:
+
 1. ErrorBoundary catches the error
 2. Game area shows error UI
 3. Navigation and other parts of app remain functional
 4. User can click "Try Again" or navigate away
 
 ### Scenario 3: Unexpected Runtime Error
+
 If any component throws an unexpected error:
+
 1. Nearest ErrorBoundary catches it
 2. If no page-level boundary exists, app-level boundary catches it
 3. User always sees a recovery option
@@ -218,6 +241,7 @@ If any component throws an unexpected error:
 ## Verification
 
 All verification steps completed successfully:
+
 - ✅ Linter: No errors or warnings
 - ✅ Tests: 153 tests passing (9 test suites)
 - ✅ Build: Production build successful
