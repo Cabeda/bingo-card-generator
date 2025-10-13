@@ -64,4 +64,33 @@ describe('Ball', () => {
       rerender(<div />);
     });
   });
+
+  // Animation tests
+  describe('Animation', () => {
+    it('should render with animate prop set to true', () => {
+      render(<Ball number={25} animate={true} />);
+      expect(screen.getByText('25')).toBeInTheDocument();
+    });
+
+    it('should render with animate prop set to false', () => {
+      render(<Ball number={25} animate={false} />);
+      expect(screen.getByText('25')).toBeInTheDocument();
+    });
+
+    it('should render with all props combined', () => {
+      const { container } = render(<Ball number={50} small={true} drawn={true} animate={true} />);
+      
+      expect(screen.getByText('50')).toBeInTheDocument();
+      expect(container.querySelector('.small')).toBeInTheDocument();
+      expect(container.querySelector('.drawn')).toBeInTheDocument();
+    });
+
+    it('should render small drawn ball without animation', () => {
+      const { container } = render(<Ball number={15} small={true} drawn={true} animate={false} />);
+      
+      expect(screen.getByText('15')).toBeInTheDocument();
+      expect(container.querySelector('.small')).toBeInTheDocument();
+      expect(container.querySelector('.drawn')).toBeInTheDocument();
+    });
+  });
 });

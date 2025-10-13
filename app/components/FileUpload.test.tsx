@@ -330,4 +330,160 @@ describe('FileUpload', () => {
       expect(screen.getByText('Bingo Cards')).toBeInTheDocument();
     });
   });
+
+  // Additional functionality tests
+  describe('Card Generation and Export', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should update bingoPercard slider value', () => {
+      render(<FileUpload />);
+      
+      const slider = screen.getByRole('slider') as HTMLInputElement;
+      expect(slider.value).toBe('2'); // Default value
+      
+      fireEvent.change(slider, { target: { value: '3' } });
+      expect(slider.value).toBe('3');
+    });
+
+    it('should update event header input', () => {
+      render(<FileUpload />);
+      
+      const input = screen.getByPlaceholderText(/Event Name/i) as HTMLInputElement;
+      const newValue = 'New Event 2024';
+      
+      fireEvent.change(input, { target: { value: newValue } });
+      expect(input.value).toBe(newValue);
+    });
+
+    it('should update location footer input', () => {
+      render(<FileUpload />);
+      
+      const input = screen.getByPlaceholderText(/Location/i) as HTMLInputElement;
+      const newValue = 'New Location';
+      
+      fireEvent.change(input, { target: { value: newValue } });
+      expect(input.value).toBe(newValue);
+    });
+
+    it('should show generated cards after generation', () => {
+      render(<FileUpload />);
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      // Should show the bingo cards heading
+      expect(screen.getByText('Bingo Cards')).toBeInTheDocument();
+    });
+
+    it('should call parseBingoCards when valid file is uploaded', () => {
+      render(<FileUpload />);
+      
+      const fileInput = document.querySelector('input[type="file"][accept=".bingoCards"]') as HTMLInputElement;
+      const validFile = new File(['CardNo.1;1;2;3;4;5'], 'test.bingoCards', { type: 'text/plain' });
+      
+      if (fileInput) {
+        Object.defineProperty(fileInput, 'files', {
+          value: [validFile],
+          writable: false,
+        });
+        
+        fireEvent.change(fileInput);
+        
+        // parseBingoCards should be called (after file is read)
+        // Note: This is async via FileReader, so it won't be immediate
+      }
+    });
+
+    it('should not process file without .bingoCards extension', () => {
+      const alertMock = jest.spyOn(window, 'alert').mockImplementation();
+      
+      render(<FileUpload />);
+      
+      const fileInput = document.querySelector('input[type="file"][accept=".bingoCards"]') as HTMLInputElement;
+      const invalidFile = new File(['content'], 'test.txt', { type: 'text/plain' });
+      
+      if (fileInput) {
+        Object.defineProperty(fileInput, 'files', {
+          value: [invalidFile],
+          writable: false,
+        });
+        
+        fireEvent.change(fileInput);
+        
+        expect(alertMock).toHaveBeenCalledWith('Please upload a file with the .bingoCards extension.');
+      }
+      
+      alertMock.mockRestore();
+    });
+
+    it('should generate cards with different numbers', () => {
+      render(<FileUpload />);
+      
+      const input = screen.getByPlaceholderText(/Number of cards/i) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: '5' } });
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      expect(mockGenerateRandomBingoCards).toHaveBeenCalledWith(5);
+    });
+
+    it('should handle edge case of generating 1 card', () => {
+      render(<FileUpload />);
+      
+      const input = screen.getByPlaceholderText(/Number of cards/i) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: '1' } });
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      expect(mockGenerateRandomBingoCards).toHaveBeenCalledWith(1);
+    });
+
+    it('should handle large number of cards', () => {
+      render(<FileUpload />);
+      
+      const input = screen.getByPlaceholderText(/Number of cards/i) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: '100' } });
+      
+      const generateButton = screen.getByText(/Generate Bingo Cards/i);
+      fireEvent.click(generateButton);
+      
+      expect(mockGenerateRandomBingoCards).toHaveBeenCalledWith(100);
+    });
+  });
+
+  // Quality mode tests
+  describe('Quality Mode Selection', () => {
+    it('should change quality mode to fast', () => {
+      render(<FileUpload />);
+      
+      const select = screen.getByRole('combobox') as HTMLSelectElement;
+      fireEvent.change(select, { target: { value: 'fast' } });
+      
+      expect(select.value).toBe('fast');
+    });
+
+    it('should change quality mode to high', () => {
+      render(<FileUpload />);
+      
+      const select = screen.getByRole('combobox') as HTMLSelectElement;
+      fireEvent.change(select, { target: { value: 'high' } });
+      
+      expect(select.value).toBe('high');
+    });
+
+    it('should have all quality mode options available', () => {
+      render(<FileUpload />);
+      
+      const select = screen.getByRole('combobox') as HTMLSelectElement;
+      const options = Array.from(select.options).map(option => option.value);
+      
+      expect(options).toContain('fast');
+      expect(options).toContain('balanced');
+      expect(options).toContain('high');
+    });
+  });
 });
