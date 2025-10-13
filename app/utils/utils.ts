@@ -1,4 +1,5 @@
 import { Card, Game } from "./bingo.interface";
+import { createCardId, createGameId } from "./types";
 
 export function generateBingoCard(cardNumber: string): Card {
     const card = Array(3).fill(null).map(() => Array(9).fill(null));
@@ -110,7 +111,7 @@ export function generateBingoCard(cardNumber: string): Card {
     });
 
     return {
-        cardTitle: cardNumber,
+        cardTitle: createCardId(cardNumber),
         cardNumber: parseInt(cardNumber, 10),
         numbers: card.flat()
     };
@@ -163,11 +164,11 @@ export function parseBingoCards(filename: string, content: string): Game {
         .map((cardStr) => {
             const [cardNoStr, ...numberStrs] = cardStr.split(';');
             const cardNumber = parseInt(cardNoStr.replace('CardNo.', ''), 10);
-            const cardTitle = `${filename}-${cardNumber}`;
+            const cardTitle = createCardId(`${filename}-${cardNumber}`);
             const numbers = numberStrs.map((num) =>
                 num ? parseInt(num, 10) : null
             );
             return {cardTitle: cardTitle, cardNumber: cardNumber, numbers };
         });
-    return { filename, cards };
+    return { filename: createGameId(filename), cards };
 }

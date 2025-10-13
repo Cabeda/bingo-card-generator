@@ -7,7 +7,7 @@ import Navbar from "../components/Navbar";
 import ViewTransition from "../components/ViewTransition";
 import "../globals.css";
 
-export function generateStaticParams() {
+export function generateStaticParams(): { locale: string }[] {
   return routing.locales.map((locale) => ({ locale }));
 }
 
@@ -17,7 +17,7 @@ export default async function LocaleLayout({
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
-}) {
+}): Promise<React.JSX.Element> {
   const { locale } = await params;
   
   // Validate locale

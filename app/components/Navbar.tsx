@@ -7,7 +7,7 @@ import styles from "./Navbar.module.css";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSelector } from "./LanguageSelector";
 
-export default function Navbar() {
+export default function Navbar(): React.JSX.Element {
   const t = useTranslations("common");
 
   return (
