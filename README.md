@@ -223,6 +223,10 @@ To add a new language or update existing translations, see [docs/I18N.md](./docs
   - Core algorithms and performance considerations
   - File formats and security considerations
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines and coding standards
+- **[RELEASES.md](./docs/RELEASES.md)**: Release management and automated CHANGELOG generation
+  - Conventional commits guide
+  - Version bumping rules
+  - Release process documentation
 - **API Documentation**: All functions and interfaces include JSDoc comments
   - Type definitions in `app/utils/bingo.interface.ts`
   - Core utilities in `app/utils/utils.ts`
