@@ -9,6 +9,11 @@ import {
   createGameId,
   isValidCardsPerPage 
 } from "../utils/types";
+import {
+  getUserFriendlyErrorMessage,
+  sanitizeFilename,
+  validateBingoCardsFile
+} from "../utils/fileValidation";
 
 type QualityMode = 'fast' | 'balanced' | 'high';
 
@@ -87,19 +92,56 @@ export function FileUpload(): React.JSX.Element {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const selectedFile = event.target.files?.[0];
 
-    if (selectedFile && selectedFile.name.endsWith(".bingoCards")) {
-      setFile(selectedFile);
-      const reader = new FileReader();
-      const filename = selectedFile.name.replace(".bingoCards", "");
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        const bingoGame = parseBingoCards(filename, content);
-        setBingoCards(bingoGame);
-      };
-      reader.readAsText(selectedFile);
-    } else {
-      alert(t('uploadError'));
+    if (!selectedFile) {
+      return;
     }
+
+    setFile(selectedFile);
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      
+      // Perform comprehensive validation
+      const validationResult = validateBingoCardsFile(selectedFile, content);
+      
+      if (!validationResult.isValid && validationResult.error) {
+        // Show user-friendly error message
+        const errorMessage = getUserFriendlyErrorMessage(validationResult.error);
+        alert(errorMessage);
+        
+        // Log technical details for debugging
+        console.error('File validation error:', validationResult.error);
+        
+        // Clear the file input
+        setFile(null);
+        event.target.value = '';
+        return;
+      }
+      
+      // Sanitize filename before using it
+      const sanitizedFilename = sanitizeFilename(selectedFile.name.replace(".bingoCards", ""));
+      
+      // Parse and set the bingo cards
+      try {
+        const bingoGame = parseBingoCards(sanitizedFilename, content);
+        setBingoCards(bingoGame);
+      } catch (error) {
+        alert(t('uploadError'));
+        console.error('Error parsing bingo cards:', error);
+        setFile(null);
+        event.target.value = '';
+      }
+    };
+    
+    reader.onerror = () => {
+      alert(t('uploadError'));
+      console.error('Error reading file');
+      setFile(null);
+      event.target.value = '';
+    };
+    
+    reader.readAsText(selectedFile);
   };
 
   /**

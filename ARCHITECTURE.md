@@ -423,9 +423,33 @@ function checkBingo(numbers: (number | null)[], drawnNumbers: number[]): boolean
 
 ### Input Validation
 
-- **File Upload**: Validate `.bingoCards` extension before parsing
-- **Card Numbers**: Integer parsing with bounds checking
+- **File Upload**: Comprehensive validation with multiple security checks
+  - File size limits (1 byte - 5MB)
+  - Extension validation (`.bingoCards` only)
+  - MIME type validation (`text/plain` or `application/octet-stream`)
+  - Filename sanitization (prevents directory traversal, removes special characters)
+  - Content validation (detects malicious patterns)
+  - Card structure validation (ensures valid format)
+  - Malicious pattern detection:
+    - Script tags (`<script>`)
+    - JavaScript protocols (`javascript:`)
+    - Event handlers (`onclick`, `onerror`, etc.)
+    - Dangerous HTML elements (`<iframe>`, `<object>`, `<embed>`)
+    - Data URLs with HTML content
+- **Card Numbers**: Integer parsing with bounds checking (0-90)
 - **User Input**: Sanitized before display (React auto-escaping)
+
+### File Validation Error Handling
+
+- User-friendly error messages for validation failures
+- Technical error details logged to console for debugging
+- Clear error codes for different validation failures:
+  - `FILE_TOO_LARGE`: File exceeds 5MB limit
+  - `EMPTY_FILE`: File has no content
+  - `INVALID_FORMAT`: Wrong file extension or missing prefix
+  - `MALICIOUS_CONTENT`: Suspicious patterns detected
+  - `INVALID_STRUCTURE`: Card structure doesn't match expected format
+  - `INVALID_MIME_TYPE`: MIME type not allowed
 
 ### Data Storage
 

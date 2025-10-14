@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FileUpload } from './FileUpload';
 import { generateRandomBingoCards, parseBingoCards } from '../utils/utils';
 
@@ -165,7 +165,7 @@ describe('FileUpload', () => {
     expect(screen.getByText(/Generate .bingoCards/i)).toBeInTheDocument();
   });
 
-  it('should validate file upload format', () => {
+  it('should validate file upload format', async () => {
     const alertMock = jest.spyOn(window, 'alert').mockImplementation();
     
     render(<FileUpload />);
@@ -182,9 +182,12 @@ describe('FileUpload', () => {
       
       fireEvent.change(fileInput);
       
-      expect(alertMock).toHaveBeenCalledWith(
-        expect.stringContaining('.bingoCards')
-      );
+      // Wait for the async file reading and validation
+      await waitFor(() => {
+        expect(alertMock).toHaveBeenCalledWith(
+          expect.stringContaining('.bingoCards')
+        );
+      });
     }
     
     alertMock.mockRestore();
@@ -396,7 +399,7 @@ describe('FileUpload', () => {
       }
     });
 
-    it('should not process file without .bingoCards extension', () => {
+    it('should not process file without .bingoCards extension', async () => {
       const alertMock = jest.spyOn(window, 'alert').mockImplementation();
       
       render(<FileUpload />);
@@ -412,7 +415,13 @@ describe('FileUpload', () => {
         
         fireEvent.change(fileInput);
         
-        expect(alertMock).toHaveBeenCalledWith('Please upload a file with the .bingoCards extension.');
+        // Wait for the async file reading and validation
+        await waitFor(() => {
+          expect(alertMock).toHaveBeenCalled();
+          expect(alertMock).toHaveBeenCalledWith(
+            expect.stringContaining('.bingoCards')
+          );
+        });
       }
       
       alertMock.mockRestore();
