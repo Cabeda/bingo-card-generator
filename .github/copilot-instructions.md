@@ -31,6 +31,64 @@ bun run test     # Run Jest tests (configured to use bunx jest with proper Node 
 **Note:** The `bun run test` command is configured in `package.json` to run
 `NODE_OPTIONS='--experimental-vm-modules' bunx jest`, ensuring Jest works correctly with Bun.
 
+## Commit Message Guidelines
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for commit messages. All commits should follow this format:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+
+- **feat**: A new feature for the user
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that don't affect the meaning of the code (white-space, formatting, etc.)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies
+- **ci**: Changes to CI configuration files and scripts
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
+
+### Examples
+
+```bash
+feat: add PDF export progress indicator
+fix: prevent duplicate numbers in bingo cards
+docs: update README with installation instructions
+refactor: extract PDF generation logic into custom hook
+test: add unit tests for card validation
+ci: add GitHub Actions workflow for testing
+```
+
+### Scope (Optional)
+
+You can add a scope to provide additional context:
+
+```bash
+feat(game): add sound effects for ball drawing
+fix(upload): handle empty .bingoCards files gracefully
+test(utils): add tests for generateBingoCard function
+```
+
+### Breaking Changes
+
+For breaking changes, add `!` after the type/scope and include a `BREAKING CHANGE:` footer:
+
+```bash
+feat!: change card number format to UUID
+
+BREAKING CHANGE: Card numbers are now UUIDs instead of sequential numbers.
+This will break existing .bingoCards files.
+```
+
 ## Code Style and Formatting
 
 ### TypeScript
