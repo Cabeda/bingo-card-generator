@@ -13,7 +13,8 @@
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'",
-    "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'"
+    "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'",
+    "prepare": "husky"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
@@ -26,6 +27,8 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.37.0",
     "@next/bundle-analyzer": "^15.5.5",
@@ -39,6 +42,7 @@
     "@types/react-dom": "^19.2.1",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.4",
+    "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
