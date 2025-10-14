@@ -39,7 +39,15 @@
     "confirmClearCards": "Effacer toutes les cartes?",
     "confirmClearCardsMessage": "Êtes-vous sûr de vouloir effacer toutes les cartes générées? Cette action ne peut pas être annulée.",
     "clear": "Effacer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "batchExport": "Exportation par Lots...",
+    "batchExportTitle": "Options d'Exportation par Lots",
+    "batchExportSuccess": "Exportation par lots terminée avec succès!",
+    "exportingCards": "Exportation des cartes...",
+    "selectFormats": "Sélectionner les Formats d'Exportation:",
+    "quality": "Qualité:",
+    "cardsPerRow": "Cartes Par Ligne (Grille):",
+    "exportSelected": "Exporter {count} Format(s)"
   },
   "bingoGame": {
     "startGame": "Démarrer le jeu",

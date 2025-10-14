@@ -39,7 +39,15 @@
     "confirmClearCards": "¿Limpiar todas las tarjetas?",
     "confirmClearCardsMessage": "¿Está seguro de que desea limpiar todas las tarjetas generadas? Esta acción no se puede deshacer.",
     "clear": "Limpiar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "batchExport": "Exportación por Lotes...",
+    "batchExportTitle": "Opciones de Exportación por Lotes",
+    "batchExportSuccess": "¡Exportación por lotes completada con éxito!",
+    "exportingCards": "Exportando tarjetas...",
+    "selectFormats": "Seleccionar Formatos de Exportación:",
+    "quality": "Calidad:",
+    "cardsPerRow": "Tarjetas Por Fila (Cuadrícula):",
+    "exportSelected": "Exportar {count} Formato(s)"
   },
   "bingoGame": {
     "startGame": "Iniciar Juego",

@@ -39,7 +39,15 @@
     "confirmClearCards": "Clear all cards?",
     "confirmClearCardsMessage": "Are you sure you want to clear all generated cards? This action cannot be undone.",
     "clear": "Clear",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "batchExport": "Batch Export...",
+    "batchExportTitle": "Batch Export Options",
+    "batchExportSuccess": "Batch export completed successfully!",
+    "exportingCards": "Exporting cards...",
+    "selectFormats": "Select Export Formats:",
+    "quality": "Quality:",
+    "cardsPerRow": "Cards Per Row (Grid):",
+    "exportSelected": "Export {count} Format(s)"
   },
   "bingoGame": {
     "startGame": "Start Game",

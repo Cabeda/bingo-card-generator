@@ -1,6 +1,6 @@
 import { Card, Game } from './bingo.interface';
 import { exportCardsAsCsv, exportCardsAsJson } from './exportUtils';
-import { createGameId, createCardId } from './types';
+import { createCardId, createGameId } from './types';
 
 // Mock data for testing
 const mockCard1: Card = {

@@ -180,7 +180,9 @@ export function BatchExportDialog({
               cursor: selectedFormats.length === 0 ? 'not-allowed' : 'pointer',
             }}
           >
-            {t('exportSelected') || `Export ${selectedFormats.length} Format(s)`}
+            {selectedFormats.length > 0 
+              ? t('exportSelected', { count: selectedFormats.length })
+              : t('exportSelected', { count: 0 }) || 'Export 0 Format(s)'}
           </button>
         </div>
       </div>
