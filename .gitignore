@@ -42,3 +42,7 @@ tailwind.config.ts.backup
 # PWA
 /public/sw.js
 /public/workbox-*.js
+
+# Bundle analyzer
+.next/analyze/
+
