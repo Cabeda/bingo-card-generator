@@ -104,6 +104,7 @@ bun run start
 - **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa) for Progressive Web App support
 - **Testing**: [Jest](https://jestjs.io/) with ts-jest and jsdom
 - **Linting**: [ESLint](https://eslint.org/) with Next.js configuration
+- **Bundle Analysis**: [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) for monitoring bundle sizes
 
 ## 📁 Project Structure
 
@@ -137,13 +138,29 @@ bingo-card-generator/
 ### Available Scripts
 
 ```bash
-bun run dev        # Start development server
-bun run build      # Build for production
-bun run start      # Start production server
-bun run lint       # Run ESLint
-bun run lint:fix   # Fix ESLint issues automatically
-bun run test       # Run Jest tests
+bun run dev            # Start development server
+bun run build          # Build for production
+bun run build:analyze  # Build with bundle size analysis
+bun run start          # Start production server
+bun run lint           # Run ESLint
+bun run lint:fix       # Fix ESLint issues automatically
+bun run test           # Run Jest tests
 ```
+
+### Bundle Size Analysis
+
+The project includes `@next/bundle-analyzer` for monitoring bundle sizes:
+
+```bash
+bun run build:analyze  # or npm run build:analyze
+```
+
+This generates interactive HTML reports in `.next/analyze/`:
+- `client.html` - Client-side bundle analysis
+- `nodejs.html` - Server-side bundle analysis
+- `edge.html` - Edge runtime bundle analysis
+
+Open these files in your browser to visualize bundle composition and identify optimization opportunities.
 
 ### Testing
 

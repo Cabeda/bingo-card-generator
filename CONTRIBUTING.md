@@ -80,8 +80,23 @@ bun run lint:fix       # Automatically fix linting errors
 
 ```bash
 bun run build          # Build for production
+bun run build:analyze  # Build with bundle size analysis
 bun run start          # Start production server
 ```
+
+### Bundle Size Analysis
+
+Monitor bundle sizes to ensure the application remains performant:
+
+```bash
+bun run build:analyze  # Generates interactive HTML reports in .next/analyze/
+```
+
+The bundle analyzer helps identify:
+- Large dependencies that could be optimized or replaced
+- Unused code that could be removed
+- Opportunities for code splitting
+- Impact of new dependencies on bundle size
 
 ## How to Contribute
 
