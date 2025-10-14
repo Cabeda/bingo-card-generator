@@ -90,6 +90,23 @@ describe('fileValidation', () => {
       const sanitized = sanitizeFilename(longName);
       expect(sanitized.length).toBeLessThanOrEqual(255);
     });
+
+    it('should handle Unicode characters', () => {
+      expect(sanitizeFilename('test-файл-文件.bingoCards')).toBe('test-____-__.bingoCards');
+    });
+
+    it('should handle filenames with multiple dots', () => {
+      expect(sanitizeFilename('test...bingoCards')).toBe('test.bingoCards');
+      expect(sanitizeFilename('test....bingoCards')).toBe('test.bingoCards');
+    });
+
+    it('should handle empty filename', () => {
+      expect(sanitizeFilename('')).toBe('');
+    });
+
+    it('should handle filename with only special characters', () => {
+      expect(sanitizeFilename('@#$%^&*()')).toBe('_________');
+    });
   });
 
   describe('validateFileContent', () => {
@@ -260,6 +277,13 @@ describe('fileValidation', () => {
       const result = validateBingoCardsFile(file, content);
       expect(result.isValid).toBe(false);
       expect(result.error?.code).toBe(FileValidationErrorCode.INVALID_STRUCTURE);
+    });
+
+    it('should handle multiple valid cards', () => {
+      const content = '|CardNo.1;1;;3;;5;6;;8;9;10;;12;;14;15;;17;18;19;;21;;23;24;;26;27|CardNo.2;2;;4;;6;7;;9;10;11;;13;;15;16;;18;19;20;;22;;24;25;;27;28';
+      const file = new File([content], 'test.bingoCards', { type: 'text/plain' });
+      const result = validateBingoCardsFile(file, content);
+      expect(result.isValid).toBe(true);
     });
   });
 
