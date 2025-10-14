@@ -20,13 +20,15 @@ including the component hierarchy, data flow, state management, and key design d
 ## High-Level Architecture
 
 The Bingo Card Generator is a client-side Next.js application that follows a **component-based
-architecture** with **custom React hooks** for state management and business logic separation. The application is split into two main features:
+architecture** with **custom React hooks** for state management and business logic separation.
+The application is split into two main features:
 
 1. **Card Generation & Export** - Create and export bingo cards
 2. **Game Management** - Host and manage live bingo games
 
-The FileUpload component has been refactored following the **Single Responsibility Principle**, 
+The FileUpload component has been refactored following the **Single Responsibility Principle**,
 splitting a 607-line monolithic component into focused, reusable modules:
+
 - **Custom hooks** for state and business logic (useBingoCards, usePdfGeneration, useFileUpload)
 - **Sub-components** for UI rendering (CardGenerator, PdfExporter, CardDisplay)
 - **Main orchestrator** component (FileUpload/index.tsx) coordinating the hooks and sub-components
@@ -236,7 +238,8 @@ Store in localStorage & state
 
 The FileUpload component has been refactored to use custom hooks for better separation of concerns:
 
-**Main Component State (index.tsx)**
+##### Main Component State (index.tsx)
+
 ```typescript
 const [numCards, setNumCards] = useState<number>(10);           // Configuration
 const [bingoPercard, setBingoPercard] = useState<CardsPerPage>(2); // Cards per PDF page
@@ -244,13 +247,15 @@ const [eventHeader, setEventHeader] = useState<string>(...);    // Event name
 const [locationFooter, setLocationFooter] = useState<string>(...); // Location
 ```
 
-**useBingoCards Hook State**
+##### useBingoCards Hook State
+
 ```typescript
 const [bingoCards, setBingoCards] = useState<Game | null>(null); // Generated cards
 const [isGenerating, setIsGenerating] = useState<boolean>(false); // Loading state
 ```
 
-**usePdfGeneration Hook State**
+##### usePdfGeneration Hook State
+
 ```typescript
 const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false); // PDF loading
 const [progress, setProgress] = useState<number>(0);            // PDF progress
@@ -260,11 +265,11 @@ const cancelPdfRef = useRef<boolean>(false);                    // Cancellation 
 const cardRefs = useRef<(HTMLDivElement | null)[]>([]);        // DOM references
 ```
 
-**useFileUpload Hook State**
+##### useFileUpload Hook State
+
 ```typescript
 const [file, setFile] = useState<File | null>(null);           // Uploaded file
 ```
-
 
 #### BingoGame Component State
 
