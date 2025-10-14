@@ -35,7 +35,10 @@ export function PWARegister() {
                   console.log('New service worker available');
                   
                   // Optionally show a notification to the user
-                  if (Notification.permission === 'granted') {
+                  if (
+                    typeof Notification !== 'undefined' &&
+                    Notification.permission === 'granted'
+                  ) {
                     registration.showNotification('Update Available', {
                       body: 'A new version is available. Refresh to update.',
                       icon: '/icon-192x192.png',
