@@ -33,9 +33,10 @@ bun run test     # Run Jest tests (configured to use bunx jest with proper Node 
 
 ## Commit Message Guidelines
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/) for commit messages. All commits should follow this format:
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+All commits should follow this format:
 
-```
+```text
 <type>[optional scope]: <description>
 
 [optional body]
