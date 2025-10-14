@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import { PWARegister } from "../components/PWARegister";
 import ViewTransition from "../components/ViewTransition";
 import { ToastProvider } from "../components/ToastProvider";
+import { ThemeProvider } from "../components/ThemeProvider";
 import { ClientErrorBoundary } from "../components/ClientErrorBoundary";
 import "../globals.css";
 import type { Metadata, Viewport } from "next";
@@ -53,12 +54,14 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider messages={messages}>
           <ToastProvider>
-            <ClientErrorBoundary>
-              <PWARegister />
-              <ViewTransition />
-              <Navbar />
-              {children}
-            </ClientErrorBoundary>
+            <ThemeProvider>
+              <ClientErrorBoundary>
+                <PWARegister />
+                <ViewTransition />
+                <Navbar />
+                {children}
+              </ClientErrorBoundary>
+            </ThemeProvider>
           </ToastProvider>
         </NextIntlClientProvider>
       </body>

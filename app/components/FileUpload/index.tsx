@@ -9,8 +9,10 @@ import { useBingoCards } from "../../hooks/useBingoCards";
 import { usePdfGeneration } from "../../hooks/usePdfGeneration";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { useToast } from "../ToastProvider";
+import { useCardTheme } from "../ThemeProvider";
 import { LoadingOverlay } from "../LoadingOverlay";
 import { ConfirmDialog } from "../ConfirmDialog";
+import { ThemeSelector } from "../ThemeSelector";
 import { CardGenerator } from "./CardGenerator";
 import { PdfExporter } from "./PdfExporter";
 import { CardDisplay } from "./CardDisplay";
@@ -27,6 +29,7 @@ import { CardDisplay } from "./CardDisplay";
 export function FileUpload(): React.JSX.Element {
   const t = useTranslations('fileUpload');
   const { showSuccess, showError } = useToast();
+  const { currentTheme } = useCardTheme();
   
   // Form state
   const [numCards, setNumCards] = useState<number>(10);
@@ -138,6 +141,9 @@ export function FileUpload(): React.JSX.Element {
       <div className="file-upload">
         <h1>{t('title')}</h1>
         
+        {/* Theme Selector */}
+        <ThemeSelector />
+        
         <CardGenerator
           numCards={numCards}
           setNumCards={setNumCards}
@@ -190,6 +196,7 @@ export function FileUpload(): React.JSX.Element {
                   card={card}
                   cardRef={setCardRef(index)}
                   cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
+                  theme={currentTheme}
                 />
               </motion.div>
             ))}

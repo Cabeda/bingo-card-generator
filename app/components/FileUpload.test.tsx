@@ -2,11 +2,18 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FileUpload } from './FileUpload';
 import { ToastProvider } from './ToastProvider';
+import { ThemeProvider } from './ThemeProvider';
 import { generateRandomBingoCards, parseBingoCards } from '../utils/utils';
 
-// Helper to render with ToastProvider
+// Helper to render with ToastProvider and ThemeProvider
 const renderWithToast = (component: React.ReactElement) => {
-  return render(<ToastProvider>{component}</ToastProvider>);
+  return render(
+    <ToastProvider>
+      <ThemeProvider>
+        {component}
+      </ThemeProvider>
+    </ToastProvider>
+  );
 };
 
 // Mock next-intl with translations
