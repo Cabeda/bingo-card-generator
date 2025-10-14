@@ -18,6 +18,7 @@
     "generating": "A gerar cartões...",
     "generatingCards": "A gerar {current} de {total} cartões...",
     "bingoCards": "Cartões de bingo",
+    "exportOptions": "Opções de Exportação",
     "exportBingoCards": "Gerar .bingoCards",
     "generatePdf": "Gerar PDF",
     "generatingPdf": "A gerar PDF... {progress}%",
