@@ -1,5 +1,2 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # Validate commit message format using commitlint
 bunx --no -- commitlint --edit "$1"
