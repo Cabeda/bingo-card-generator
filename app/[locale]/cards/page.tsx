@@ -8,10 +8,12 @@ import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { ExportConfiguration } from "../../components/ExportConfiguration";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
+import { ThemeSelector } from "../../components/ThemeSelector";
 import { PdfExporter } from "../../components/FileUpload/PdfExporter";
 import { CardDisplay } from "../../components/FileUpload/CardDisplay";
 import { usePdfGeneration } from "../../hooks/usePdfGeneration";
 import { useToast } from "../../components/ToastProvider";
+import { useCardTheme } from "../../components/ThemeProvider";
 import { CardsPerPage } from "../../utils/types";
 import { getCurrentDate } from "../../utils/utils";
 import { Game } from "../../utils/bingo.interface";
@@ -20,6 +22,7 @@ export default function CardsPage(): React.JSX.Element {
   const t = useTranslations('fileUpload');
   const router = useRouter();
   const { showSuccess, showError } = useToast();
+  const { currentTheme } = useCardTheme();
   
   // State from session storage
   const [bingoCards, setBingoCards] = useState<Game | null>(null);
@@ -158,6 +161,9 @@ export default function CardsPage(): React.JSX.Element {
           <div className="file-upload">
             <h1>{t('bingoCards')}</h1>
 
+            {/* Theme Selector */}
+            <ThemeSelector />
+
             <h3>{t('exportOptions')}</h3>
             <ExportConfiguration
               bingoPercard={bingoPercard}
@@ -197,6 +203,7 @@ export default function CardsPage(): React.JSX.Element {
                     card={card}
                     cardRef={setCardRef(index)}
                     cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
+                    theme={currentTheme}
                   />
                 </motion.div>
               );
