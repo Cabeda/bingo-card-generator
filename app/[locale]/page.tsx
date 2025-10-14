@@ -16,9 +16,7 @@ export default function Home(): React.JSX.Element {
   const router = useRouter();
   const [numCards, setNumCards] = useState<number>(10);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [eventHeader] = useState<string>(
-    `Magusto ${new Date().getFullYear()}`
-  );
+  const eventHeader: string = `Magusto ${new Date().getFullYear()}`;
 
   const handleGenerateCards = (): void => {
     setIsGenerating(true);
