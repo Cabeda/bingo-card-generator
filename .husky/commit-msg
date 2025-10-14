@@ -1,2 +1,2 @@
 # Validate commit message format using commitlint
-bunx --no -- commitlint --edit "$1"
+npx --no -- commitlint --edit "$1"

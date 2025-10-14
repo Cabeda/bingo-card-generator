@@ -18,6 +18,7 @@
     "generating": "Generating cards...",
     "generatingCards": "Generating {current} of {total} cards...",
     "bingoCards": "Bingo Cards",
+    "exportOptions": "Export Options",
     "exportBingoCards": "Generate .bingoCards",
     "generatePdf": "Generate PDF",
     "generatingPdf": "Generating PDF... {progress}%",

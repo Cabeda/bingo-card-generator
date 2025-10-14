@@ -1,7 +1,7 @@
 # Run linting
 echo "Running ESLint..."
-bun run lint
+npm run lint
 
 # Run tests
 echo "Running tests..."
-bun run test
+NODE_OPTIONS='--experimental-vm-modules' npx jest
