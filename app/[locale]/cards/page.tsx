@@ -179,23 +179,28 @@ export default function CardsPage(): React.JSX.Element {
               t={t}
             />
             
-            {bingoCards.cards.map((card, index) => (
-              <motion.div
-                key={card.cardTitle}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: Math.min(index * 0.05, 2)
-                }}
-              >
-                <CardDisplay
-                  card={card}
-                  cardRef={setCardRef(index)}
-                  cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
-                />
-              </motion.div>
-            ))}
+            {/* Cap the number of animated cards for performance */}
+            {bingoCards.cards.map((card, index) => {
+              const MAX_ANIMATED_CARDS = 20;
+              const delay = index < MAX_ANIMATED_CARDS ? index * 0.05 : 0;
+              return (
+                <motion.div
+                  key={card.cardTitle}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay
+                  }}
+                >
+                  <CardDisplay
+                    card={card}
+                    cardRef={setCardRef(index)}
+                    cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
+                  />
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </ErrorBoundary>
