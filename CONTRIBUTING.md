@@ -320,6 +320,8 @@ and manage releases based on conventional commits. This means:
 
 **Important:** Always use conventional commit messages to ensure your changes are properly documented in the CHANGELOG!
 
+📖 For detailed information about releases, see [docs/RELEASES.md](./docs/RELEASES.md)
+
 ### Review Process
 
 1. Maintainers will review your PR
