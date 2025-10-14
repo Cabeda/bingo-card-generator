@@ -30,19 +30,29 @@ export function useBingoCards() {
    * @param eventHeader - Event name for the game ID
    * @returns The generated game object
    */
-  const generateCards = (numCards: number, eventHeader: string): Game => {
+  const generateCards = (numCards: number, eventHeader: string): Game | null => {
     setIsGenerating(true);
     
-    const generatedCards = generateRandomBingoCards(numCards);
-    const game: Game = {
-      filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
-      cards: generatedCards,
-    };
+    // Use setTimeout to allow UI to update before heavy operation
+    setTimeout(() => {
+      const generatedCards = generateRandomBingoCards(numCards);
+      const game: Game = {
+        filename: createGameId(`${getCurrentDate()}-${eventHeader}`),
+        cards: generatedCards,
+      };
+      
+      setBingoCards(game);
+      setIsGenerating(false);
+    }, 50);
     
-    setBingoCards(game);
-    setIsGenerating(false);
-    
-    return game;
+    return null;
+  };
+
+  /**
+   * Clears all generated cards.
+   */
+  const clearCards = (): void => {
+    setBingoCards(null);
   };
 
   /**
@@ -91,5 +101,6 @@ export function useBingoCards() {
     generateCards,
     parseCardsFromFile,
     exportBingoGame,
+    clearCards,
   };
 }

@@ -31,6 +31,7 @@ export function usePdfGeneration() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number>(0);
+  const [batchInfo, setBatchInfo] = useState<string>("");
   const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
   const cancelPdfRef = useRef<boolean>(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -61,6 +62,7 @@ export function usePdfGeneration() {
    * @param bingoPercard - Number of cards per PDF page
    * @param onError - Error callback for displaying error messages
    * @param onCancel - Cancel callback for displaying cancel message
+   * @param onSuccess - Success callback when PDF generation completes
    */
   const generatePDF = async (
     bingoCards: Game | null,
@@ -68,13 +70,15 @@ export function usePdfGeneration() {
     locationFooter: string,
     bingoPercard: CardsPerPage,
     onError: (message: string) => void,
-    onCancel: (message: string) => void
+    onCancel: (message: string) => void,
+    onSuccess: () => void
   ): Promise<void> => {
     if (!bingoCards) return;
     
     setIsGeneratingPDF(true);
     setProgress(0);
     setEstimatedTimeRemaining(0);
+    setBatchInfo("");
     cancelPdfRef.current = false;
     
     try {
@@ -113,12 +117,17 @@ export function usePdfGeneration() {
           setIsGeneratingPDF(false);
           setProgress(0);
           setEstimatedTimeRemaining(0);
+          setBatchInfo("");
           onCancel('pdfCancelled');
           return;
         }
 
         const batchStartTime = performance.now();
         const batchPromises = [];
+        const currentBatch = Math.floor(batch / settings.batchSize) + 1;
+        const totalBatches = Math.ceil(totalCards / settings.batchSize);
+        setBatchInfo(`Processing batch ${currentBatch} of ${totalBatches}`);
+        
         for (let i = batch; i < Math.min(batch + settings.batchSize, totalCards); i++) {
           const cardRef = cardRefs.current[i];
           if (cardRef) {
@@ -146,6 +155,7 @@ export function usePdfGeneration() {
       
       const imageConversionTime = performance.now();
       console.log(`Image conversion completed in ${Math.round(imageConversionTime - startTime)}ms`);
+      setBatchInfo("Assembling PDF document...");
 
       // Add images to PDF pages
       for (let i = 0; i < totalCards; i += cardsPerPage) {
@@ -155,6 +165,7 @@ export function usePdfGeneration() {
           setIsGeneratingPDF(false);
           setProgress(0);
           setEstimatedTimeRemaining(0);
+          setBatchInfo("");
           onCancel('pdfCancelled');
           return;
         }
@@ -213,11 +224,13 @@ export function usePdfGeneration() {
       
       setProgress(100);
       
-      // Reset after a short delay
+      // Call success callback and reset after a short delay
+      onSuccess();
       setTimeout(() => {
         setProgress(0);
         setIsGeneratingPDF(false);
         setEstimatedTimeRemaining(0);
+        setBatchInfo("");
       }, 1000);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -225,6 +238,7 @@ export function usePdfGeneration() {
       setIsGeneratingPDF(false);
       setProgress(0);
       setEstimatedTimeRemaining(0);
+      setBatchInfo("");
     }
   };
 
@@ -232,6 +246,7 @@ export function usePdfGeneration() {
     isGeneratingPDF,
     progress,
     estimatedTimeRemaining,
+    batchInfo,
     qualityMode,
     setQualityMode,
     cardRefs,

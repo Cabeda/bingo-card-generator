@@ -240,6 +240,8 @@ The FileUpload component has been refactored to use custom hooks for better sepa
 
 ##### Main Component State (index.tsx)
 
+The FileUpload component has been refactored to use custom hooks for better separation of concerns:
+
 ```typescript
 const [numCards, setNumCards] = useState<number>(10);           // Configuration
 const [bingoPercard, setBingoPercard] = useState<CardsPerPage>(2); // Cards per PDF page

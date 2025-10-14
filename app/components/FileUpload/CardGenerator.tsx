@@ -18,6 +18,7 @@ interface CardGeneratorProps {
   setLocationFooter: (value: string) => void;
   onGenerateCards: () => void;
   isGenerating: boolean;
+  isGeneratingPDF: boolean;
   t: (key: string) => string;
 }
 
@@ -46,6 +47,7 @@ export function CardGenerator({
   setLocationFooter,
   onGenerateCards,
   isGenerating,
+  isGeneratingPDF,
   t,
 }: CardGeneratorProps): React.JSX.Element {
   return (
@@ -113,31 +115,18 @@ export function CardGenerator({
         />
       </div>
       <div className="margin-bottom-20">
-        <button onClick={onGenerateCards} className="button-style">
+        <button 
+          onClick={onGenerateCards} 
+          className="button-style"
+          disabled={isGenerating || isGeneratingPDF}
+          style={{
+            opacity: (isGenerating || isGeneratingPDF) ? 0.6 : 1,
+            cursor: (isGenerating || isGeneratingPDF) ? "not-allowed" : "pointer",
+          }}
+        >
           {t('generateCards')}
         </button>
       </div>
-      {isGenerating && (
-        <div
-          className="margin-bottom-20"
-          style={{ textAlign: "center" }}
-        >
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              border: "4px solid var(--primary-color)",
-              borderTopColor: "transparent",
-              borderRadius: "50%",
-              margin: "0 auto",
-              animation: "spin 1s linear infinite",
-            }}
-          />
-          <p style={{ marginTop: "10px", color: "var(--primary-color)" }}>
-            {t('generating')}
-          </p>
-        </div>
-      )}
     </>
   );
 }

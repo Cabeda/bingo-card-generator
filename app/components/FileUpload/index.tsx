@@ -2,11 +2,15 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import { motion } from "motion/react";
 import { CardsPerPage } from "../../utils/types";
 import { getCurrentDate } from "../../utils/utils";
 import { useBingoCards } from "../../hooks/useBingoCards";
 import { usePdfGeneration } from "../../hooks/usePdfGeneration";
 import { useFileUpload } from "../../hooks/useFileUpload";
+import { useToast } from "../ToastProvider";
+import { LoadingOverlay } from "../LoadingOverlay";
+import { ConfirmDialog } from "../ConfirmDialog";
 import { CardGenerator } from "./CardGenerator";
 import { PdfExporter } from "./PdfExporter";
 import { CardDisplay } from "./CardDisplay";
@@ -22,6 +26,7 @@ import { CardDisplay } from "./CardDisplay";
  */
 export function FileUpload(): React.JSX.Element {
   const t = useTranslations('fileUpload');
+  const { showSuccess, showError } = useToast();
   
   // Form state
   const [numCards, setNumCards] = useState<number>(10);
@@ -32,6 +37,7 @@ export function FileUpload(): React.JSX.Element {
   const [locationFooter, setLocationFooter] = useState<string>(
     "Paróquia Nossa Senhora da Areosa"
   );
+  const [showConfirmClear, setShowConfirmClear] = useState<boolean>(false);
 
   // Custom hooks
   const {
@@ -40,12 +46,14 @@ export function FileUpload(): React.JSX.Element {
     generateCards,
     parseCardsFromFile,
     exportBingoGame,
+    clearCards,
   } = useBingoCards();
 
   const {
     isGeneratingPDF,
     progress,
     estimatedTimeRemaining,
+    batchInfo,
     qualityMode,
     setQualityMode,
     setCardRef,
@@ -55,12 +63,16 @@ export function FileUpload(): React.JSX.Element {
 
   const { file, handleFileChange } = useFileUpload(
     parseCardsFromFile,
-    (errorKey) => alert(t(errorKey))
+    (errorKey) => showError(t(errorKey)),
+    (count) => showSuccess(t('cardsGeneratedSuccess', { count }))
   );
 
   // Handler functions
   const handleGenerateRandomCards = (): void => {
-    generateCards(numCards, eventHeader);
+    const game = generateCards(numCards, eventHeader);
+    if (game) {
+      showSuccess(t('cardsGeneratedSuccess', { count: numCards }));
+    }
   };
 
   const handleGeneratePDF = async (): Promise<void> => {
@@ -69,17 +81,60 @@ export function FileUpload(): React.JSX.Element {
       eventHeader,
       locationFooter,
       bingoPercard,
-      (errorKey) => alert(t(errorKey)),
-      (cancelKey) => alert(t(cancelKey))
+      (errorKey) => showError(t(errorKey)),
+      (cancelKey) => showError(t(cancelKey)),
+      () => showSuccess(t('pdfGeneratedSuccess'))
     );
   };
 
   const handleExportBingoGame = (): void => {
     exportBingoGame(eventHeader);
+    showSuccess(t('bingoCardsExportedSuccess'));
+  };
+
+  const handleClearCards = (): void => {
+    setShowConfirmClear(true);
+  };
+
+  const confirmClearCards = (): void => {
+    clearCards();
+    setShowConfirmClear(false);
   };
 
   return (
     <div className="container">
+      {/* Loading overlay for card generation */}
+      <LoadingOverlay
+        isVisible={isGenerating}
+        message={t('generating')}
+        showProgress={false}
+      />
+
+      {/* Loading overlay for PDF generation */}
+      <LoadingOverlay
+        isVisible={isGeneratingPDF}
+        message={estimatedTimeRemaining > 0 
+          ? t('generatingPdfWithTime', { progress: Math.round(progress), timeRemaining: estimatedTimeRemaining })
+          : t('generatingPdf', { progress: Math.round(progress) })}
+        progress={progress}
+        showProgress={true}
+        subMessage={batchInfo}
+        onCancel={cancelPdfGeneration}
+        cancelText={t('cancelPdf')}
+      />
+
+      {/* Confirm dialog for clearing cards */}
+      <ConfirmDialog
+        isOpen={showConfirmClear}
+        title={t('confirmClearCards')}
+        message={t('confirmClearCardsMessage')}
+        confirmText={t('clear')}
+        cancelText={t('cancel')}
+        confirmVariant="danger"
+        onConfirm={confirmClearCards}
+        onCancel={() => setShowConfirmClear(false)}
+      />
+
       <div className="file-upload">
         <h1>{t('title')}</h1>
         
@@ -96,6 +151,7 @@ export function FileUpload(): React.JSX.Element {
           setLocationFooter={setLocationFooter}
           onGenerateCards={handleGenerateRandomCards}
           isGenerating={isGenerating}
+          isGeneratingPDF={isGeneratingPDF}
           t={t}
         />
 
@@ -115,20 +171,27 @@ export function FileUpload(): React.JSX.Element {
             <PdfExporter
               onExportBingoGame={handleExportBingoGame}
               onGeneratePDF={handleGeneratePDF}
+              onClearCards={handleClearCards}
               isGeneratingPDF={isGeneratingPDF}
-              progress={progress}
-              estimatedTimeRemaining={estimatedTimeRemaining}
-              onCancelPdf={cancelPdfGeneration}
               t={t}
             />
             
             {bingoCards.cards.map((card, index) => (
-              <CardDisplay
+              <motion.div
                 key={card.cardTitle}
-                card={card}
-                cardRef={setCardRef(index)}
-                cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: Math.min(index * 0.05, 2)
+                }}
+              >
+                <CardDisplay
+                  card={card}
+                  cardRef={setCardRef(index)}
+                  cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
+                />
+              </motion.div>
             ))}
           </div>
         )}

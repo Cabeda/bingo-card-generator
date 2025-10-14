@@ -11,8 +11,9 @@ import { useState } from "react";
  *   - handleFileChange: Callback for file input change events
  */
 export function useFileUpload(
-  onFileRead: (filename: string, content: string) => void,
-  onError: (message: string) => void
+  onFileRead: (filename: string, content: string) => { cards: unknown[] },
+  onError: (message: string) => void,
+  onSuccess: (count: number) => void
 ) {
   const [file, setFile] = useState<File | null>(null);
 
@@ -30,7 +31,11 @@ export function useFileUpload(
       const filename = selectedFile.name.replace(".bingoCards", "");
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        onFileRead(filename, content);
+        const game = onFileRead(filename, content);
+        // Call success callback with card count
+        if (game && game.cards) {
+          onSuccess(game.cards.length);
+        }
       };
       reader.readAsText(selectedFile);
     } else {
