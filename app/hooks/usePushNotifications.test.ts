@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { usePushNotifications } from './usePushNotifications';
 
 // Mock service worker and Notification API

@@ -14,6 +14,7 @@ including the component hierarchy, data flow, state management, and key design d
 - [Core Algorithms](#core-algorithms)
 - [File Formats](#file-formats)
 - [Performance Considerations](#performance-considerations)
+- [Progressive Web App (PWA) Features](#progressive-web-app-pwa-features)
 - [Security Considerations](#security-considerations)
 - [Future Enhancements](#future-enhancements)
 
@@ -473,6 +474,152 @@ function checkBingo(numbers: (number | null)[], drawnNumbers: number[]): boolean
 - **Animations**: Throttled to prevent overlapping draws
 - **Re-renders**: Optimized with `useCallback` and `useMemo` where needed
 
+## Progressive Web App (PWA) Features
+
+The application implements comprehensive PWA functionality for an enhanced offline-first experience.
+
+### Service Worker Configuration
+
+The service worker is configured using `next-pwa` with multiple caching strategies:
+
+```typescript
+// next.config.ts
+runtimeCaching: [
+  // API calls - NetworkFirst with timeout
+  { 
+    urlPattern: /^https?.*\/api\/.*/i,
+    handler: 'NetworkFirst',
+    networkTimeoutSeconds: 10,
+    maxAgeSeconds: 5 * 60  // 5 minutes
+  },
+  // Images - CacheFirst for performance
+  {
+    urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+    handler: 'CacheFirst',
+    maxAgeSeconds: 30 * 24 * 60 * 60  // 30 days
+  },
+  // Static resources - CacheFirst
+  {
+    urlPattern: /\.(?:js|css|woff|woff2|ttf|otf)$/i,
+    handler: 'CacheFirst',
+    maxAgeSeconds: 7 * 24 * 60 * 60  // 7 days
+  }
+]
+```
+
+### Background Sync
+
+**Hook**: `useBackgroundSync`
+
+Enables deferred actions until network connection is stable:
+
+```typescript
+const { isSupported, registerSync, isSyncing } = useBackgroundSync();
+
+// Register a background sync
+await registerSync('sync-game-state');
+```
+
+**Use Cases**:
+
+- Syncing game state when connection is restored
+- Uploading analytics data in the background
+- Retrying failed operations automatically
+
+### Push Notifications
+
+**Hook**: `usePushNotifications`
+
+Provides notification management with user permission handling:
+
+```typescript
+const {
+  permission,
+  isSupported,
+  requestPermission,
+  subscribe,
+  sendNotification
+} = usePushNotifications();
+```
+
+**Features**:
+
+- Permission request with user-friendly UI
+- Subscription management
+- Local notification support
+- Automatic icon and badge configuration
+
+**Component**: `NotificationSettings`
+
+User interface for managing notification preferences with:
+
+- Permission status display
+- Enable/disable controls
+- Browser compatibility detection
+- Multi-language support
+
+### Service Worker Lifecycle
+
+**Component**: `PWARegister`
+
+Manages service worker registration and updates:
+
+```typescript
+// Automatic update detection
+registration.addEventListener('updatefound', () => {
+  // Show update notification to user
+});
+
+// Check for updates when page becomes visible
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    registration.update();
+  }
+});
+```
+
+### Manifest Configuration
+
+The Web App Manifest (`public/manifest.json`) defines:
+
+- **App Identity**: Name, short name, description
+- **Display Mode**: Standalone for app-like experience
+- **Theme Colors**: Brand colors for native UI integration
+- **Icons**: Multiple sizes for different devices (192x192, 384x384, 512x512)
+- **Shortcuts**: Quick actions for generating cards or playing game
+- **Categories**: Games, entertainment, utilities
+
+### Caching Strategy
+
+The application uses a tiered caching approach:
+
+1. **Precaching**: Critical assets cached during service worker installation
+2. **Runtime Caching**: Dynamic content cached based on usage patterns
+3. **Cache Expiration**: Automatic cleanup of old cache entries
+4. **Network Timeout**: Fallback to cache if network is slow (10s timeout)
+
+### Offline Functionality
+
+All core features work offline after initial load:
+
+- ✅ Card generation (client-side algorithm)
+- ✅ PDF export (client-side rendering)
+- ✅ Game playing (localStorage-based state)
+- ✅ Card validation
+- ✅ File import/export
+- ⚠️ Internationalization (requires initial load for translations)
+
+### Browser Support
+
+PWA features are progressively enhanced:
+
+- **Service Worker**: Modern browsers (Chrome, Firefox, Safari, Edge)
+- **Push Notifications**: Chrome, Firefox, Edge (iOS Safari has limited support)
+- **Background Sync**: Chrome, Edge (not Safari)
+- **App Installation**: All modern browsers with PWA support
+
+The application gracefully degrades on browsers without PWA support, maintaining core functionality.
+
 ## Security Considerations
 
 ### Input Validation
@@ -509,7 +656,11 @@ function checkBingo(numbers: (number | null)[], drawnNumbers: number[]): boolean
 ### Technical Improvements
 
 1. **Web Workers**: Offload PDF generation to background thread
-2. **Service Workers**: Offline functionality and caching
+2. **Service Workers**: ✅ **IMPLEMENTED** - Enhanced offline functionality with background sync and push notifications
+   - Multiple caching strategies (CacheFirst, NetworkFirst)
+   - Background sync for deferred operations
+   - Push notification support
+   - Automatic service worker updates
 3. **WebRTC**: Peer-to-peer game hosting
 4. **IndexedDB**: Replace localStorage for larger datasets
 5. **Virtual Scrolling**: Optimize rendering of large card lists

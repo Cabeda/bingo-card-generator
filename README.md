@@ -53,11 +53,18 @@ Cards follow traditional bingo rules:
 
 ### 📱 Progressive Web App (PWA)
 
-- **Offline Support**: Works offline after initial visit
+- **Offline Support**: Works offline after initial visit with intelligent caching
 - **Installable**: Can be installed on mobile and desktop devices
 - **App-like Experience**: Runs in standalone mode when installed
 - **Service Worker**: Automatically caches assets for faster loading
 - **Fast Performance**: Instant loading on repeat visits
+- **Background Sync**: Defers actions until network connection is stable
+- **Push Notifications**: Get notified about game updates and events (optional)
+- **Smart Caching**: Multiple caching strategies for optimal performance
+  - CacheFirst for images and static assets (30 days)
+  - NetworkFirst for API calls and dynamic content
+  - Automatic cache updates and cleanup
+- **App Shortcuts**: Quick access to generate cards or play game from home screen
 
 ## 🚀 Getting Started
 
@@ -100,8 +107,10 @@ bun run start
 - **Framework**: [Next.js 15](https://nextjs.org) with App Router
 - **Language**: [TypeScript](https://www.typescriptlang.org/) (strict mode)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/) with custom CSS modules
-- **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF) with [html-to-image](https://github.com/bubkoo/html-to-image)
-- **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa) for Progressive Web App support
+- **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF)
+  with [html-to-image](https://github.com/bubkoo/html-to-image)
+- **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa)
+  for Progressive Web App support
 - **Testing**: [Jest](https://jestjs.io/) with ts-jest and jsdom
 - **Linting**: [ESLint](https://eslint.org/) with Next.js configuration
 - **Bundle Analysis**: [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) for monitoring bundle sizes
