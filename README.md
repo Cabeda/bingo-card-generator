@@ -207,6 +207,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for de
 - Our code style and standards
 - How to submit pull requests
 - Testing requirements
+- **Using conventional commits** for automatic CHANGELOG generation
 
 ### 🌍 Adding Translations
 

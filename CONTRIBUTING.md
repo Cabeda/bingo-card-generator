@@ -258,7 +258,7 @@ Place test files next to the code they test:
 4. **Run linting** and fix any issues: `bun run lint:fix`
 5. **Build the project** to ensure no build errors: `bun run build`
 6. **Update the README** if you've added features or changed usage
-7. **Update the CHANGELOG.md** under the `[Unreleased]` section with your changes
+7. **Use conventional commit messages** - CHANGELOG is automatically generated from commits
 
 ### PR Guidelines
 
@@ -302,6 +302,23 @@ fix(game): resolve issue with number drawing validation
 docs(readme): update installation instructions
 test(utils): add tests for edge cases in parseBingoCards
 ```
+
+### Automated CHANGELOG Generation
+
+This project uses [release-please](https://github.com/googleapis/release-please) to automatically generate the CHANGELOG
+and manage releases based on conventional commits. This means:
+
+- **No manual CHANGELOG updates needed** - The CHANGELOG is automatically generated from commit messages
+- **Automatic version bumping** - Versions are determined by commit types:
+  - `feat:` commits trigger a minor version bump (e.g., 0.1.0 → 0.2.0)
+  - `fix:` commits trigger a patch version bump (e.g., 0.1.0 → 0.1.1)
+  - `feat!:` or `fix!:` (breaking changes) trigger a major version bump (e.g., 0.1.0 → 1.0.0)
+- **Release PRs** - When commits are merged to `main`, release-please creates a Release PR that:
+  - Updates the CHANGELOG.md with all changes since the last release
+  - Bumps the version in package.json
+  - Creates a GitHub release when merged
+
+**Important:** Always use conventional commit messages to ensure your changes are properly documented in the CHANGELOG!
 
 ### Review Process
 
