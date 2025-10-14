@@ -292,3 +292,34 @@ export function parseBingoCards(filename: string, content: string): Game {
         });
     return { filename: createGameId(filename), cards };
 }
+
+/**
+ * Generates a formatted date-time string for file naming.
+ * 
+ * Creates a timestamp in the format: `YYYYMMDD-HHMM`
+ * This format is:
+ * - Sortable (chronological ordering)
+ * - Filesystem-safe (no special characters)
+ * - Human-readable
+ * - Suitable for use in filenames
+ * 
+ * @returns Formatted date-time string (e.g., "20241225-1430")
+ * 
+ * @example
+ * ```typescript
+ * const timestamp = getCurrentDate();
+ * console.log(timestamp); // "20241225-1430"
+ * 
+ * const filename = `${timestamp}-${eventName}.pdf`;
+ * // Result: "20241225-1430-Christmas-Bingo.pdf"
+ * ```
+ */
+export function getCurrentDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}${month}${day}-${hours}${minutes}`;
+}

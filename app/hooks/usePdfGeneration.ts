@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { Game } from "../utils/bingo.interface";
 import { CardsPerPage } from "../utils/types";
+import { getCurrentDate } from "../utils/utils";
 
 type QualityMode = 'fast' | 'balanced' | 'high';
 
@@ -49,21 +50,6 @@ export function usePdfGeneration() {
    */
   const cancelPdfGeneration = (): void => {
     cancelPdfRef.current = true;
-  };
-
-  /**
-   * Generates a formatted date-time string for file naming.
-   * 
-   * @returns Formatted date-time string (e.g., "20241225-1430")
-   */
-  const getCurrentDate = (): string => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}${month}${day}-${hours}${minutes}`;
   };
 
   /**
