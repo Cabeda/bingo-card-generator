@@ -35,7 +35,7 @@ export function NotificationSettings(): React.JSX.Element {
     return (
       <div className={styles.container}>
         <p className={styles.unsupported}>
-          {t('notSupported', { default: 'Push notifications are not supported in your browser.' })}
+          {t('notSupported')}
         </p>
       </div>
     );
