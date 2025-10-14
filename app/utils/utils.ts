@@ -2,6 +2,22 @@ import { Card, Game } from "./bingo.interface";
 import { createCardId, createGameId } from "./types";
 
 /**
+ * Seeded random number generator for deterministic testing.
+ * Uses a simple linear congruential generator (LCG) algorithm.
+ * 
+ * @param seed - Initial seed value
+ * @returns A function that returns pseudo-random numbers between 0 and 1
+ */
+export function createSeededRandom(seed: number): () => number {
+    let state = seed;
+    return function() {
+        // Linear congruential generator: (a * state + c) % m
+        state = (state * 1664525 + 1013904223) % 4294967296;
+        return state / 4294967296;
+    };
+}
+
+/**
  * Generates a valid bingo card with the specified card number.
  * 
  * The generated card follows traditional bingo rules:
@@ -20,6 +36,7 @@ import { createCardId, createGameId } from "./types";
  * column constraints.
  * 
  * @param cardNumber - Unique identifier for the card (e.g., "001", "5", "ABC-123")
+ * @param randomFn - Optional random number generator (0 to 1). Defaults to Math.random. Used for deterministic testing.
  * @returns A Card object with validated structure and sorted numbers
  * 
  * @example
@@ -32,22 +49,24 @@ import { createCardId, createGameId } from "./types";
  * @see {@link Card} for the return type structure
  * @see {@link generateRandomBingoCards} for generating multiple cards
  */
-export function generateBingoCard(cardNumber: string): Card {
-    const card = Array(3).fill(null).map(() => Array(9).fill(null));
+export function generateBingoCard(cardNumber: string, randomFn: () => number = Math.random): Card {
+    const ROWS = 3;
+    const COLS = 9;
+    const card = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
     const usedNumbers = new Set<number>();
 
     // Fill columns and validate rows in a single pass
-    for (let col = 0; col < 9; col++) {
+    for (let col = 0; col < COLS; col++) {
         const min = col === 0 ? 1 : col * 10;
         const max = col === 8 ? 89 : col * 10 + 9;
-        const numbersNeeded = 2;
-        
+        const numbersNeeded = 2; // Each column should have 2 numbers
+
         // Generate and sort numbers for this column
-        const columnNumbers = Array(3).fill(0)
+        const columnNumbers = Array(numbersNeeded).fill(0)
             .map(() => {
                 let num;
                 do {
-                    num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    num = Math.floor(randomFn() * (max - min + 1)) + min;
                 } while (usedNumbers.has(num));
                 usedNumbers.add(num);
                 return num;
@@ -55,10 +74,13 @@ export function generateBingoCard(cardNumber: string): Card {
             .sort((a, b) => a - b);
 
         // Assign numbers, ensuring at least one number per column
-        const skipRow = numbersNeeded < 3 ? Math.floor(Math.random() * 3) : -1;
-        columnNumbers.forEach((num, row) => {
-            if (row !== skipRow) card[row][col] = num;
-        });
+        const skipRow = Math.floor(randomFn() * ROWS);
+        let assigned = 0;
+        for (let row = 0; row < ROWS; row++) {
+            if (row !== skipRow && assigned < columnNumbers.length) {
+                card[row][col] = columnNumbers[assigned++];
+            }
+        }
     }
 
     // Ensure exactly 5 numbers per row - optimized version
@@ -83,7 +105,7 @@ export function generateBingoCard(cardNumber: string): Card {
             }
             
             while (filledCount > 5 && filledIndices.length > 0) {
-                const removeIdx = Math.floor(Math.random() * filledIndices.length);
+                const removeIdx = Math.floor(randomFn() * filledIndices.length);
                 const removeIndex = filledIndices[removeIdx];
                 row[removeIndex] = null;
                 filledIndices.splice(removeIdx, 1);
@@ -97,7 +119,7 @@ export function generateBingoCard(cardNumber: string): Card {
             }
             
             while (filledCount < 5 && emptyIndices.length > 0) {
-                const addIdx = Math.floor(Math.random() * emptyIndices.length);
+                const addIdx = Math.floor(randomFn() * emptyIndices.length);
                 const addIndex = emptyIndices[addIdx];
                 
                 // Generate a number for this column that hasn't been used
@@ -108,7 +130,7 @@ export function generateBingoCard(cardNumber: string): Card {
                 let num;
                 let attempts = 0;
                 do {
-                    num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    num = Math.floor(randomFn() * (max - min + 1)) + min;
                     attempts++;
                     if (attempts > 100) break; // Safety check
                 } while (usedNumbers.has(num));

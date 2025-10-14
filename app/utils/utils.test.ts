@@ -1,10 +1,11 @@
-import { generateBingoCard, generateRandomBingoCards, parseBingoCards } from './utils';
+import { createSeededRandom, generateBingoCard, generateRandomBingoCards, parseBingoCards } from './utils';
 import { Card, Game } from './bingo.interface';
 
 describe('generateBingoCard', () => {
     it('should generate a bingo card with the correct structure', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         expect(card.cardTitle).toBe(cardNumber);
         expect(card.numbers).toHaveLength(27); // 3 rows * 9 columns
@@ -12,7 +13,8 @@ describe('generateBingoCard', () => {
 
     it('should have exactly 5 numbers in each row', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         for (let row = 0; row < 3; row++) {
             const rowNumbers = card.numbers.slice(row * 9, (row + 1) * 9);
@@ -23,7 +25,8 @@ describe('generateBingoCard', () => {
 
     it('should have no empty columns', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         for (let col = 0; col < 9; col++) {
             const columnNumbers = [
@@ -38,7 +41,8 @@ describe('generateBingoCard', () => {
 
     it('should have unique numbers in each column', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         for (let col = 0; col < 9; col++) {
             const columnNumbers = [
@@ -54,7 +58,8 @@ describe('generateBingoCard', () => {
 
     it('should have numbers within the correct range for each column', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         for (let col = 0; col < 9; col++) {
             const min = col === 0 ? 1 : col * 10;
@@ -75,7 +80,8 @@ describe('generateBingoCard', () => {
 
     it('should have numbers sorted in ascending order within each column', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         for (let col = 0; col < 9; col++) {
             const columnNumbers = [
@@ -93,7 +99,8 @@ describe('generateBingoCard', () => {
 
     it('should have all unique numbers across the entire card', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         const allNumbers = card.numbers.filter(num => num !== null) as number[];
         const uniqueNumbers = new Set(allNumbers);
@@ -103,7 +110,8 @@ describe('generateBingoCard', () => {
 
     it('should have exactly 15 numbers total on the card', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         const totalNumbers = card.numbers.filter(num => num !== null).length;
         expect(totalNumbers).toBe(15); // 3 rows * 5 numbers per row
@@ -111,7 +119,8 @@ describe('generateBingoCard', () => {
 
     it('should have exactly 12 empty cells on the card', () => {
         const cardNumber = '12345';
-        const card: Card = generateBingoCard(cardNumber);
+        const random = createSeededRandom(42);
+        const card: Card = generateBingoCard(cardNumber, random);
 
         const totalEmpty = card.numbers.filter(num => num === null).length;
         expect(totalEmpty).toBe(12); // 27 total - 15 numbers
@@ -120,7 +129,8 @@ describe('generateBingoCard', () => {
     it('should validate column 0 range (1-9)', () => {
         // Generate multiple cards to test range
         for (let i = 0; i < 20; i++) {
-            const card = generateBingoCard(i.toString());
+            const random = createSeededRandom(i);
+            const card = generateBingoCard(i.toString(), random);
             const col0Numbers = [
                 card.numbers[0],
                 card.numbers[9],
@@ -137,7 +147,8 @@ describe('generateBingoCard', () => {
     it('should validate column 8 range (80-89)', () => {
         // Generate multiple cards to test range
         for (let i = 0; i < 20; i++) {
-            const card = generateBingoCard(i.toString());
+            const random = createSeededRandom(i);
+            const card = generateBingoCard(i.toString(), random);
             const col8Numbers = [
                 card.numbers[8],
                 card.numbers[17],
@@ -152,7 +163,8 @@ describe('generateBingoCard', () => {
     });
 
     it('should validate middle columns ranges (10-79)', () => {
-        const card = generateBingoCard('test');
+        const random = createSeededRandom(42);
+        const card = generateBingoCard('test', random);
         
         for (let col = 1; col <= 7; col++) {
             const columnNumbers = [
@@ -173,7 +185,8 @@ describe('generateBingoCard', () => {
 
     it('should maintain consistent structure across multiple generations', () => {
         for (let i = 0; i < 10; i++) {
-            const card = generateBingoCard(i.toString());
+            const random = createSeededRandom(i);
+            const card = generateBingoCard(i.toString(), random);
             
             // Verify all bingo rules
             expect(card.numbers).toHaveLength(27);
@@ -203,7 +216,8 @@ describe('generateBingoCard', () => {
         const col8Counts: number[] = [];
         
         for (let i = 1; i <= 30; i++) {
-            const card = generateBingoCard(i.toString());
+            const random = createSeededRandom(i);
+            const card = generateBingoCard(i.toString(), random);
             
             // Count filled cells in column 0
             const col0Count = [
@@ -240,7 +254,8 @@ describe('generateBingoCard', () => {
     describe('generateBingoCard', () => {
         it('should generate a bingo card with the correct structure', () => {
             const cardNumber = '12345';
-            const card: Card = generateBingoCard(cardNumber);
+            const random = createSeededRandom(42);
+            const card: Card = generateBingoCard(cardNumber, random);
 
             expect(card.cardTitle).toBe(cardNumber);
             expect(card.cardNumber).toBe(Number.parseInt(cardNumber));
@@ -249,7 +264,8 @@ describe('generateBingoCard', () => {
 
         it('should have exactly 5 numbers in each row', () => {
             const cardNumber = '12345';
-            const card: Card = generateBingoCard(cardNumber);
+            const random = createSeededRandom(42);
+            const card: Card = generateBingoCard(cardNumber, random);
 
             for (let row = 0; row < 3; row++) {
                 const rowNumbers = card.numbers.slice(row * 9, (row + 1) * 9);
@@ -260,7 +276,8 @@ describe('generateBingoCard', () => {
 
         it('should have unique numbers in each column', () => {
             const cardNumber = '12345';
-            const card: Card = generateBingoCard(cardNumber);
+            const random = createSeededRandom(42);
+            const card: Card = generateBingoCard(cardNumber, random);
 
             for (let col = 0; col < 9; col++) {
                 const columnNumbers = [
