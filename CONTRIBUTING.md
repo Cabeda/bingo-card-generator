@@ -42,6 +42,8 @@ participating, you are expected to uphold this code. Please report unacceptable 
    bun install
    ```
 
+   This will also set up Git hooks automatically via Husky (see [Pre-commit Hooks](#pre-commit-hooks)).
+
 ## Development Setup
 
 ### Prerequisites
@@ -98,6 +100,26 @@ The bundle analyzer helps identify:
 - Unused code that could be removed
 - Opportunities for code splitting
 - Impact of new dependencies on bundle size
+
+### Pre-commit Hooks
+
+This project uses [Husky](https://typicode.github.io/husky/) to automatically run checks before commits:
+
+**Pre-commit Hook:**
+- Runs ESLint to check code style and catch errors
+- Runs Jest tests to ensure all tests pass
+
+**Commit Message Hook:**
+- Validates commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) format
+- Enforces commit message types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, etc.
+
+The hooks are automatically installed when you run `bun install`. If you need to bypass the hooks (not recommended), you can use:
+
+```bash
+git commit --no-verify -m "your message"
+```
+
+**Note:** Only bypass hooks if absolutely necessary, as they help maintain code quality and consistency.
 
 ## How to Contribute
 

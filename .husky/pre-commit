@@ -1,0 +1,7 @@
+# Run linting
+echo "Running ESLint..."
+bun run lint
+
+# Run tests
+echo "Running tests..."
+bun run test

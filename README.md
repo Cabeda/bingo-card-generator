@@ -183,6 +183,15 @@ bun run test:coverage # Run tests with coverage report
 - Use functional components with React hooks
 - See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines
 
+### Pre-commit Hooks
+
+The project uses [Husky](https://typicode.github.io/husky/) for Git hooks:
+
+- **Pre-commit**: Automatically runs linting and tests before each commit
+- **Commit message**: Validates commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) format
+
+Hooks are automatically installed when running `bun install`. See [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
+
 ## 📖 Usage
 
 ### Generating Bingo Cards
