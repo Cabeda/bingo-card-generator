@@ -3,17 +3,19 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
-import { CardsPerPage } from "../../utils/types";
+import { BatchExportOptions, CardsPerPage, ExportFormat, QualityMode } from "../../utils/types";
 import { getCurrentDate } from "../../utils/utils";
 import { useBingoCards } from "../../hooks/useBingoCards";
 import { usePdfGeneration } from "../../hooks/usePdfGeneration";
 import { useFileUpload } from "../../hooks/useFileUpload";
+import { useBatchExport } from "../../hooks/useBatchExport";
 import { useToast } from "../ToastProvider";
 import { LoadingOverlay } from "../LoadingOverlay";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { CardGenerator } from "./CardGenerator";
 import { PdfExporter } from "./PdfExporter";
 import { CardDisplay } from "./CardDisplay";
+import { BatchExportDialog } from "./BatchExportDialog";
 
 /**
  * FileUpload component for managing bingo card generation and export.
@@ -38,6 +40,7 @@ export function FileUpload(): React.JSX.Element {
     "Paróquia Nossa Senhora da Areosa"
   );
   const [showConfirmClear, setShowConfirmClear] = useState<boolean>(false);
+  const [showBatchExportDialog, setShowBatchExportDialog] = useState<boolean>(false);
 
   // Custom hooks
   const {
@@ -60,6 +63,14 @@ export function FileUpload(): React.JSX.Element {
     generatePDF,
     cancelPdfGeneration,
   } = usePdfGeneration();
+
+  const {
+    isExporting,
+    exportProgress,
+    setCardRef: setBatchCardRef,
+    exportBatch,
+    cancelExport,
+  } = useBatchExport();
 
   const { file, handleFileChange } = useFileUpload(
     parseCardsFromFile,
@@ -101,6 +112,35 @@ export function FileUpload(): React.JSX.Element {
     setShowConfirmClear(false);
   };
 
+  const handleBatchExport = (): void => {
+    setShowBatchExportDialog(true);
+  };
+
+  const handleBatchExportConfirm = (
+    formats: ExportFormat[],
+    quality: QualityMode,
+    cardsPerPage: CardsPerPage
+  ): void => {
+    const options: BatchExportOptions = {
+      formats,
+      quality,
+      cardsPerPage,
+    };
+
+    exportBatch(
+      bingoCards,
+      options,
+      eventHeader,
+      () => {
+        showSuccess(t('batchExportSuccess') || 'Batch export completed successfully!');
+        setShowBatchExportDialog(false);
+      },
+      (errorMessage) => {
+        showError(errorMessage);
+      }
+    );
+  };
+
   return (
     <div className="container">
       {/* Loading overlay for card generation */}
@@ -123,6 +163,27 @@ export function FileUpload(): React.JSX.Element {
         cancelText={t('cancelPdf')}
       />
 
+      {/* Loading overlay for batch export */}
+      <LoadingOverlay
+        isVisible={isExporting}
+        message={t('exportingCards') || 'Exporting cards...'}
+        progress={
+          exportProgress.length > 0
+            ? exportProgress.reduce((sum, p) => sum + p.progress, 0) / exportProgress.length
+            : 0
+        }
+        showProgress={true}
+        subMessage={
+          exportProgress.length > 0
+            ? exportProgress
+                .map((p) => `${p.format}: ${p.status}`)
+                .join(' | ')
+            : ''
+        }
+        onCancel={cancelExport}
+        cancelText={t('cancelPdf')}
+      />
+
       {/* Confirm dialog for clearing cards */}
       <ConfirmDialog
         isOpen={showConfirmClear}
@@ -133,6 +194,14 @@ export function FileUpload(): React.JSX.Element {
         confirmVariant="danger"
         onConfirm={confirmClearCards}
         onCancel={() => setShowConfirmClear(false)}
+      />
+
+      {/* Batch export dialog */}
+      <BatchExportDialog
+        isOpen={showBatchExportDialog}
+        onExport={handleBatchExportConfirm}
+        onCancel={() => setShowBatchExportDialog(false)}
+        t={t}
       />
 
       <div className="file-upload">
@@ -171,8 +240,10 @@ export function FileUpload(): React.JSX.Element {
             <PdfExporter
               onExportBingoGame={handleExportBingoGame}
               onGeneratePDF={handleGeneratePDF}
+              onBatchExport={handleBatchExport}
               onClearCards={handleClearCards}
               isGeneratingPDF={isGeneratingPDF}
+              isExporting={isExporting}
               t={t}
             />
             
@@ -188,7 +259,10 @@ export function FileUpload(): React.JSX.Element {
               >
                 <CardDisplay
                   card={card}
-                  cardRef={setCardRef(index)}
+                  cardRef={(el) => {
+                    setCardRef(index)(el);
+                    setBatchCardRef(index)(el);
+                  }}
                   cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
                 />
               </motion.div>

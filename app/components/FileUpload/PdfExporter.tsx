@@ -5,8 +5,10 @@ import React from "react";
 interface PdfExporterProps {
   onExportBingoGame: () => void;
   onGeneratePDF: () => void;
+  onBatchExport: () => void;
   onClearCards: () => void;
   isGeneratingPDF: boolean;
+  isExporting: boolean;
   t: (key: string, values?: Record<string, string | number>) => string;
 }
 
@@ -16,15 +18,20 @@ interface PdfExporterProps {
  * This component is responsible for:
  * - Export to .bingoCards button
  * - Generate PDF button
+ * - Batch export button
  * - Clear cards button
  */
 export function PdfExporter({
   onExportBingoGame,
   onGeneratePDF,
+  onBatchExport,
   onClearCards,
   isGeneratingPDF,
+  isExporting,
   t,
 }: PdfExporterProps): React.JSX.Element {
+  const isDisabled = isGeneratingPDF || isExporting;
+  
   return (
     <>
       <h3>{t('bingoCards')}</h3>
@@ -32,10 +39,10 @@ export function PdfExporter({
         <button
           onClick={onExportBingoGame}
           className="button-style"
-          disabled={isGeneratingPDF}
+          disabled={isDisabled}
           style={{
-            opacity: isGeneratingPDF ? 0.6 : 1,
-            cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+            opacity: isDisabled ? 0.6 : 1,
+            cursor: isDisabled ? "not-allowed" : "pointer",
           }}
         >
           {t('exportBingoCards')}
@@ -43,21 +50,33 @@ export function PdfExporter({
         <button
           onClick={onGeneratePDF}
           className="button-style"
-          disabled={isGeneratingPDF}
+          disabled={isDisabled}
           style={{
-            opacity: isGeneratingPDF ? 0.6 : 1,
-            cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+            opacity: isDisabled ? 0.6 : 1,
+            cursor: isDisabled ? "not-allowed" : "pointer",
           }}
         >
           {t('generatePdf')}
         </button>
         <button
+          onClick={onBatchExport}
+          className="button-style"
+          disabled={isDisabled}
+          style={{
+            opacity: isDisabled ? 0.6 : 1,
+            cursor: isDisabled ? "not-allowed" : "pointer",
+            backgroundColor: "#2e7d32",
+          }}
+        >
+          {t('batchExport') || 'Batch Export...'}
+        </button>
+        <button
           onClick={onClearCards}
           className="button-style"
-          disabled={isGeneratingPDF}
+          disabled={isDisabled}
           style={{
-            opacity: isGeneratingPDF ? 0.6 : 1,
-            cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+            opacity: isDisabled ? 0.6 : 1,
+            cursor: isDisabled ? "not-allowed" : "pointer",
             backgroundColor: "#d32f2f",
           }}
         >

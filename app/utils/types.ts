@@ -18,7 +18,10 @@ export enum GenerationState {
 export enum ExportFormat {
   PDF = 'pdf',
   BINGO_CARDS = 'bingoCards',
-  PNG = 'png'
+  PNG = 'png',
+  PNG_GRID = 'pngGrid',
+  CSV = 'csv',
+  JSON = 'json'
 }
 
 /**
@@ -108,4 +111,27 @@ export function getQualityValue(mode: QualityMode): number {
     case QualityMode.HIGH:
       return 0.95;
   }
+}
+
+/**
+ * Batch export options for multiple format exports
+ */
+export interface BatchExportOptions {
+  formats: ExportFormat[];
+  quality: QualityMode;
+  cardsPerPage?: CardsPerPage;
+  imageResolution?: number;
+  compression?: boolean;
+  includeMetadata?: boolean;
+  filenameTemplate?: string;
+}
+
+/**
+ * Progress tracking for individual export format
+ */
+export interface ExportProgress {
+  format: ExportFormat;
+  progress: number;
+  status: 'pending' | 'processing' | 'completed' | 'error' | 'cancelled';
+  error?: string;
 }
