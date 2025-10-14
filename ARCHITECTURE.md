@@ -20,20 +20,28 @@ including the component hierarchy, data flow, state management, and key design d
 ## High-Level Architecture
 
 The Bingo Card Generator is a client-side Next.js application that follows a **component-based
-architecture**. The application is split into two main features:
+architecture** with **custom React hooks** for state management and business logic separation. The application is split into two main features:
 
 1. **Card Generation & Export** - Create and export bingo cards
 2. **Game Management** - Host and manage live bingo games
+
+The FileUpload component has been refactored following the **Single Responsibility Principle**, 
+splitting a 607-line monolithic component into focused, reusable modules:
+- **Custom hooks** for state and business logic (useBingoCards, usePdfGeneration, useFileUpload)
+- **Sub-components** for UI rendering (CardGenerator, PdfExporter, CardDisplay)
+- **Main orchestrator** component (FileUpload/index.tsx) coordinating the hooks and sub-components
 
 ```text
 ┌─────────────────────────────────────────────────┐
 │             User Interface (React)              │
 ├─────────────────────────────────────────────────┤
 │  FileUpload Component  │  BingoGame Component   │
+│  (Hooks + Sub-components)                       │
 ├─────────────────────────────────────────────────┤
-│              Utility Functions                  │
-│   • Card Generation    • Card Parsing           │
-│   • Validation         • Hash Generation        │
+│      Custom Hooks      │  Utility Functions     │
+│   • useBingoCards      │  • Card Generation     │
+│   • usePdfGeneration   │  • Card Parsing        │
+│   • useFileUpload      │  • Validation          │
 ├─────────────────────────────────────────────────┤
 │              Data Structures                    │
 │         Card Interface  │  Game Interface       │
@@ -68,11 +76,19 @@ architecture**. The application is split into two main features:
 bingo-card-generator/
 ├── app/
 │   ├── components/          # React components
+│   │   ├── FileUpload/     # Card generation and export (refactored)
+│   │   │   ├── index.tsx   # Main orchestrator component
+│   │   │   ├── CardGenerator.tsx    # Card generation controls
+│   │   │   ├── PdfExporter.tsx      # PDF export UI
+│   │   │   └── CardDisplay.tsx      # Card rendering
 │   │   ├── BingoGame.tsx   # Live game management
-│   │   ├── FileUpload.tsx  # Card generation and export
 │   │   ├── Ball.tsx        # Number ball component
 │   │   ├── Navbar.tsx      # Navigation bar
 │   │   └── ...             # Other UI components
+│   ├── hooks/              # Custom React hooks
+│   │   ├── useBingoCards.ts      # Card state management
+│   │   ├── usePdfGeneration.ts   # PDF generation logic
+│   │   └── useFileUpload.ts      # File upload handling
 │   ├── utils/              # Utility functions and types
 │   │   ├── utils.ts        # Core logic (generation, parsing)
 │   │   ├── bingo.interface.ts  # TypeScript interfaces
@@ -93,14 +109,19 @@ bingo-card-generator/
 
 ```text
 page.tsx
-└── FileUpload
-    ├── Input Controls (cards count, event details)
-    ├── Generate Button → generateRandomBingoCards()
-    ├── Card Grid (visual preview)
-    ├── Export Buttons
-    │   ├── PDF → generatePDF()
-    │   └── .bingoCards → exportBingoGame()
-    └── Progress Indicator
+└── FileUpload (index.tsx)
+    ├── CardGenerator
+    │   ├── Input Controls (cards count, event details)
+    │   └── Generate Button → useBingoCards.generateCards()
+    ├── PdfExporter
+    │   ├── Export to .bingoCards → useBingoCards.exportBingoGame()
+    │   └── Generate PDF → usePdfGeneration.generatePDF()
+    ├── CardDisplay (multiple instances)
+    │   └── Card Grid (visual preview)
+    └── Custom Hooks:
+        ├── useBingoCards (card state & operations)
+        ├── usePdfGeneration (PDF logic & progress)
+        └── useFileUpload (file handling)
 ```
 
 ### Game Page (Live Game)
@@ -129,9 +150,13 @@ game/page.tsx
 ```text
 User Input (# of cards)
     ↓
+CardGenerator component
+    ↓
 handleGenerateRandomCards()
     ↓
-generateRandomBingoCards(n)
+useBingoCards.generateCards(numCards, eventHeader)
+    ↓
+generateRandomBingoCards(n) [from utils]
     ↓
 [for each card]
     generateBingoCard(cardNumber)
@@ -145,19 +170,21 @@ generateRandomBingoCards(n)
     ↓
 Check for duplicates (hashCardNumbers)
     ↓
-Store in state (setBingoCards)
+Store in hook state (setBingoCards)
     ↓
-Render card grid
+Render via CardDisplay components
 ```
 
 ### PDF Export Flow
 
 ```text
-User clicks "Generate PDF"
+User clicks "Generate PDF" in PdfExporter
     ↓
-generatePDF()
+handleGeneratePDF()
     ↓
-[Batch Processing - 100 cards at a time]
+usePdfGeneration.generatePDF(bingoCards, ...)
+    ↓
+[Batch Processing - configurable batch size by quality mode]
     Convert DOM elements to PNG images
     (htmlToImage.toPng with parallel processing)
     ↓
@@ -207,17 +234,37 @@ Store in localStorage & state
 
 #### FileUpload Component State
 
+The FileUpload component has been refactored to use custom hooks for better separation of concerns:
+
+**Main Component State (index.tsx)**
 ```typescript
-const [file, setFile] = useState<File | null>(null);           // Uploaded file
-const [bingoCards, setBingoCards] = useState<Game | null>(null); // Generated cards
 const [numCards, setNumCards] = useState<number>(10);           // Configuration
-const [bingoPercard, setBingoPercard] = useState<number>(2);    // Cards per PDF page
+const [bingoPercard, setBingoPercard] = useState<CardsPerPage>(2); // Cards per PDF page
 const [eventHeader, setEventHeader] = useState<string>(...);    // Event name
 const [locationFooter, setLocationFooter] = useState<string>(...); // Location
-const [progress, setProgress] = useState<number>(0);            // PDF progress
-const [isGenerating, setIsGenerating] = useState<boolean>(false); // Loading state
-const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
 ```
+
+**useBingoCards Hook State**
+```typescript
+const [bingoCards, setBingoCards] = useState<Game | null>(null); // Generated cards
+const [isGenerating, setIsGenerating] = useState<boolean>(false); // Loading state
+```
+
+**usePdfGeneration Hook State**
+```typescript
+const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false); // PDF loading
+const [progress, setProgress] = useState<number>(0);            // PDF progress
+const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number>(0);
+const [qualityMode, setQualityMode] = useState<QualityMode>('balanced');
+const cancelPdfRef = useRef<boolean>(false);                    // Cancellation flag
+const cardRefs = useRef<(HTMLDivElement | null)[]>([]);        // DOM references
+```
+
+**useFileUpload Hook State**
+```typescript
+const [file, setFile] = useState<File | null>(null);           // Uploaded file
+```
+
 
 #### BingoGame Component State
 
