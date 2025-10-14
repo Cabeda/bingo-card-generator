@@ -106,14 +106,17 @@ The bundle analyzer helps identify:
 This project uses [Husky](https://typicode.github.io/husky/) to automatically run checks before commits:
 
 **Pre-commit Hook:**
+
 - Runs ESLint to check code style and catch errors
 - Runs Jest tests to ensure all tests pass
 
 **Commit Message Hook:**
+
 - Validates commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) format
 - Enforces commit message types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, etc.
 
-The hooks are automatically installed when you run `bun install`. If you need to bypass the hooks (not recommended), you can use:
+The hooks are automatically installed when you run `bun install`.
+If you need to bypass the hooks (not recommended), you can use:
 
 ```bash
 git commit --no-verify -m "your message"
