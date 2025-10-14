@@ -69,17 +69,5 @@
     "close": "Fermer",
     "cardNumberLabel": "Carte Numéro: {number}",
     "numberAnnouncement": "Numéro {number}"
-  },
-  "Notifications": {
-    "title": "Notifications Push",
-    "description": "Recevez des notifications sur les mises à jour du jeu et les événements importants",
-    "status": "Statut:",
-    "permissionGranted": "Activé",
-    "permissionDenied": "Bloqué",
-    "permissionDefault": "Non activé",
-    "deniedHelp": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur.",
-    "enable": "Activer les notifications",
-    "disable": "Désactiver les notifications",
-    "notSupported": "Les notifications push ne sont pas prises en charge par votre navigateur."
   }
 }

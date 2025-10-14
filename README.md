@@ -59,7 +59,6 @@ Cards follow traditional bingo rules:
 - **Service Worker**: Automatically caches assets for faster loading
 - **Fast Performance**: Instant loading on repeat visits
 - **Background Sync**: Defers actions until network connection is stable
-- **Push Notifications**: Get notified about game updates and events (optional)
 - **Smart Caching**: Multiple caching strategies for optimal performance
   - CacheFirst for images and static assets (30 days)
   - NetworkFirst for API calls and dynamic content

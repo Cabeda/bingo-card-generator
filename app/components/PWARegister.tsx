@@ -31,21 +31,8 @@ export function PWARegister() {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // New service worker available, show update notification
+                  // New service worker available
                   console.log('New service worker available');
-                  
-                  // Optionally show a notification to the user
-                  if (
-                    typeof Notification !== 'undefined' &&
-                    Notification.permission === 'granted'
-                  ) {
-                    registration.showNotification('Update Available', {
-                      body: 'A new version is available. Refresh to update.',
-                      icon: '/icon-192x192.png',
-                      badge: '/icon-192x192.png',
-                      tag: 'app-update',
-                    });
-                  }
                 }
               });
             }

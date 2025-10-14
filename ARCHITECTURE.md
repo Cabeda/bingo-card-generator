@@ -526,38 +526,6 @@ await registerSync('sync-game-state');
 - Uploading analytics data in the background
 - Retrying failed operations automatically
 
-### Push Notifications
-
-**Hook**: `usePushNotifications`
-
-Provides notification management with user permission handling:
-
-```typescript
-const {
-  permission,
-  isSupported,
-  requestPermission,
-  subscribe,
-  sendNotification
-} = usePushNotifications();
-```
-
-**Features**:
-
-- Permission request with user-friendly UI
-- Subscription management
-- Local notification support
-- Automatic icon and badge configuration
-
-**Component**: `NotificationSettings`
-
-User interface for managing notification preferences with:
-
-- Permission status display
-- Enable/disable controls
-- Browser compatibility detection
-- Multi-language support
-
 ### Service Worker Lifecycle
 
 **Component**: `PWARegister`
@@ -614,7 +582,6 @@ All core features work offline after initial load:
 PWA features are progressively enhanced:
 
 - **Service Worker**: Modern browsers (Chrome, Firefox, Safari, Edge)
-- **Push Notifications**: Chrome, Firefox, Edge (iOS Safari has limited support)
 - **Background Sync**: Chrome, Edge (not Safari)
 - **App Installation**: All modern browsers with PWA support
 
@@ -656,10 +623,10 @@ The application gracefully degrades on browsers without PWA support, maintaining
 ### Technical Improvements
 
 1. **Web Workers**: Offload PDF generation to background thread
-2. **Service Workers**: ✅ **IMPLEMENTED** - Enhanced offline functionality with background sync and push notifications
+2. **Service Workers**: ✅ **IMPLEMENTED** - Enhanced offline functionality with background sync
    - Multiple caching strategies (CacheFirst, NetworkFirst)
    - Background sync for deferred operations
-   - Push notification support
+   - Automatic service worker updates
    - Automatic service worker updates
 3. **WebRTC**: Peer-to-peer game hosting
 4. **IndexedDB**: Replace localStorage for larger datasets
