@@ -6,6 +6,7 @@ declare module 'next-pwa' {
     disable?: boolean;
     register?: boolean;
     skipWaiting?: boolean;
+    scope?: string;
     runtimeCaching?: Array<{
       urlPattern: RegExp;
       handler: string;
@@ -15,6 +16,7 @@ declare module 'next-pwa' {
           maxEntries?: number;
           maxAgeSeconds?: number;
         };
+        networkTimeoutSeconds?: number;
       };
     }>;
   }

@@ -69,5 +69,17 @@
     "close": "Fechar",
     "cardNumberLabel": "Cartão Número: {number}",
     "numberAnnouncement": "Número {number}"
+  },
+  "Notifications": {
+    "title": "Notificações Push",
+    "description": "Receba notificações sobre atualizações do jogo e eventos importantes",
+    "status": "Estado:",
+    "permissionGranted": "Ativado",
+    "permissionDenied": "Bloqueado",
+    "permissionDefault": "Não ativado",
+    "deniedHelp": "As notificações estão bloqueadas. Por favor, ative-as nas configurações do navegador.",
+    "enable": "Ativar Notificações",
+    "disable": "Desativar Notificações",
+    "notSupported": "As notificações push não são suportadas no seu navegador."
   }
 }

@@ -69,5 +69,17 @@
     "close": "Close",
     "cardNumberLabel": "Card Number: {number}",
     "numberAnnouncement": "Number {number}"
+  },
+  "Notifications": {
+    "title": "Push Notifications",
+    "description": "Get notified about game updates and important events",
+    "status": "Status:",
+    "permissionGranted": "Enabled",
+    "permissionDenied": "Blocked",
+    "permissionDefault": "Not enabled",
+    "deniedHelp": "Notifications are blocked. Please enable them in your browser settings.",
+    "enable": "Enable Notifications",
+    "disable": "Disable Notifications",
+    "notSupported": "Push notifications are not supported in your browser."
   }
 }

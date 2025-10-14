@@ -26,5 +26,22 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "categories": ["games", "entertainment", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Generate Cards",
+      "short_name": "Generate",
+      "description": "Generate new bingo cards",
+      "url": "/",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Play Game",
+      "short_name": "Play",
+      "description": "Start or continue a bingo game",
+      "url": "/game",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
   ]
 }
