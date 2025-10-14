@@ -19,3 +19,7 @@ jobs:
           release-type: node
           # Package name from package.json
           package-name: bingo-card-generator
+          # Use a PAT with repo and workflow permissions
+          # Create at: https://github.com/settings/tokens/new
+          # Add as repository secret named RELEASE_PLEASE_TOKEN
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
