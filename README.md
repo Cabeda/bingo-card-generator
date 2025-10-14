@@ -104,7 +104,7 @@ bun run start
 - **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa) for Progressive Web App support
 - **Testing**: [Jest](https://jestjs.io/) with ts-jest and jsdom
 - **Linting**: [ESLint](https://eslint.org/) with Next.js configuration
-- **Bundle Analysis**: [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) for monitoring bundle sizes
+- **Bundle Analysis**: [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
 
 ## 📁 Project Structure
 
@@ -156,6 +156,7 @@ bun run build:analyze  # or npm run build:analyze
 ```
 
 This generates interactive HTML reports in `.next/analyze/`:
+
 - `client.html` - Client-side bundle analysis
 - `nodejs.html` - Server-side bundle analysis
 - `edge.html` - Edge runtime bundle analysis
