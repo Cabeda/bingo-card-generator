@@ -813,14 +813,24 @@ describe('BingoGame', () => {
       fireEvent.click(nextBallButton);
       
       // Should only draw one number due to isAnimating check
-      setTimeout(() => {
-        const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
-        if (drawnNumbersString) {
-          const drawnNumbers = JSON.parse(drawnNumbersString);
-          // Should only have 1 number, not 3
-          expect(drawnNumbers.length).toBeLessThanOrEqual(1);
-        }
-      }, 100);
+      return new Promise<void>((resolve, reject) => {
+        setTimeout(() => {
+          const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
+          if (drawnNumbersString) {
+            const drawnNumbers = JSON.parse(drawnNumbersString);
+            // Should only have 1 number, not 3
+            try {
+              expect(drawnNumbers.length).toBeLessThanOrEqual(1);
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            // If no drawnNumbers, fail the test
+            reject(new Error('No drawnNumbers found in localStorageMock'));
+          }
+        }, 100);
+      });
     });
   });
 });
