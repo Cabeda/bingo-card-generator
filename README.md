@@ -254,6 +254,11 @@ To add a new language or update existing translations, see [docs/I18N.md](./docs
   - Conventional commits guide
   - Version bumping rules
   - Release process documentation
+- **[CI_CACHING.md](./docs/CI_CACHING.md)**: CI/CD build caching strategy
+  - Bun dependencies caching
+  - Next.js build cache optimization
+  - Coverage reports caching
+  - Performance monitoring and troubleshooting
 - **API Documentation**: All functions and interfaces include JSDoc comments
   - Type definitions in `app/utils/bingo.interface.ts`
   - Core utilities in `app/utils/utils.ts`
