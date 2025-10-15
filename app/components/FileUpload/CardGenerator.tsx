@@ -155,7 +155,6 @@ export function CardGenerator({
           onClick={onGenerateCards} 
           className="button-style"
           disabled={isGenerating || isGeneratingPDF}
-          aria-disabled={isGenerating || isGeneratingPDF}
           aria-label={
             isGenerating 
               ? "Generating cards, please wait" 
