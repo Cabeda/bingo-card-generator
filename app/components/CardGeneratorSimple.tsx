@@ -48,7 +48,6 @@ export function CardGeneratorSimple({
           onClick={onGenerateCards} 
           className="button-style"
           disabled={isGenerating}
-          aria-disabled={isGenerating}
           aria-label={isGenerating ? "Generating cards, please wait" : "Generate bingo cards"}
           style={{
             opacity: isGenerating ? 0.6 : 1,
