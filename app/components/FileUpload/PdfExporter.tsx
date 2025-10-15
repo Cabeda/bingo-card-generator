@@ -26,13 +26,19 @@ export function PdfExporter({
   t,
 }: PdfExporterProps): React.JSX.Element {
   return (
-    <>
-      <h3>{t('bingoCards')}</h3>
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+    <section aria-labelledby="export-heading">
+      <h3 id="export-heading">{t('bingoCards')}</h3>
+      <div 
+        style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}
+        role="group"
+        aria-label="Export options"
+      >
         <button
           onClick={onExportBingoGame}
           className="button-style"
           disabled={isGeneratingPDF}
+          aria-disabled={isGeneratingPDF}
+          aria-label="Export bingo cards as .bingoCards file"
           style={{
             opacity: isGeneratingPDF ? 0.6 : 1,
             cursor: isGeneratingPDF ? "not-allowed" : "pointer",
@@ -44,6 +50,8 @@ export function PdfExporter({
           onClick={onGeneratePDF}
           className="button-style"
           disabled={isGeneratingPDF}
+          aria-disabled={isGeneratingPDF}
+          aria-label={isGeneratingPDF ? "Generating PDF, please wait" : "Generate PDF document"}
           style={{
             opacity: isGeneratingPDF ? 0.6 : 1,
             cursor: isGeneratingPDF ? "not-allowed" : "pointer",
@@ -55,6 +63,8 @@ export function PdfExporter({
           onClick={onClearCards}
           className="button-style"
           disabled={isGeneratingPDF}
+          aria-disabled={isGeneratingPDF}
+          aria-label="Clear all generated bingo cards"
           style={{
             opacity: isGeneratingPDF ? 0.6 : 1,
             cursor: isGeneratingPDF ? "not-allowed" : "pointer",
@@ -64,6 +74,6 @@ export function PdfExporter({
           {t('clear')}
         </button>
       </div>
-    </>
+    </section>
   );
 }

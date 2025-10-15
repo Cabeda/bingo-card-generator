@@ -293,10 +293,10 @@ export default function BingoGame(): React.JSX.Element {
     <div className="game-page">
       <div className={styles.desktop_layout}>
         {/* Main content area - Numbers Grid */}
-        <div className={styles.main_content}>
+        <div className={styles.main_content} role="region" aria-label="Bingo number board">
           <div className={styles.game_controls}>
             <div className={styles.all_numbers}>
-              <div className={styles.numbers_grid}>
+              <div className={styles.numbers_grid} role="list" aria-label="All bingo numbers from 1 to 89">
                 {Array.from({ length: 89 }, (_, i) => i + 1).map((num) => (
                   <Ball 
                     key={num} 
@@ -312,7 +312,7 @@ export default function BingoGame(): React.JSX.Element {
         </div>
 
         {/* Sidebar - Controls and Recent Numbers (Sticky on Desktop) */}
-        <aside className={styles.sidebar}>
+        <aside className={styles.sidebar} aria-label="Game controls and history">
           {/* Recent Numbers */}
           <AnimatePresence>
             {drawnNumbers.length > 0 && (
@@ -322,9 +322,11 @@ export default function BingoGame(): React.JSX.Element {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                role="region"
+                aria-label="Recently drawn numbers"
               >
                 <h3>{t('lastBalls')}</h3>
-                <div className={styles.recent_list}>
+                <div className={styles.recent_list} role="list">
                   {drawnNumbers.slice(-10).reverse().map((num, idx) => (
                     <motion.span 
                       key={`${num}-${drawnNumbers.length - idx}`}
@@ -338,6 +340,8 @@ export default function BingoGame(): React.JSX.Element {
                         delay: idx * 0.05
                       }}
                       layout
+                      role="listitem"
+                      aria-label={`Ball ${num}`}
                     >
                       {num}
                     </motion.span>
@@ -348,13 +352,14 @@ export default function BingoGame(): React.JSX.Element {
           </AnimatePresence>
 
           {/* Game Controls */}
-          <div className={styles.button_row}>
+          <div className={styles.button_row} role="group" aria-label="Game control buttons">
             <motion.button 
               onClick={handleStartGame} 
               className="button-style"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              aria-label="Start a new bingo game"
             >
               {t('startGame')}
             </motion.button>
@@ -364,6 +369,9 @@ export default function BingoGame(): React.JSX.Element {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              aria-label="Restart the current game"
+              disabled={!bingoGame}
+              aria-disabled={!bingoGame}
             >
               {t('restart')}
             </motion.button>
@@ -374,18 +382,30 @@ export default function BingoGame(): React.JSX.Element {
               whileHover={!isAnimating ? { scale: 1.05 } : {}}
               whileTap={!isAnimating ? { scale: 0.95 } : {}}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              disabled={isAnimating || !bingoGame}
+              aria-disabled={isAnimating || !bingoGame}
+              aria-label={
+                !bingoGame 
+                  ? "Start a game to draw numbers" 
+                  : isAnimating 
+                  ? "Drawing number in progress"
+                  : "Draw next bingo number (press Space or Enter)"
+              }
+              aria-keyshortcuts="Space Enter"
             >
               {t('nextBall')}
             </motion.button>
           </div>
 
           {/* Audio/TTS Settings */}
-          <div className={styles.settings_row}>
+          <fieldset className={styles.settings_row} role="group" aria-label="Audio and voice settings">
+            <legend className="sr-only">Audio and Voice Settings</legend>
             <label className={styles.setting_item}>
               <input 
                 type="checkbox" 
                 checked={audioEnabled}
                 onChange={(e) => setAudioEnabled(e.target.checked)}
+                aria-label="Enable audio feedback when drawing numbers"
               />
               <span>{t('audio')}</span>
             </label>
@@ -394,16 +414,18 @@ export default function BingoGame(): React.JSX.Element {
                 type="checkbox" 
                 checked={ttsEnabled}
                 onChange={(e) => setTtsEnabled(e.target.checked)}
+                aria-label="Enable text-to-speech announcements for drawn numbers"
               />
               <span>{t('tts')}</span>
             </label>
-          </div>
+          </fieldset>
 
           {/* Validation Panel */}
-          <div className={styles.validation_panel}>
-            <h3>{t('validateCard')}</h3>
+          <section className={styles.validation_panel} aria-labelledby="validation-heading">
+            <h3 id="validation-heading">{t('validateCard')}</h3>
             <div className={styles.validation_controls}>
               <motion.input 
+                id="card-validation-input"
                 type="number" 
                 placeholder={t('cardNumberPlaceholder')}
                 value={cardToValidate}
@@ -416,14 +438,21 @@ export default function BingoGame(): React.JSX.Element {
                 }}
                 whileFocus={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                aria-label="Enter card number to validate"
+                aria-describedby="validation-help"
               />
+              <span id="validation-help" className="sr-only">
+                Enter the card number and press Enter or click a validation button
+              </span>
               <motion.button 
                 onClick={() => handleCheckLine(cardToValidate)} 
                 className="button-style"
                 disabled={!cardToValidate}
+                aria-disabled={!cardToValidate}
                 whileHover={cardToValidate ? { scale: 1.05 } : {}}
                 whileTap={cardToValidate ? { scale: 0.95 } : {}}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                aria-label="Validate if card has a complete line"
               >
                 {t('validateLine')}
               </motion.button>
@@ -431,14 +460,16 @@ export default function BingoGame(): React.JSX.Element {
                 onClick={() => handleCheckBingo(cardToValidate)} 
                 className="button-style"
                 disabled={!cardToValidate}
+                aria-disabled={!cardToValidate}
                 whileHover={cardToValidate ? { scale: 1.05 } : {}}
                 whileTap={cardToValidate ? { scale: 0.95 } : {}}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                aria-label="Validate if card has a full bingo"
               >
                 {t('validateBingo')}
               </motion.button>
             </div>
-          </div>
+          </section>
         </aside>
       </div>
       <AnimatePresence>
@@ -449,6 +480,14 @@ export default function BingoGame(): React.JSX.Element {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="card-modal-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsCardModalOpen(false);
+              }
+            }}
           >
             <motion.div 
               className={`${styles.modal_box} ${styles.card_modal}`}
@@ -458,18 +497,19 @@ export default function BingoGame(): React.JSX.Element {
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
               <div className={styles.modal_header}>
-                <h3>{t('cardNumberLabel', { number: validCard.cardTitle })}</h3>
+                <h3 id="card-modal-title">{t('cardNumberLabel', { number: validCard.cardTitle })}</h3>
                 <motion.button 
                   onClick={() => setIsCardModalOpen(false)}
                   className={styles.close_button}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  aria-label="Close card details modal"
                 >
                   ×
                 </motion.button>
               </div>
-              <div className="grid-container">
+              <div className="grid-container" role="grid" aria-label="Bingo card grid">
                 {validCard.numbers.map((num, idx) => (
                   <motion.div
                     key={idx}
@@ -484,6 +524,14 @@ export default function BingoGame(): React.JSX.Element {
                       stiffness: 300, 
                       damping: 20 
                     }}
+                    role="gridcell"
+                    aria-label={
+                      num === null 
+                        ? "Empty cell" 
+                        : drawnNumbers.includes(num)
+                        ? `Number ${num}, marked`
+                        : `Number ${num}, not marked`
+                    }
                   >
                     {num !== null ? num : ""}
                   </motion.div>
@@ -501,6 +549,14 @@ export default function BingoGame(): React.JSX.Element {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="alert-modal-message"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !confirmAction) {
+                handleModalClose();
+              }
+            }}
           >
             <motion.div 
               className={styles.modal_box}
@@ -509,9 +565,9 @@ export default function BingoGame(): React.JSX.Element {
               exit={{ scale: 0.8, y: 50, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
-              <p>{modalMessage}</p>
+              <p id="alert-modal-message">{modalMessage}</p>
               {confirmAction ? (
-                <div>
+                <div role="group" aria-label="Confirmation buttons">
                   <motion.button
                     onClick={() => {
                       confirmAction();
@@ -521,6 +577,7 @@ export default function BingoGame(): React.JSX.Element {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    aria-label="Confirm action"
                   >
                     {t('yes')}
                   </motion.button>
@@ -530,6 +587,7 @@ export default function BingoGame(): React.JSX.Element {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    aria-label="Cancel action"
                   >
                     {t('no')}
                   </motion.button>
@@ -541,6 +599,7 @@ export default function BingoGame(): React.JSX.Element {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  aria-label="Close message"
                 >
                   {t('close')}
                 </motion.button>

@@ -58,12 +58,18 @@ const Ball: React.FC<BallProps> = ({
     }
   }, [animate, controls, isAnimating]);
 
+  const ariaLabel = drawn 
+    ? `Ball number ${number}, drawn` 
+    : `Ball number ${number}, not drawn`;
+
   return (
     <motion.div 
       className={`ball-container ${small ? 'small' : ''}`}
       animate={controls}
       initial={{ scale: 1, zIndex: 1 }}
       style={{ position: 'relative' }}
+      role="img"
+      aria-label={ariaLabel}
     >
       <motion.div 
         className={`ball ${drawn ? 'drawn' : ''}`}
@@ -78,7 +84,7 @@ const Ball: React.FC<BallProps> = ({
           duration: 0.3,
         }}
       >
-        <span className="ball-number">{number}</span>
+        <span className="ball-number" aria-hidden="true">{number}</span>
       </motion.div>
     </motion.div>
   );

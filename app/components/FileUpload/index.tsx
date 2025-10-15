@@ -138,8 +138,8 @@ export function FileUpload(): React.JSX.Element {
         onCancel={() => setShowConfirmClear(false)}
       />
 
-      <div className="file-upload">
-        <h1>{t('title')}</h1>
+      <section className="file-upload" aria-labelledby="main-title">
+        <h1 id="main-title">{t('title')}</h1>
         
         {/* Theme Selector */}
         <ThemeSelector />
@@ -162,13 +162,18 @@ export function FileUpload(): React.JSX.Element {
         />
 
         <div className="margin-bottom-20 hidden">
-          <label className="label-style">{t('uploadFile')}</label>
+          <label htmlFor="file-upload-input" className="label-style">{t('uploadFile')}</label>
           <input
+            id="file-upload-input"
             type="file"
             accept=".bingoCards"
             onChange={handleFileChange}
             className="input-style"
+            aria-describedby="file-upload-help"
           />
+          <span id="file-upload-help" className="sr-only">
+            Upload a .bingoCards file to import previously generated cards
+          </span>
           {file && <p>{t('selectedFile', { filename: file.name })}</p>}
         </div>
 
@@ -182,27 +187,29 @@ export function FileUpload(): React.JSX.Element {
               t={t}
             />
             
-            {bingoCards.cards.map((card, index) => (
-              <motion.div
-                key={card.cardTitle}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: Math.min(index * 0.05, 2)
-                }}
-              >
-                <CardDisplay
-                  card={card}
-                  cardRef={setCardRef(index)}
-                  cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
-                  theme={currentTheme}
-                />
-              </motion.div>
-            ))}
+            <section aria-label="Generated bingo cards">
+              {bingoCards.cards.map((card, index) => (
+                <motion.div
+                  key={card.cardTitle}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay: Math.min(index * 0.05, 2)
+                  }}
+                >
+                  <CardDisplay
+                    card={card}
+                    cardRef={setCardRef(index)}
+                    cardNumber={`${getCurrentDate()}-${card.cardTitle}`}
+                    theme={currentTheme}
+                  />
+                </motion.div>
+              ))}
+            </section>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

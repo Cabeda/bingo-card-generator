@@ -118,6 +118,24 @@ body {
     white-space: nowrap;
     border-width: 0;
   }
+  
+  /* Skip to main content link for keyboard navigation */
+  .skip-to-main {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 100;
+    border-radius: 0 0 4px 0;
+    font-weight: 600;
+  }
+  
+  .skip-to-main:focus {
+    top: 0;
+  }
 }
 
 h1, h2, h3 {
