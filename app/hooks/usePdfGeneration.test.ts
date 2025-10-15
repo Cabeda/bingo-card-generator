@@ -21,22 +21,31 @@ const mockClick = jest.fn();
 // Store original createElement
 const originalCreateElement = document.createElement.bind(document);
 
-// Override createElement
-document.createElement = jest.fn((tag: string) => {
-  if (tag === 'a') {
-    return {
-      href: '',
-      download: '',
-      click: mockClick,
-      style: {},
-    } as unknown as HTMLAnchorElement;
-  }
-  return originalCreateElement(tag);
-}) as typeof document.createElement;
+let createElementSpy: jest.SpyInstance;
+let appendChildSpy: jest.SpyInstance;
+let removeChildSpy: jest.SpyInstance;
 
-document.body.appendChild = mockAppendChild as typeof document.body.appendChild;
-document.body.removeChild = mockRemoveChild as typeof document.body.removeChild;
+beforeEach(() => {
+  createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+    if (tag === 'a') {
+      return {
+        href: '',
+        download: '',
+        click: mockClick,
+        style: {},
+      } as unknown as HTMLAnchorElement;
+    }
+    return originalCreateElement(tag);
+  });
+  appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+  removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+});
 
+afterEach(() => {
+  createElementSpy.mockRestore();
+  appendChildSpy.mockRestore();
+  removeChildSpy.mockRestore();
+});
 // Mock requestAnimationFrame
 global.requestAnimationFrame = jest.fn((cb) => {
   cb(0);
