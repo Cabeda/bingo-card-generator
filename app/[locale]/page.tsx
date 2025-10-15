@@ -41,28 +41,26 @@ export default function Home(): React.JSX.Element {
   };
 
   return (
-    <main style={{ viewTransitionName: 'home-page' }}>
-      <ErrorBoundary>
-        <div className="container">
-          <LoadingOverlay
-            isVisible={isGenerating}
-            message={t('generating')}
-            showProgress={false}
-          />
+    <ErrorBoundary>
+      <div className="container">
+        <LoadingOverlay
+          isVisible={isGenerating}
+          message={t('generating')}
+          showProgress={false}
+        />
+        
+        <section className="file-upload" aria-labelledby="page-title">
+          <h1 id="page-title">{t('title')}</h1>
           
-          <div className="file-upload">
-            <h1>{t('title')}</h1>
-            
-            <CardGeneratorSimple
-              numCards={numCards}
-              setNumCards={setNumCards}
-              onGenerateCards={handleGenerateCards}
-              isGenerating={isGenerating}
-              t={t}
-            />
-          </div>
-        </div>
-      </ErrorBoundary>
-    </main>
+          <CardGeneratorSimple
+            numCards={numCards}
+            setNumCards={setNumCards}
+            onGenerateCards={handleGenerateCards}
+            isGenerating={isGenerating}
+            t={t}
+          />
+        </section>
+      </div>
+    </ErrorBoundary>
   );
 }

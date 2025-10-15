@@ -110,6 +110,7 @@ export function ConfirmDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                aria-label="Cancel and close dialog"
               >
                 {cancelText}
               </motion.button>
@@ -119,6 +120,7 @@ export function ConfirmDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                aria-label={`Confirm: ${title}`}
               >
                 {confirmText}
               </motion.button>

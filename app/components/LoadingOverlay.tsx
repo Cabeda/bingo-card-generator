@@ -66,7 +66,8 @@ export function LoadingOverlay({
           exit={{ opacity: 0 }}
           role="dialog"
           aria-modal="true"
-          aria-label="Loading"
+          aria-labelledby="loading-message"
+          aria-describedby="loading-progress"
         >
           <motion.div
             className={styles.content}
@@ -75,15 +76,22 @@ export function LoadingOverlay({
             exit={{ scale: 0.8, y: -20 }}
           >
             {/* Spinner */}
-            <div className={styles.spinner} />
+            <div className={styles.spinner} aria-hidden="true" />
 
             {/* Message */}
-            <p className={styles.message}>{message}</p>
+            <p id="loading-message" className={styles.message}>{message}</p>
 
             {/* Progress bar */}
             {showProgress && progress !== undefined && (
               <div className={styles.progressContainer}>
-                <div className={styles.progressBar}>
+                <div 
+                  className={styles.progressBar}
+                  role="progressbar"
+                  aria-valuenow={Math.round(progress)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Operation progress"
+                >
                   <motion.div
                     className={styles.progressFill}
                     initial={{ width: 0 }}
@@ -91,19 +99,30 @@ export function LoadingOverlay({
                     transition={{ duration: 0.3 }}
                   />
                 </div>
-                <p className={styles.progressText}>{Math.round(progress)}%</p>
+                <p 
+                  id="loading-progress" 
+                  className={styles.progressText}
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {Math.round(progress)}%
+                </p>
               </div>
             )}
 
             {/* Sub-message */}
-            {subMessage && <p className={styles.subMessage}>{subMessage}</p>}
+            {subMessage && (
+              <p className={styles.subMessage} aria-live="polite">
+                {subMessage}
+              </p>
+            )}
 
             {/* Cancel button */}
             {onCancel && (
               <button
                 className={styles.cancelButton}
                 onClick={onCancel}
-                aria-label="Cancel operation"
+                aria-label="Cancel current operation"
               >
                 {cancelText}
               </button>

@@ -58,8 +58,13 @@ export default async function LocaleLayout({
               <ClientErrorBoundary>
                 <PWARegister />
                 <ViewTransition />
+                <a href="#main-content" className="skip-to-main">
+                  Skip to main content
+                </a>
                 <Navbar />
-                {children}
+                <main id="main-content">
+                  {children}
+                </main>
               </ClientErrorBoundary>
             </ThemeProvider>
           </ToastProvider>
