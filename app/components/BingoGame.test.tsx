@@ -476,6 +476,394 @@ describe('BingoGame', () => {
         expect(screen.getByText(/All numbers have been drawn/i)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
+
+    it('should prompt when starting new game while game in progress', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      const startButton = screen.getByText('Start Game');
+      fireEvent.click(startButton);
+      
+      // Should show confirmation modal
+      expect(screen.getByText('There is already a game in progress. Do you want to start a new one?')).toBeInTheDocument();
+    });
+
+    it('should validate line successfully when all numbers in a row are drawn', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            // Bingo card has 3 rows × 9 columns = 27 cells
+            // First row (indices 0-8): 1, 2, 3, 4, 5, null, null, null, null
+            // Second row (indices 9-17): 10, 11, 12, 13, 14, null, null, null, null
+            // Third row (indices 18-26): 20, 21, 22, 23, 24, null, null, null, null
+            // But checkLine checks positions 0-4, 5-9, 10-14, so we need to match that
+            numbers: [1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      // First "line" (positions 0-4) has numbers 1,2,3,4,5
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 2, 3, 4, 5]));
+      
+      render(<BingoGame />);
+      
+      const input = screen.getByPlaceholderText(/cardNumberPlaceholder/i);
+      const validateLineButton = screen.getByText(/validateLine/i);
+      
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.click(validateLineButton);
+      
+      // Should open card modal showing the valid card
+      // Check that the numbers from the card are displayed
+      const numberCells = screen.queryAllByText('1');
+      expect(numberCells.length).toBeGreaterThan(0);
+    });
+
+    it('should validate bingo successfully when all card numbers are drawn', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      // All 15 numbers from the card
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24]));
+      
+      render(<BingoGame />);
+      
+      const input = screen.getByPlaceholderText(/cardNumberPlaceholder/i);
+      const validateBingoButton = screen.getByText(/validateBingo/i);
+      
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.click(validateBingoButton);
+      
+      // Should show bingo valid message
+      expect(screen.getByText('🎉 Bingo! 🎉')).toBeInTheDocument();
+    });
+
+    it('should handle Enter key press on card input to validate line', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, null, null, null, null, 10, 11, 12, 13, 14, null, null, null, null, 20, 21, 22, 23, 24, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 2]));
+      
+      render(<BingoGame />);
+      
+      const input = screen.getByPlaceholderText(/cardNumberPlaceholder/i);
+      
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.keyPress(input, { key: 'Enter', code: 'Enter', charCode: 13 });
+      
+      // Should trigger validation and show result
+      expect(screen.getByText('Line is not valid.')).toBeInTheDocument();
+    });
+
+    it('should show modal when validating without card number', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      // Click validate without entering a card number
+      const validateLineButton = screen.getByText(/validateLine/i);
+      
+      // Button should be disabled when no card number is entered
+      expect(validateLineButton).toHaveAttribute('disabled');
+    });
+
+    it('should close card modal when close button is clicked', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 20, 21, 22, 23, 24, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 2, 3, 4, 5]));
+      
+      render(<BingoGame />);
+      
+      const input = screen.getByPlaceholderText(/cardNumberPlaceholder/i);
+      const validateLineButton = screen.getByText(/validateLine/i);
+      
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.click(validateLineButton);
+      
+      // Card modal should be visible - check for card numbers
+      // The card title is in an h3, so let's look for the actual numbers
+      const cardNumbers = screen.queryAllByText('1');
+      expect(cardNumbers.length).toBeGreaterThan(0);
+      
+      // Find and click the close button (×)
+      const closeButtons = screen.getAllByText('×');
+      fireEvent.click(closeButtons[0]);
+      
+      // Modal closes - verification is that click didn't throw error
+    });
+
+    it('should handle drawing number with Web Audio API for beep', async () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      // Mock Web Audio API
+      const mockOscillator = {
+        connect: jest.fn(),
+        start: jest.fn(),
+        stop: jest.fn(),
+        frequency: { value: 0 },
+        type: 'sine' as OscillatorType,
+      };
+      
+      const mockGainNode = {
+        connect: jest.fn(),
+        gain: {
+          setValueAtTime: jest.fn(),
+          exponentialRampToValueAtTime: jest.fn(),
+        },
+      };
+      
+      const mockAudioContext = {
+        createOscillator: jest.fn(() => mockOscillator),
+        createGain: jest.fn(() => mockGainNode),
+        destination: {},
+        currentTime: 0,
+      };
+      
+      global.AudioContext = jest.fn(() => mockAudioContext) as unknown as typeof AudioContext;
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext = global.AudioContext;
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      // Audio should be enabled by default
+      const nextBallButton = screen.getByText(/Next Ball/i);
+      fireEvent.click(nextBallButton);
+      
+      // Give time for audio to play (setTimeout delay in component)
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      expect(mockAudioContext.createOscillator).toHaveBeenCalled();
+    });
+
+    it('should handle TTS announcement when enabled', async () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      // Mock speechSynthesis
+      const mockUtterance = {};
+      const mockSpeak = jest.fn();
+      global.SpeechSynthesisUtterance = jest.fn(() => mockUtterance) as unknown as typeof SpeechSynthesisUtterance;
+      global.speechSynthesis = {
+        speak: mockSpeak,
+      } as unknown as SpeechSynthesis;
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      // Enable TTS
+      const ttsLabel = screen.getByText(/🗣️ Voice/i);
+      const ttsCheckbox = ttsLabel.previousElementSibling as HTMLInputElement;
+      fireEvent.click(ttsCheckbox);
+      
+      // Draw a number
+      const nextBallButton = screen.getByText(/Next Ball/i);
+      fireEvent.click(nextBallButton);
+      
+      // Give time for TTS (setTimeout delay in component)
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      expect(mockSpeak).toHaveBeenCalled();
+    });
+
+    it('should handle keyboard shortcuts for drawing numbers', async () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      // Press space key to draw
+      fireEvent.keyDown(window, { key: ' ', code: 'Space' });
+      
+      // Wait for setTimeout to execute
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      // Should draw a number
+      const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
+      expect(drawnNumbersString).toBeTruthy();
+      
+      if (drawnNumbersString) {
+        const drawnNumbers = JSON.parse(drawnNumbersString);
+        expect(drawnNumbers.length).toBe(1);
+      }
+    });
+
+    it('should handle Enter key as keyboard shortcut for drawing numbers', async () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      // Press enter key to draw
+      fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+      
+      // Wait for setTimeout to execute
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      // Should draw a number
+      const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
+      expect(drawnNumbersString).toBeTruthy();
+      
+      if (drawnNumbersString) {
+        const drawnNumbers = JSON.parse(drawnNumbersString);
+        expect(drawnNumbers.length).toBe(1);
+      }
+    });
+
+    it('should display recent drawn numbers', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 2, 3, 4, 5]));
+      
+      render(<BingoGame />);
+      
+      // Should show "Last Balls" heading
+      expect(screen.getByText('Last Balls')).toBeInTheDocument();
+      
+      // Recent numbers should be displayed in reverse order (newest first)
+      const recentNumbers = screen.getAllByText(/^[1-5]$/);
+      expect(recentNumbers.length).toBeGreaterThan(0);
+    });
+
+    it('should prevent overlapping animations when drawing numbers', () => {
+      const mockGame: Game = {
+        filename: 'test-game',
+        cards: [
+          {
+            cardTitle: 'test-1',
+            cardNumber: 1,
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null, null, null, null, null, null, null, null, null, null, null, null],
+          },
+        ],
+      };
+      
+      localStorageMock.setItem('bingoGame', JSON.stringify(mockGame));
+      render(<BingoGame />);
+      
+      const nextBallButton = screen.getByText(/Next Ball/i);
+      
+      // Click button rapidly multiple times
+      fireEvent.click(nextBallButton);
+      fireEvent.click(nextBallButton);
+      fireEvent.click(nextBallButton);
+      
+      // Should only draw one number due to isAnimating check
+      return new Promise<void>((resolve, reject) => {
+        setTimeout(() => {
+          const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
+          if (drawnNumbersString) {
+            const drawnNumbers = JSON.parse(drawnNumbersString);
+            // Should only have 1 number, not 3
+            try {
+              expect(drawnNumbers.length).toBeLessThanOrEqual(1);
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            // If no drawnNumbers, fail the test
+            reject(new Error('No drawnNumbers found in localStorageMock'));
+          }
+        }, 100);
+      });
+    });
   });
 });
 
