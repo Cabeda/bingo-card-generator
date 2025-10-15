@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useCardTheme } from './ThemeProvider';
+import { useToast } from './ToastProvider';
+import { ConfirmDialog } from './ConfirmDialog';
 import { getPresetThemeNames, PRESET_THEMES } from '../utils/themes';
 import { CardTheme } from '../utils/bingo.interface';
 import styles from './ThemeSelector.module.css';
@@ -30,6 +32,8 @@ export function ThemeSelector(): React.JSX.Element {
     importTheme,
   } = useCardTheme();
 
+  const { showSuccess, showError, showWarning } = useToast();
+
   const [showCustomBuilder, setShowCustomBuilder] = useState(false);
   const [customThemeData, setCustomThemeData] = useState<Partial<CardTheme>>({
     name: '',
@@ -45,6 +49,8 @@ export function ThemeSelector(): React.JSX.Element {
 
   const [importInput, setImportInput] = useState('');
   const [showImport, setShowImport] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [themeToDelete, setThemeToDelete] = useState<{ key: string; name: string } | null>(null);
 
   const handlePresetSelect = (key: string): void => {
     setTheme(key);
@@ -59,7 +65,7 @@ export function ThemeSelector(): React.JSX.Element {
 
   const handleSaveCustomTheme = (): void => {
     if (!customThemeData.name?.trim()) {
-      alert('Please enter a theme name');
+      showWarning('Please enter a theme name');
       return;
     }
 
@@ -76,6 +82,7 @@ export function ThemeSelector(): React.JSX.Element {
     };
 
     setCustomTheme(theme);
+    showSuccess('Custom theme saved successfully!');
     setShowCustomBuilder(false);
     setCustomThemeData({
       name: '',
@@ -105,18 +112,37 @@ export function ThemeSelector(): React.JSX.Element {
 
   const handleImportTheme = (): void => {
     if (!importInput.trim()) {
-      alert('Please paste theme JSON');
+      showWarning('Please paste theme JSON');
       return;
     }
 
     const success = importTheme(importInput);
     if (success) {
-      alert('Theme imported successfully!');
+      showSuccess('Theme imported successfully!');
       setImportInput('');
       setShowImport(false);
     } else {
-      alert('Invalid theme JSON. Please check the format.');
+      showError('Invalid theme JSON. Please check the format.');
     }
+  };
+
+  const handleDeleteClick = (key: string, name: string): void => {
+    setThemeToDelete({ key, name });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = (): void => {
+    if (themeToDelete) {
+      deleteCustomTheme(themeToDelete.key);
+      showSuccess('Theme deleted successfully!');
+      setShowDeleteConfirm(false);
+      setThemeToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = (): void => {
+    setShowDeleteConfirm(false);
+    setThemeToDelete(null);
   };
 
   const presetThemeKeys = getPresetThemeNames();
@@ -167,11 +193,7 @@ export function ThemeSelector(): React.JSX.Element {
                 </button>
                 <button
                   className={styles.deleteButton}
-                  onClick={() => {
-                    if (confirm(`Delete theme "${customThemes[key].name}"?`)) {
-                      deleteCustomTheme(key);
-                    }
-                  }}
+                  onClick={() => handleDeleteClick(key, customThemes[key].name)}
                   title="Delete theme"
                 >
                   ×
@@ -413,6 +435,18 @@ export function ThemeSelector(): React.JSX.Element {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Theme"
+        message={themeToDelete ? `Are you sure you want to delete the theme "${themeToDelete.name}"? This action cannot be undone.` : ''}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 }
