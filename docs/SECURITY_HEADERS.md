@@ -84,7 +84,7 @@ Content-Security-Policy:
 
 **Effect**: Disables access to:
 - Camera
-- Microphone  
+- Microphone
 - Geolocation
 
 These features are not needed by the application, so they are explicitly disabled.
@@ -179,7 +179,7 @@ These security headers help comply with:
 
 ## Changelog
 
-### 2024-10-17
+### 2025-10-17
 - Initial CSP implementation
 - Added X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy headers
 - Documented all security headers and their purposes
