@@ -25,14 +25,17 @@ Different commit types trigger different version bumps:
 | Commit Type | Version Bump | Example |
 |------------|--------------|---------|
 | `feat:` | Minor (0.1.0 → 0.2.0) | `feat: add new card layout` |
-| `fix:`, `perf:`, `refactor:`, etc. | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
+| `fix:`, `perf:` | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
+| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve card generation logic` |
 | `feat!:` or `fix!:` | Major (0.1.0 → 1.0.0) | `feat!: redesign card generation API` |
+
+**Note**: All conventional commit types trigger a patch version bump to ensure all changes are tracked in releases.
 
 **Breaking Changes**: Add `!` after the type (e.g., `feat!:`) or add `BREAKING CHANGE:` in the commit body.
 
 ### CHANGELOG Sections
 
-The CHANGELOG should be maintained manually and organized into these sections:
+The CHANGELOG should be maintained manually after each release and organized into these sections:
 
 - **Features** - `feat:` commits
 - **Bug Fixes** - `fix:` commits
@@ -44,6 +47,12 @@ The CHANGELOG should be maintained manually and organized into these sections:
 - **Build System** - `build:` commits
 - **Continuous Integration** - `ci:` commits
 - **Miscellaneous** - `chore:` commits
+
+**Updating the CHANGELOG**: After each automated release, maintainers should:
+1. Review the GitHub release notes to see which commits were included
+2. Update `CHANGELOG.md` with organized, user-friendly descriptions
+3. Group changes by type and add any necessary context or migration notes
+4. Commit the updated CHANGELOG to the main branch (this won't trigger a new release if using `docs:` commit type)
 
 ## Release Process
 
