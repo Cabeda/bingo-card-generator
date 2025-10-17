@@ -160,6 +160,34 @@ h3 {
   font-weight: normal;
 }
 
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2em;
+  }
+  
+  h2 {
+    font-size: 1.5em;
+  }
+  
+  h3 {
+    font-size: 1.25em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75em;
+  }
+  
+  h2 {
+    font-size: 1.25em;
+  }
+  
+  h3 {
+    font-size: 1.1em;
+  }
+}
+
 .bingo-cell {
   background-color: var(--primary-color);
   border: 0.125rem solid var(--secondary-color); /* Thicker border */
@@ -170,6 +198,22 @@ h3 {
   font-weight: bold;
   min-width: 60px;
   border-radius: 0.25rem; /* Slightly rounded corners */
+  aspect-ratio: 1;
+}
+
+@media (max-width: 768px) {
+  .bingo-cell {
+    font-size: 1.5rem;
+    min-width: 40px;
+    border-width: 0.0625rem; /* Thinner border on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-cell {
+    font-size: 1.25rem;
+    min-width: 30px;
+  }
 }
 
 .bingo-cell.empty {
@@ -180,6 +224,19 @@ h3 {
   font-size: 0.75rem;
   font-weight: bold;
   color: var(--foreground);
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .cardNumber {
+    font-size: 0.625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardNumber {
+    font-size: 0.5rem;
+  }
 }
 
 .file-upload {
@@ -187,6 +244,18 @@ h3 {
   font-family: 'Roboto', sans-serif;
   max-width: 600px; /* Set your desired maximum width */
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .file-upload {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-upload {
+    padding: 10px;
+  }
 }
 
 .margin-bottom-20 {
@@ -244,6 +313,21 @@ h3 {
   border-radius: 0.25rem;
   border: 0.125rem solid var(--secondary-color);
   width: auto; /* Let the width adjust based on content */
+  max-width: 100%; /* Prevent overflow on mobile */
+}
+
+@media (max-width: 768px) {
+  .bingo-card {
+    padding: 8px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingo-card {
+    padding: 6px;
+    margin-bottom: 10px;
+  }
 }
 
 .grid-container {
@@ -251,6 +335,20 @@ h3 {
   grid-template-columns: repeat(9, auto);
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
+  width: fit-content;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    gap: 0.1875rem; /* Smaller gap on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    gap: 0.125rem; /* Even smaller gap on small mobile */
+  }
 }
 
 /* Loading spinner animation */
