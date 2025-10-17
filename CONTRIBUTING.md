@@ -344,20 +344,21 @@ docs(readme): update installation instructions
 test(utils): add tests for edge cases in parseBingoCards
 ```
 
-### Automated CHANGELOG Generation
+### Automated Release Generation
 
-This project uses [release-please](https://github.com/googleapis/release-please) to automatically generate the CHANGELOG
-and manage releases based on conventional commits. This means:
+This project uses [Bun's version management](https://bun.com/docs/cli/pm#version) to automatically manage releases
+based on conventional commits. This means:
 
-- **No manual CHANGELOG updates needed** - The CHANGELOG is automatically generated from commit messages
 - **Automatic version bumping** - Versions are determined by commit types:
   - `feat:` commits trigger a minor version bump (e.g., 0.1.0 → 0.2.0)
-  - `fix:` commits trigger a patch version bump (e.g., 0.1.0 → 0.1.1)
+  - `fix:`, `perf:`, `refactor:`, etc. trigger a patch version bump (e.g., 0.1.0 → 0.1.1)
   - `feat!:` or `fix!:` (breaking changes) trigger a major version bump (e.g., 0.1.0 → 1.0.0)
-- **Release PRs** - When commits are merged to `main`, release-please creates a Release PR that:
-  - Updates the CHANGELOG.md with all changes since the last release
-  - Bumps the version in package.json
-  - Creates a GitHub release when merged
+- **Automatic GitHub releases** - When commits are merged to `main`, the Release workflow:
+  - Analyzes commits since the last release tag
+  - Runs `bun version` to update package.json and create a git tag
+  - Creates a GitHub release with release notes listing all commits
+- **Manual CHANGELOG updates** - While releases are automated, maintainers should manually update CHANGELOG.md
+  with organized notes after each release
 
 **Important:** Always use conventional commit messages to ensure your changes are properly documented in the CHANGELOG!
 
