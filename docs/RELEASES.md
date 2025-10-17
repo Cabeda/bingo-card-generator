@@ -1,7 +1,7 @@
-# Release Management and Automated CHANGELOG
+# Release Management and Automated Versioning
 
-This project uses [release-please](https://github.com/googleapis/release-please) to automate version management
-and CHANGELOG generation based on conventional commits.
+This project uses [Bun's version management](https://bun.com/docs/cli/pm#version) to automate version bumps
+and release creation based on conventional commits.
 
 ## How It Works
 
@@ -25,15 +25,14 @@ Different commit types trigger different version bumps:
 | Commit Type | Version Bump | Example |
 |------------|--------------|---------|
 | `feat:` | Minor (0.1.0 → 0.2.0) | `feat: add new card layout` |
-| `fix:` | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
+| `fix:`, `perf:`, `refactor:`, etc. | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
 | `feat!:` or `fix!:` | Major (0.1.0 → 1.0.0) | `feat!: redesign card generation API` |
-| `docs:`, `style:`, `refactor:`, `test:`, `chore:` | No version bump | `docs: update README` |
 
 **Breaking Changes**: Add `!` after the type (e.g., `feat!:`) or add `BREAKING CHANGE:` in the commit body.
 
 ### CHANGELOG Sections
 
-The CHANGELOG is organized into these sections based on commit types:
+The CHANGELOG should be maintained manually and organized into these sections:
 
 - **Features** - `feat:` commits
 - **Bug Fixes** - `fix:` commits
@@ -48,70 +47,57 @@ The CHANGELOG is organized into these sections based on commit types:
 
 ## Release Process
 
-### Automated Release PR Creation
+### Automated Release Creation
 
 When conventional commits are pushed to the `main` branch:
 
-1. The release-please GitHub Action runs automatically
-2. It analyzes all commits since the last release
+1. The Release GitHub Action runs automatically
+2. It analyzes all commits since the last release tag
 3. It determines the next version number based on commit types
-4. It creates or updates a Release PR that:
-   - Updates `CHANGELOG.md` with all changes grouped by type
-   - Bumps the version in `package.json`
-   - Creates a release commit
-
-### Merging the Release PR
-
-When maintainers merge the Release PR:
-
-1. The release commit is added to main
-2. A GitHub release is automatically created with:
+4. It runs `bun version <patch|minor|major>` which:
+   - Updates the version in `package.json`
+   - Creates a git commit with message "v<version>"
+   - Creates a git tag "v<version>"
+5. The workflow pushes the commit and tag to the repository
+6. A GitHub release is automatically created with:
    - The version tag (e.g., `v0.2.0`)
-   - Release notes generated from the CHANGELOG
-   - Links to the full CHANGELOG
+   - Release notes listing all commits since the last release
+   - Link to the full changelog
 
-### Manual Releases
+### Manual Changelog Updates
 
-If needed, maintainers can manually trigger releases by:
+While releases are automated, you should manually update `CHANGELOG.md`:
 
-1. Merging conventional commits to main
-2. Waiting for release-please to create the Release PR
-3. Reviewing and merging the Release PR
+1. After a release is created, update `CHANGELOG.md` with organized notes
+2. Group changes by type (Features, Bug Fixes, etc.)
+3. Add any additional context or migration notes
+4. Commit the changelog update to main
 
 ## Configuration Files
 
-### `.github/workflows/release-please.yml`
+### `.github/workflows/release.yml`
 
-GitHub Actions workflow that runs release-please on pushes to main.
-
-### `release-please-config.json`
-
-Configuration for release-please including:
-
-- Release type (Node.js)
-- Package name
-- CHANGELOG section mappings
-- Hidden sections
-
-### `.release-please-manifest.json`
-
-Tracks the current version of the project. This file is automatically updated by release-please.
+GitHub Actions workflow that:
+- Analyzes commits for conventional commit types
+- Determines the appropriate version bump (major/minor/patch)
+- Uses `bun version` to update package.json and create git tags
+- Creates a GitHub release with generated release notes
 
 ## Best Practices
 
 ### For Contributors
 
-1. **Always use conventional commits** - This ensures your changes appear in the CHANGELOG
+1. **Always use conventional commits** - This ensures proper version bumping and release notes
 2. **Choose the correct type** - Use `feat:` for features, `fix:` for bugs, etc.
 3. **Include a scope when relevant** - e.g., `feat(cards):`, `fix(game):`
-4. **Write clear descriptions** - The commit message becomes the CHANGELOG entry
+4. **Write clear descriptions** - The commit message appears in the release notes
 5. **Mark breaking changes** - Use `!` or `BREAKING CHANGE:` footer
 
 ### For Maintainers
 
-1. **Review Release PRs carefully** - Check the generated CHANGELOG and version bump
-2. **Edit Release PR if needed** - You can manually adjust the CHANGELOG before merging
-3. **Merge Release PRs promptly** - This creates the GitHub release
+1. **Review releases on GitHub** - Check the generated release notes and version bump
+2. **Update CHANGELOG.md** - Manually organize and enhance the changelog after releases
+3. **Monitor the Release workflow** - Check GitHub Actions if releases fail
 4. **Use squash merging for PRs** - Ensure the squashed commit follows conventional commits
 
 ## Examples
@@ -179,33 +165,36 @@ This will:
 
 ## Troubleshooting
 
-### Release PR Not Created
+### Release Not Created
 
-If release-please doesn't create a PR:
+If a release is not created automatically:
 
 1. Check that commits follow conventional commits format
 2. Verify the workflow ran successfully in the Actions tab
 3. Ensure commits include version-bumping types (`feat:`, `fix:`, etc.)
+4. Check if there were any git push errors in the workflow logs
 
 ### Wrong Version Bump
 
 If the version bump is incorrect:
 
-1. Check the commit types used
-2. Remember: `feat` = minor, `fix` = patch, `feat!` or `fix!` = major
-3. You can manually edit the Release PR before merging
+1. Check the commit types used since the last release
+2. Remember: `feat` = minor, `fix`/`perf`/etc = patch, `feat!` or `fix!` = major
+3. The workflow analyzes all commits since the last tag
+4. Breaking changes always trigger major version bumps
 
-### CHANGELOG Issues
+### Workflow Errors
 
-If the CHANGELOG format is wrong:
+If the Release workflow fails:
 
-1. Check `release-please-config.json` for section mappings
-2. Verify commit messages follow the conventional format
-3. You can manually edit the Release PR's CHANGELOG before merging
+1. Check the workflow logs in the Actions tab
+2. Verify that the GITHUB_TOKEN has write permissions
+3. Ensure there are no merge conflicts
+4. Check if the git configuration is correct in the workflow
 
 ## Additional Resources
 
-- [Release Please Documentation](https://github.com/googleapis/release-please)
+- [Bun Version Management Documentation](https://bun.com/docs/cli/pm#version)
 - [Conventional Commits Specification](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
