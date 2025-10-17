@@ -205,7 +205,7 @@ h3 {
   .bingo-cell {
     font-size: 1.5rem;
     min-width: 40px;
-    border-width: 0.0625rem; /* Thinner border on mobile */
+    border-width: 1px; /* Thinner border on mobile */
   }
 }
 
@@ -224,7 +224,7 @@ h3 {
   font-size: 0.75rem;
   font-weight: bold;
   color: var(--foreground);
-  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 768px) {
@@ -336,18 +336,19 @@ h3 {
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
   width: fit-content;
-  max-width: 100%;
 }
 
 @media (max-width: 768px) {
   .grid-container {
     gap: 0.1875rem; /* Smaller gap on mobile */
+    max-width: 100%; /* Prevent overflow on mobile */
   }
 }
 
 @media (max-width: 480px) {
   .grid-container {
     gap: 0.125rem; /* Even smaller gap on small mobile */
+    max-width: 100%; /* Prevent overflow on mobile */
   }
 }
 
