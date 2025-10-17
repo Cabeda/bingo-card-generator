@@ -171,7 +171,19 @@ Tests are written using Jest and located alongside the code they test:
 bun run test          # Run all tests
 bun run test:watch    # Run tests in watch mode
 bun run test:coverage # Run tests with coverage report
+bun run test:i18n     # Run internationalization tests
 ```
+
+**Internationalization Testing:**
+
+The project includes specialized tests for translation completeness and visual consistency:
+
+```bash
+bun run validate:i18n  # Quick validation of translation files
+bun run test:i18n      # Comprehensive i18n test suite
+```
+
+See [TESTING.md](./TESTING.md) for detailed testing documentation, including i18n testing strategies.
 
 > **Note:** Tests use Jest through Bun. The `bun run test` command runs Jest with the proper
 > configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
