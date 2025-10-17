@@ -259,6 +259,10 @@ To add a new language or update existing translations, see [docs/I18N.md](./docs
   - Next.js build cache optimization
   - Coverage reports caching
   - Performance monitoring and troubleshooting
+- **[SECURITY_HEADERS.md](./docs/SECURITY_HEADERS.md)**: Security headers configuration
+  - Content Security Policy (CSP) implementation
+  - Additional security headers (X-Frame-Options, etc.)
+  - Testing and compliance information
 - **API Documentation**: All functions and interfaces include JSDoc comments
   - Type definitions in `app/utils/bingo.interface.ts`
   - Core utilities in `app/utils/utils.ts`
