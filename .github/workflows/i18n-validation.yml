@@ -18,6 +18,9 @@ jobs:
   validate-translations:
     name: Validate Translation Completeness
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - name: Checkout repository
