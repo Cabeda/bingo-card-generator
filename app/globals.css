@@ -197,14 +197,15 @@ h3 {
   color: white;
   font-weight: bold;
   min-width: 60px;
+  min-height: 60px;
   border-radius: 0.25rem; /* Slightly rounded corners */
-  aspect-ratio: 1;
 }
 
 @media (max-width: 768px) {
   .bingo-cell {
     font-size: 1.5rem;
     min-width: 40px;
+    min-height: 40px;
     border-width: 1px; /* Thinner border on mobile */
   }
 }
@@ -213,6 +214,7 @@ h3 {
   .bingo-cell {
     font-size: 1.25rem;
     min-width: 30px;
+    min-height: 30px;
   }
 }
 
