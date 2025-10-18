@@ -14,7 +14,7 @@ Security headers are configured in `next.config.ts` and are automatically applie
 
 **Implementation**:
 
-```typescript
+```http
 Content-Security-Policy: 
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
