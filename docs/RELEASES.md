@@ -26,11 +26,8 @@ Different commit types trigger different version bumps:
 |------------|--------------|---------|
 | `feat:` | Minor (0.1.0 → 0.2.0) | `feat: add new card layout` |
 | `fix:`, `perf:` | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
-<<<<<<< HEAD
-| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve code` |
-=======
-| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve card generation logic` |
->>>>>>> 9ee60e97bfba1bcb2aae43bddd8a83a5b93af9bd
+| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve` |
+
 | `feat!:` or `fix!:` | Major (0.1.0 → 1.0.0) | `feat!: redesign card generation API` |
 
 **Note**: All conventional commit types trigger a patch version bump to ensure all changes are tracked in releases.
@@ -53,10 +50,7 @@ The CHANGELOG should be maintained manually after each release and organized int
 - **Miscellaneous** - `chore:` commits
 
 **Updating the CHANGELOG**: After each automated release, maintainers should:
-<<<<<<< HEAD
 
-=======
->>>>>>> 9ee60e97bfba1bcb2aae43bddd8a83a5b93af9bd
 1. Review the GitHub release notes to see which commits were included
 2. Update `CHANGELOG.md` with organized, user-friendly descriptions
 3. Group changes by type and add any necessary context or migration notes
@@ -95,10 +89,7 @@ While releases are automated, you should manually update `CHANGELOG.md`:
 ### `.github/workflows/release.yml`
 
 GitHub Actions workflow that:
-<<<<<<< HEAD
 
-=======
->>>>>>> 9ee60e97bfba1bcb2aae43bddd8a83a5b93af9bd
 - Analyzes commits for conventional commit types
 - Determines the appropriate version bump (major/minor/patch)
 - Uses `bun version` to update package.json and create git tags
