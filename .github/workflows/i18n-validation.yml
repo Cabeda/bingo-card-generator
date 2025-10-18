@@ -60,9 +60,14 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '⚠️ **Translation Validation Failed**\\n\\n
-Some translation keys are missing or inconsistent across locales.\\n\\nPlease run `npm run validate:i18n` locally to see detailed errors and ensure all translation keys
-are present in all locale files (en, es, fr, pt).\\n\\nFor more information, see [I18N.md](../docs/I18N.md).'
+              body: |
+                ⚠️ **Translation Validation Failed**
+                
+                Some translation keys are missing or inconsistent across locales.
+                
+                Please run `npm run validate:i18n` locally to see detailed errors and ensure all translation keys are present in all locale files (en, es, fr, pt).
+                
+                For more information, see [I18N.md](../docs/I18N.md).
             })
 
       - name: Success message
