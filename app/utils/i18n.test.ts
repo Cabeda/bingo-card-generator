@@ -5,12 +5,36 @@
  * to prevent missing translations that could result in English fallbacks or broken UI.
  */
 
+import fs from 'fs';
+import path from 'path';
 import enMessages from '../../messages/en.json';
 import esMessages from '../../messages/es.json';
 import frMessages from '../../messages/fr.json';
 import ptMessages from '../../messages/pt.json';
 
 type MessageObject = Record<string, string | MessageObject>;
+
+/**
+ * Read locales from routing.ts to maintain single source of truth
+ */
+function getLocalesFromRouting(): string[] {
+  const routingPath = path.join(__dirname, '../routing.ts');
+  const routingContent = fs.readFileSync(routingPath, 'utf8');
+  const localesMatch = routingContent.match(/locales:\s*\[(.*?)\]/s);
+  
+  if (!localesMatch) {
+    throw new Error('Could not find locales array in routing.ts');
+  }
+  
+  // Extract locale strings from the array
+  const localesStr = localesMatch[1];
+  const locales = localesStr
+    .split(',')
+    .map(s => s.trim().replace(/['"]/g, ''))
+    .filter(s => s.length > 0);
+  
+  return locales;
+}
 
 /**
  * Recursively extracts all translation keys from a nested object
@@ -247,7 +271,7 @@ describe('Translation Coverage', () => {
 
   describe('Locale Configuration', () => {
     it('should match locales defined in routing.ts', () => {
-      const routingLocales = ['en', 'pt', 'es', 'fr']; // From routing.ts
+      const routingLocales = getLocalesFromRouting();
       const messageLocales = Object.keys(locales);
 
       const missingInMessages = routingLocales.filter(l => !messageLocales.includes(l));
