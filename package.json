@@ -12,6 +12,8 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules' bunx jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage",
+    "test:i18n": "NODE_OPTIONS='--experimental-vm-modules' bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx",
+    "validate:i18n": "node scripts/validate-translations.js",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'",
     "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'",
     "prepare": "husky"

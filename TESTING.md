@@ -186,6 +186,94 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 - Animation state management
 - User interaction with drawn balls
 
+## Internationalization Testing
+
+The project includes comprehensive internationalization (i18n)
+testing to ensure translation quality and UI consistency across
+all supported locales.
+
+### Translation Coverage Tests
+
+**Location:** `app/utils/i18n.test.ts`
+
+These tests verify:
+
+- **Key Consistency**: All translation keys exist in all supported
+  locales (en, es, fr, pt)
+- **No Extra Keys**: Non-English locales don't have keys missing
+  from English
+- **No Empty Values**: All translation values contain actual text
+- **Placeholder Consistency**: Translation placeholders like `{count}`
+  match across locales
+- **Structure Validation**: All locales have the same nested structure
+- **Locale Configuration**: Message files match the locales defined
+  in `routing.ts`
+
+**Running Translation Coverage Tests:**
+
+```bash
+npm test -- app/utils/i18n.test.ts
+# or run both i18n test suites
+npm run test:i18n
+```
+
+**Quick Validation Script:**
+
+For a quick check without running full tests:
+
+```bash
+npm run validate:i18n
+```
+
+This script provides a summary of missing or extra translation keys across all locales.
+
+**Note:** These tests will fail if translations are incomplete.
+This is intentional to catch missing translations during development.
+
+### Visual Regression Tests
+
+**Location:** `app/components/I18nVisualTest.test.tsx`
+
+These tests verify:
+
+- **Text Length**: Translations don't cause overflow or
+  truncation issues
+- **Layout Consistency**: UI components maintain proper spacing
+  across locales
+- **RTL Support Readiness**: Components use flex classes compatible
+  with right-to-left languages
+- **Special Characters**: Proper rendering of accents, emojis,
+  and special characters
+- **Responsive Sizing**: Text scales appropriately across different
+  screen sizes
+- **Accessibility**: ARIA labels and semantic HTML work correctly
+  with translations
+- **Dynamic Content**: Variable substitution in translations
+  renders correctly
+
+**Running Visual Regression Tests:**
+
+```bash
+npm test -- app/components/I18nVisualTest.test.tsx
+```
+
+### Best Practices for I18n Testing
+
+#### Do's ✅
+
+- Run translation coverage tests after adding new translation keys
+- Test UI components with the longest expected translations
+- Verify placeholder variables match across all locales
+- Check for proper rendering of special characters (é, ñ, ã, etc.)
+- Test with actual translation content, not placeholder text
+
+#### Don'ts ❌
+
+- Don't skip translation coverage tests when they fail
+- Don't add English-only keys without updating other locales
+- Don't assume all languages have similar text length
+- Don't use hardcoded strings in components (always use translation keys)
+
 ## Best Practices
 
 ### Do's ✅
