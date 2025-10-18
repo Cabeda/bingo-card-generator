@@ -485,7 +485,43 @@ function checkBingo(numbers: (number | null)[], drawnNumbers: number[]): boolean
 
 - **localStorage**: Only stores non-sensitive game data
 - **No Secrets**: No API keys or credentials in client code
-- **CSP**: Content Security Policy configured in Next.js
+
+### Content Security Policy (CSP)
+
+The application implements a strict Content Security Policy configured in `next.config.ts` to prevent XSS and other injection attacks:
+
+**Security Headers Configured:**
+
+1. **Content-Security-Policy**: Strict CSP with the following directives:
+   - `default-src 'self'`: Only allow resources from same origin by default
+   - `script-src 'self' 'unsafe-eval' 'unsafe-inline'`: Allow scripts from same origin, inline scripts (React), and eval (required by Next.js and jsPDF)
+   - `style-src 'self' 'unsafe-inline'`: Allow styles from same origin and inline styles (React components)
+   - `img-src 'self' blob: data:`: Allow images from same origin, blob URLs (PDF generation), and data URLs
+   - `font-src 'self'`: Allow fonts from same origin only (self-hosted fonts)
+   - `connect-src 'self'`: Allow connections to same origin
+   - `worker-src 'self' blob:`: Allow service workers from same origin and blob URLs (PWA support)
+   - `manifest-src 'self'`: Allow PWA manifest from same origin
+   - `object-src 'none'`: Disallow plugins like Flash
+   - `base-uri 'self'`: Restrict base URL to same origin
+   - `form-action 'self'`: Restrict form submissions to same origin
+   - `frame-ancestors 'none'`: Prevent embedding in iframes
+   - `upgrade-insecure-requests`: Upgrade HTTP to HTTPS automatically
+
+2. **X-Frame-Options: DENY**: Prevents clickjacking attacks by disallowing the site to be embedded in iframes
+
+3. **X-Content-Type-Options: nosniff**: Prevents MIME type sniffing
+
+4. **Referrer-Policy: strict-origin-when-cross-origin**: Controls referrer information sent with requests
+
+5. **Permissions-Policy**: Restricts access to browser features like camera, microphone, and geolocation
+
+**Why 'unsafe-inline' and 'unsafe-eval'?**
+
+- `'unsafe-inline'` for styles: Required for React inline styles and styled-components patterns used throughout the application
+- `'unsafe-inline'` for scripts: Required for Next.js hydration and React components
+- `'unsafe-eval'`: Required by Next.js runtime and jsPDF library for dynamic code generation
+
+While these directives reduce CSP strictness, they are necessary for the application to function. The other CSP directives provide strong protection against common attack vectors.
 
 ### Dependencies
 
