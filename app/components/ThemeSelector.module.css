@@ -7,6 +7,18 @@
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+}
+
 .title {
   margin-bottom: 1rem;
   color: var(--foreground);
@@ -28,9 +40,16 @@
 
 .themeGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+@media (max-width: 480px) {
+  .themeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
 }
 
 .themeButton {
@@ -42,6 +61,13 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   text-align: center;
   font-size: 1rem;
+}
+
+@media (max-width: 480px) {
+  .themeButton {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
 }
 
 .themeButton:hover {

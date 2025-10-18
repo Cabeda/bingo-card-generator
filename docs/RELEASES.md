@@ -26,7 +26,8 @@ Different commit types trigger different version bumps:
 |------------|--------------|---------|
 | `feat:` | Minor (0.1.0 → 0.2.0) | `feat: add new card layout` |
 | `fix:`, `perf:` | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
-| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve card generation logic` |
+| `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve` |
+
 | `feat!:` or `fix!:` | Major (0.1.0 → 1.0.0) | `feat!: redesign card generation API` |
 
 **Note**: All conventional commit types trigger a patch version bump to ensure all changes are tracked in releases.
@@ -49,6 +50,7 @@ The CHANGELOG should be maintained manually after each release and organized int
 - **Miscellaneous** - `chore:` commits
 
 **Updating the CHANGELOG**: After each automated release, maintainers should:
+
 1. Review the GitHub release notes to see which commits were included
 2. Update `CHANGELOG.md` with organized, user-friendly descriptions
 3. Group changes by type and add any necessary context or migration notes
@@ -63,10 +65,10 @@ When conventional commits are pushed to the `main` branch:
 1. The Release GitHub Action runs automatically
 2. It analyzes all commits since the last release tag
 3. It determines the next version number based on commit types
-4. It runs `bun version <patch|minor|major>` which:
+4. It runs `bun version` (patch, minor, or major) which:
    - Updates the version in `package.json`
-   - Creates a git commit with message "v<version>"
-   - Creates a git tag "v<version>"
+   - Creates a git commit with message "vX.Y.Z"
+   - Creates a git tag "vX.Y.Z"
 5. The workflow pushes the commit and tag to the repository
 6. A GitHub release is automatically created with:
    - The version tag (e.g., `v0.2.0`)
@@ -87,6 +89,7 @@ While releases are automated, you should manually update `CHANGELOG.md`:
 ### `.github/workflows/release.yml`
 
 GitHub Actions workflow that:
+
 - Analyzes commits for conventional commit types
 - Determines the appropriate version bump (major/minor/patch)
 - Uses `bun version` to update package.json and create git tags
