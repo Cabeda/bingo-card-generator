@@ -37,7 +37,7 @@ jest.mock('next-intl', () => ({
 }));
 
 // Mock motion/react
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+ 
 jest.mock('motion/react', () => ({
   motion: {
     div: ({ children, className, whileHover, whileTap, whileFocus, animate, initial, transition, style, layout, exit, ...props }: any) => (
@@ -65,7 +65,7 @@ jest.mock('./Ball', () => ({
     </div>
   ),
 }));
-/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+ 
 
 // Mock localStorage
 const localStorageMock = (() => {

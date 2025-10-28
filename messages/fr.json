@@ -71,4 +71,28 @@
     "cardNumberLabel": "Carte Numéro: {number}",
     "numberAnnouncement": "Numéro {number}"
   }
+  ,
+  "themes": {
+    "title": "Thème de la carte",
+    "presetThemes": "Thèmes prédéfinis",
+    "customThemes": "Thèmes personnalisés",
+    "createCustomTheme": "Créer un thème personnalisé",
+    "hideCustomTheme": "Masquer le créateur de thème personnalisé",
+    "exportCurrentTheme": "Exporter le thème actuel",
+    "importTheme": "Importer un thème",
+    "themeName": "Nom du thème",
+    "primaryColor": "Couleur principale (fond de la cellule)",
+    "secondaryColor": "Couleur secondaire (bordure)",
+    "textColor": "Couleur du texte",
+    "backgroundColor": "Couleur de fond (cellules vides)",
+    "fontFamily": "Famille de polices",
+    "borderRadius": "Rayon de la bordure",
+    "borderWidth": "Largeur de la bordure",
+    "preview": "Aperçu",
+    "saveCustomTheme": "Enregistrer le thème personnalisé",
+    "deleteTheme": "Supprimer le thème",
+    "importThemeJson": "Importer JSON de thème",
+    "import": "Importer",
+    "pasteThemeJson": "Collez le JSON du thème ici..."
+  }
 }

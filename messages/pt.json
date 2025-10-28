@@ -71,4 +71,28 @@
     "cardNumberLabel": "Cartão Número: {number}",
     "numberAnnouncement": "Número {number}"
   }
+  ,
+  "themes": {
+    "title": "Tema do cartão",
+    "presetThemes": "Temas predefinidos",
+    "customThemes": "Temas personalizados",
+    "createCustomTheme": "Criar tema personalizado",
+    "hideCustomTheme": "Ocultar construtor de tema personalizado",
+    "exportCurrentTheme": "Exportar tema atual",
+    "importTheme": "Importar tema",
+    "themeName": "Nome do tema",
+    "primaryColor": "Cor primária (fundo da célula)",
+    "secondaryColor": "Cor secundária (borda)",
+    "textColor": "Cor do texto",
+    "backgroundColor": "Cor de fundo (células vazias)",
+    "fontFamily": "Família tipográfica",
+    "borderRadius": "Raio da borda",
+    "borderWidth": "Largura da borda",
+    "preview": "Visualização",
+    "saveCustomTheme": "Salvar tema personalizado",
+    "deleteTheme": "Excluir tema",
+    "importThemeJson": "Importar JSON do tema",
+    "import": "Importar",
+    "pasteThemeJson": "Cole o JSON do tema aqui..."
+  }
 }

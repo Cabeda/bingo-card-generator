@@ -3,7 +3,7 @@ import {NextConfig} from 'next';
 
 const withNextIntl = createNextIntlPlugin('./app/i18n.ts');
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -24,7 +24,7 @@ const withPWA = require('next-pwa')({
   ],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
