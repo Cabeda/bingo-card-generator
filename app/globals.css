@@ -101,6 +101,11 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Use border-box globally so paddings and borders are included in size calculations */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -191,28 +196,37 @@ h3 {
 .bingo-cell {
   background-color: var(--primary-color);
   border: 0.125rem solid var(--secondary-color); /* Thicker border */
-  font-size: 2rem;
+  font-size: 1.75rem; /* slightly smaller on desktop to allow tighter grid */
   display: grid;
   place-items: center;
   color: white;
   font-weight: bold;
-  min-width: 60px;
-  min-height: 60px;
+  min-width: 52px; /* reduced from 60px */
+  min-height: 52px; /* reduced from 60px */
   border-radius: 0.25rem; /* Slightly rounded corners */
+}
+
+@media (max-width: 1024px) {
+  /* Medium screens: slightly compact cells */
+  .bingo-cell {
+    font-size: 1.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    border-width: 1px; /* Thinner border on smaller screens */
+  }
 }
 
 @media (max-width: 768px) {
   .bingo-cell {
-    font-size: 1.5rem;
-    min-width: 40px;
-    min-height: 40px;
-    border-width: 1px; /* Thinner border on mobile */
+    font-size: 1.25rem;
+    min-width: 36px;
+    min-height: 36px;
   }
 }
 
 @media (max-width: 480px) {
   .bingo-cell {
-    font-size: 1.25rem;
+    font-size: 1rem;
     min-width: 30px;
     min-height: 30px;
   }
@@ -311,11 +325,12 @@ h3 {
 .bingo-card {
   display: inline-block; /* Allow the card to shrink to fit its content */
   margin-bottom: 20px;
-  padding: 10px;
+  padding: 8px 6px; /* reduce horizontal padding so border hugs grid more closely */
   border-radius: 0.25rem;
   border: 0.125rem solid var(--secondary-color);
-  width: auto; /* Let the width adjust based on content */
+  width: fit-content; /* shrink to fit grid + padding */
   max-width: 100%; /* Prevent overflow on mobile */
+  overflow: hidden; /* Prevent grid cells from visually escaping the card border */
 }
 
 @media (max-width: 768px) {
@@ -337,7 +352,8 @@ h3 {
   grid-template-columns: repeat(9, auto);
   grid-template-rows: repeat(3, auto);
   gap: 0.25rem; /* Add some gap between cells */
-  width: fit-content;
+  width: max-content; /* Ensure the grid's intrinsic width is used without overflowing parents */
+  align-items: center;
 }
 
 @media (max-width: 768px) {

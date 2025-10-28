@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import Ball from './Ball';
 
 // Mock motion/react
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 jest.mock('motion/react', () => ({
   motion: {
     div: ({ children, className, ...props }: any) => (
@@ -14,7 +14,7 @@ jest.mock('motion/react', () => ({
     start: jest.fn().mockResolvedValue(undefined),
   }),
 }));
-/* eslint-enable @typescript-eslint/no-explicit-any */
+ 
 
 describe('Ball', () => {
   it('should render with the correct number', () => {

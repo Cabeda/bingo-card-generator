@@ -41,7 +41,7 @@ jest.mock('../routing', () => ({
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
-  // eslint-disable-next-line react/display-name
+   
   return ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>;
   };

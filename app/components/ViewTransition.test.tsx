@@ -18,7 +18,7 @@ describe('ViewTransition', () => {
     
     // Mock document without startViewTransition
     const originalDocument = global.document;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     delete (global.document as any).startViewTransition;
     
     render(<ViewTransition />);
