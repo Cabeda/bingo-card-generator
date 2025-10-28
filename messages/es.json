@@ -71,4 +71,28 @@
     "cardNumberLabel": "Tarjeta Número: {number}",
     "numberAnnouncement": "Número {number}"
   }
+  ,
+  "themes": {
+    "title": "Tema de la tarjeta",
+    "presetThemes": "Temas predefinidos",
+    "customThemes": "Temas personalizados",
+    "createCustomTheme": "Crear tema personalizado",
+    "hideCustomTheme": "Ocultar creador de tema personalizado",
+    "exportCurrentTheme": "Exportar tema actual",
+    "importTheme": "Importar tema",
+    "themeName": "Nombre del tema",
+    "primaryColor": "Color primario (fondo de la celda)",
+    "secondaryColor": "Color secundario (borde)",
+    "textColor": "Color del texto",
+    "backgroundColor": "Color de fondo (celdas vacías)",
+    "fontFamily": "Familia tipográfica",
+    "borderRadius": "Radio del borde",
+    "borderWidth": "Ancho del borde",
+    "preview": "Vista previa",
+    "saveCustomTheme": "Guardar tema personalizado",
+    "deleteTheme": "Eliminar tema",
+    "importThemeJson": "Importar JSON de tema",
+    "import": "Importar",
+    "pasteThemeJson": "Pegue el JSON del tema aquí..."
+  }
 }
