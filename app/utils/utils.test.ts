@@ -556,5 +556,20 @@ describe('generateBingoCard', () => {
                 expect(typeof card.cardTitle).toBe('string');
             });
         });
+
+        it('should never generate a card with two identical rows (issue #123)', () => {
+            // Run multiple deterministic generations to catch edge cases
+            for (let i = 0; i < 200; i++) {
+                const random = createSeededRandom(i);
+                const card = generateBingoCard(i.toString(), random);
+
+                const row0 = card.numbers.slice(0, 9).map(v => (v === null ? '' : String(v))).join(',');
+                const row1 = card.numbers.slice(9, 18).map(v => (v === null ? '' : String(v))).join(',');
+                const row2 = card.numbers.slice(18, 27).map(v => (v === null ? '' : String(v))).join(',');
+
+                const uniqueRows = new Set([row0, row1, row2]);
+                expect(uniqueRows.size).toBe(3);
+            }
+        });
     });
 });
