@@ -27,7 +27,7 @@ jobs:
         bun-version: latest
 
     - name: Cache Bun dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.bun/install/cache
         key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
@@ -38,7 +38,7 @@ jobs:
       run: bun install
 
     - name: Cache Next.js build
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           .next/cache
@@ -54,7 +54,7 @@ jobs:
       run: NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage
 
     - name: Cache coverage reports
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: coverage
         key: ${{ runner.os }}-coverage-${{ github.sha }}
