@@ -215,3 +215,94 @@ export function generateBingoCard(cardNumber: string, randomFn: () => number = M
     };
 }
 
+/**
+ * Generates multiple random bingo cards.
+ * 
+ * @param numberOfCards - Number of cards to generate
+ * @returns Array of generated Card objects
+ * 
+ * @example
+ * ```typescript
+ * const cards = generateRandomBingoCards(10);
+ * console.log(cards.length); // 10
+ * ```
+ */
+export function generateRandomBingoCards(numberOfCards: number): Card[] {
+    const cards: Card[] = [];
+    for (let i = 1; i <= numberOfCards; i++) {
+        cards.push(generateBingoCard(i.toString()));
+    }
+    return cards;
+}
+
+/**
+ * Parses bingo cards from a .bingoCards file format.
+ * 
+ * Format: |CardNo.{number};{numbers separated by semicolons}
+ * Empty values are represented as empty strings between semicolons (parsed as null)
+ * 
+ * @param filename - Name of the file (without extension)
+ * @param content - Content of the .bingoCards file
+ * @returns Game object with parsed cards
+ * 
+ * @example
+ * ```typescript
+ * const content = 'CardNo.1;1;2;3;4;5;6;7;8;9|CardNo.2;10;11;12;13;14;15;16;17;18';
+ * const game = parseBingoCards('myfile', content);
+ * console.log(game.cards.length); // 2
+ * ```
+ */
+export function parseBingoCards(filename: string, content: string): Game {
+    const cards: Card[] = [];
+    
+    // Split by pipe character and filter out empty strings
+    const cardStrings = content.split('|').filter(str => str.trim() !== '');
+    
+    for (const cardString of cardStrings) {
+        const parts = cardString.split(';');
+        if (parts.length < 2) continue;
+        
+        // Parse card number from "CardNo.{number}" format
+        const cardNoMatch = parts[0].match(/CardNo\.(\d+)/);
+        if (!cardNoMatch) continue;
+        
+        const cardNumber = parseInt(cardNoMatch[1], 10);
+        
+        // Parse numbers (empty strings become null)
+        const numbers: (number | null)[] = parts.slice(1).map(numStr => {
+            const trimmed = numStr.trim();
+            return trimmed === '' ? null : parseInt(trimmed, 10);
+        });
+        
+        cards.push({
+            cardTitle: createCardId(`${filename}-${cardNumber}`),
+            cardNumber,
+            numbers
+        });
+    }
+    
+    return {
+        filename: createGameId(filename),
+        cards
+    };
+}
+
+/**
+ * Gets the current date in YYYY-MM-DD format.
+ * 
+ * @returns Current date string
+ * 
+ * @example
+ * ```typescript
+ * const date = getCurrentDate();
+ * console.log(date); // "2024-03-15"
+ * ```
+ */
+export function getCurrentDate(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
