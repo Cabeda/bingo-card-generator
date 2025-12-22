@@ -218,8 +218,9 @@ export function generateBingoCard(cardNumber: string, randomFn: () => number = M
 /**
  * Generates multiple random bingo cards.
  * 
- * @param numberOfCards - Number of cards to generate
+ * @param numberOfCards - Number of cards to generate (must be a positive integer)
  * @returns Array of generated Card objects
+ * @throws {Error} If numberOfCards is not a positive integer
  * 
  * @example
  * ```typescript
@@ -228,6 +229,10 @@ export function generateBingoCard(cardNumber: string, randomFn: () => number = M
  * ```
  */
 export function generateRandomBingoCards(numberOfCards: number): Card[] {
+    if (!Number.isInteger(numberOfCards) || numberOfCards < 0) {
+        throw new Error('numberOfCards must be a positive integer');
+    }
+    
     const cards: Card[] = [];
     for (let i = 1; i <= numberOfCards; i++) {
         cards.push(generateBingoCard(i.toString()));
@@ -271,7 +276,9 @@ export function parseBingoCards(filename: string, content: string): Game {
         // Parse numbers (empty strings become null)
         const numbers: (number | null)[] = parts.slice(1).map(numStr => {
             const trimmed = numStr.trim();
-            return trimmed === '' ? null : parseInt(trimmed, 10);
+            if (trimmed === '') return null;
+            const parsed = parseInt(trimmed, 10);
+            return isNaN(parsed) ? null : parsed;
         });
         
         cards.push({

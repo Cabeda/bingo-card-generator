@@ -83,7 +83,7 @@ export default function BingoGame(): React.JSX.Element {
       setDrawnNumbers(numbers);
     }
 
-    if (storedBigScreenMode) {
+    if (storedBigScreenMode !== null) {
       setBigScreenMode(storedBigScreenMode === 'true');
     }
   }, []); // Added to initialize for localStorage
