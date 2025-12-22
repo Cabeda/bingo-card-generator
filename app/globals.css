@@ -540,3 +540,58 @@ h3 {
     }
   }
 }
+
+/* Big Screen Mode - Optimized for projectors and large displays */
+.big-screen-mode .ball-container.small .ball {
+  width: 120px !important;
+  height: 120px !important;
+  border-width: 4px !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+.big-screen-mode .ball-container.small .ball.drawn {
+  box-shadow: 0 0 30px rgba(255, 193, 7, 0.8) !important;
+}
+
+.big-screen-mode .ball-container.small .ball-number {
+  font-size: 2.5em !important;
+  font-weight: 900 !important;
+}
+
+.big-screen-mode .ball-container.small {
+  margin: 8px !important;
+}
+
+/* Adjust recent numbers display for big screen mode */
+.big-screen-mode aside span[class*='recent_number'] {
+  font-size: 2rem !important;
+  padding: 1rem 1.5rem !important;
+  min-width: 80px !important;
+}
+
+/* Make buttons larger in big screen mode */
+.big-screen-mode .button-style {
+  font-size: 1.5rem !important;
+  padding: 1.25rem 2rem !important;
+}
+
+/* Make settings text larger */
+.big-screen-mode fieldset label {
+  font-size: 1.3rem !important;
+}
+
+.big-screen-mode fieldset label input[type="checkbox"] {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+/* Make headings in sidebar larger */
+.big-screen-mode aside h3 {
+  font-size: 2rem !important;
+}
+
+/* Make validation input larger */
+.big-screen-mode input[type="number"] {
+  font-size: 1.5rem !important;
+  padding: 1rem 1.5rem !important;
+}

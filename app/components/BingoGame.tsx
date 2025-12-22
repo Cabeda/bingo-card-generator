@@ -66,11 +66,13 @@ export default function BingoGame(): React.JSX.Element {
   const [cardToValidate, setCardToValidate] = useState("");
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [bigScreenMode, setBigScreenMode] = useState(false);
 
   // Load game state from localStorage on component mount
   useEffect(() => {
     const storedGame = localStorage.getItem("bingoGame");
     const storedNumbers = localStorage.getItem("drawnNumbers");
+    const storedBigScreenMode = localStorage.getItem("bigScreenMode");
 
     if (storedGame) {
       setBingoGame(JSON.parse(storedGame));
@@ -80,7 +82,18 @@ export default function BingoGame(): React.JSX.Element {
       const numbers = JSON.parse(storedNumbers);
       setDrawnNumbers(numbers);
     }
+
+    if (storedBigScreenMode) {
+      setBigScreenMode(storedBigScreenMode === 'true');
+    }
   }, []); // Added to initialize for localStorage
+
+  // Save big screen mode preference to localStorage
+  const toggleBigScreenMode = (): void => {
+    const newMode = !bigScreenMode;
+    setBigScreenMode(newMode);
+    localStorage.setItem("bigScreenMode", String(newMode));
+  };
 
   const showModal = (message: string, onConfirm?: () => void): void => {
     setModalMessage(message);
@@ -290,7 +303,7 @@ export default function BingoGame(): React.JSX.Element {
   };
 
   return (
-    <div className="game-page">
+    <div className={`game-page ${bigScreenMode ? 'big-screen-mode' : ''}`}>
       <div className={styles.desktop_layout}>
         {/* Main content area - Numbers Grid */}
         <div className={styles.main_content} role="region" aria-label="Bingo number board">
@@ -417,6 +430,15 @@ export default function BingoGame(): React.JSX.Element {
                 aria-label="Enable text-to-speech announcements for drawn numbers"
               />
               <span>{t('tts')}</span>
+            </label>
+            <label className={styles.setting_item}>
+              <input 
+                type="checkbox" 
+                checked={bigScreenMode}
+                onChange={toggleBigScreenMode}
+                aria-label="Enable big screen mode for projectors and large displays"
+              />
+              <span>{t('bigScreenMode')}</span>
             </label>
           </fieldset>
 
