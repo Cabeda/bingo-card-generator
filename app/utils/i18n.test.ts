@@ -12,7 +12,8 @@ import esMessages from '../../messages/es.json';
 import frMessages from '../../messages/fr.json';
 import ptMessages from '../../messages/pt.json';
 
-type MessageObject = Record<string, string | MessageObject>;
+type MessageValue = string | { [key: string]: MessageValue };
+type MessageObject = Record<string, MessageValue>;
 
 /**
  * Read locales from routing.ts to maintain single source of truth

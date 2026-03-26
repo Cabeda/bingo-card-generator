@@ -11,9 +11,8 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react',
-      },
+      tsconfig: './tsconfig.jest.json',
+      diagnostics: false,
     }],
   },
   collectCoverage: true,

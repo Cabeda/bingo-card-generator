@@ -117,7 +117,7 @@ describe('ErrorBoundary', () => {
 
   it('should display error details in development mode', () => {
     const originalNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true });
 
     render(
       <ErrorBoundary>
@@ -133,7 +133,7 @@ describe('ErrorBoundary', () => {
 
   it('should not display error details in production mode', () => {
     const originalNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true });
 
     render(
       <ErrorBoundary>
