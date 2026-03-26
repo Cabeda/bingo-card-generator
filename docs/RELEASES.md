@@ -23,7 +23,7 @@ Closes #123
 Different commit types trigger different version bumps:
 
 | Commit Type | Version Bump | Example |
-|------------|--------------|---------|
+| ----------- | ------------ | ------- |
 | `feat:` | Minor (0.1.0 → 0.2.0) | `feat: add new card layout` |
 | `fix:`, `perf:` | Patch (0.1.0 → 0.1.1) | `fix: resolve PDF rendering issue` |
 | `refactor:`, `style:`, `test:`, `build:`, `ci:`, `chore:`, `docs:` | Patch (0.1.0 → 0.1.1) | `refactor: improve` |
