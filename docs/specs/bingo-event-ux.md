@@ -39,3 +39,18 @@ User agreed to tests at the public game-file API and user-facing event flow.
 Review baseline is `6ed77c3`, the final prototype commit before implementation.
 The prototype is retained in that commit’s history, not in production routes.
 Separate standards/spec reviews inspect the implementation against this baseline.
+
+## Game regression suite
+
+Run `bun run test:game` for the dedicated rules, session and workspace suite.
+Game-file/rules and session restoration require 100% statement, line, branch and
+function coverage; workspace interaction branches require at least 85%. Coverage
+is a regression guard, not proof that all bugs are absent.
+
+Tests cover legacy backup fidelity, invalid IDs/cells/row counts, duplicate IDs,
+complete draw exhaustion at both RNG boundaries, all three winning rows, full
+house and invalid claims, corrupt session settings/history, restart/replacement
+cancellation, pause/resume, audience mode, keyboard context/repeats, generation
+bounds, file read failures, storage quota failures, migration and refresh.
+Native audio/voice, animation timing, projection readability and print layout
+still require browser/device checks; jsdom only emulates the dialog boundary.

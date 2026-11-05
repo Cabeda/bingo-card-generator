@@ -248,12 +248,14 @@ export function EventWorkspace({
   useEffect(() => {
     const keys = (event: KeyboardEvent) => {
       if (
+        stage !== "host" ||
         event.repeat ||
         claim ||
         audience ||
-        (event.target as HTMLElement).closest(
-          "input,textarea,select,button,summary,[contenteditable],dialog",
-        )
+        (event.target instanceof HTMLElement &&
+          event.target.closest(
+            "input,textarea,select,button,summary,[contenteditable],dialog",
+          ))
       )
         return;
       if (event.key === " " || event.key === "Enter") {

@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "NODE_OPTIONS='--experimental-vm-modules' bunx jest",
+    "test:game": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --config jest.game.config.cjs --runInBand",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage",
     "test:i18n": "NODE_OPTIONS='--experimental-vm-modules' bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx",

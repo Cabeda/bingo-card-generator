@@ -1,6 +1,20 @@
 import { Card, Game } from "./bingo.interface";
 import { createCardId, createGameId } from "./types";
 
+/** Keep import and claim validation aligned, preserving legacy repeated values. */
+function isValidGrid(numbers: (number | null)[]): boolean {
+  return (
+    numbers.length === 27 &&
+    numbers.every(
+      (n) => n === null || (Number.isInteger(n) && n >= 1 && n <= 90),
+    ) &&
+    [0, 9, 18].every(
+      (start) =>
+        numbers.slice(start, start + 9).filter((n) => n !== null).length === 5,
+    )
+  );
+}
+
 /** Decode both current exports and legacy exports with a trailing semicolon. */
 export function loadGameFile(filename: string, content: string): Game {
   if (!/\.bingocards$/i.test(filename))
@@ -21,15 +35,7 @@ export function loadGameFile(filename: string, content: string): Game {
       )
         throw new Error("Invalid card grid");
       const numbers = cells.map((n) => (n === "" ? null : Number(n)));
-      if (
-        [0, 9, 18].some(
-          (start) =>
-            numbers.slice(start, start + 9).filter((n) => n !== null).length !==
-            5,
-        ) ||
-        numbers.some((n) => n !== null && (n < 1 || n > 90))
-      )
-        throw new Error("Invalid card numbers");
+      if (!isValidGrid(numbers)) throw new Error("Invalid card numbers");
       // Preserve repeated numbers in legacy files: printed cards must never be rewritten.
       const cardNumber = Number(id.slice(7));
       if (!Number.isSafeInteger(cardNumber))
@@ -73,7 +79,7 @@ export function checkClaim(
   called: number[],
   target: WinningTarget,
 ): boolean {
-  if (numbers.length !== 27) return false;
+  if (!isValidGrid(numbers)) return false;
   const complete = (row: (number | null)[]) =>
     row.some((n) => n !== null) &&
     row.every((n) => n === null || called.includes(n));
