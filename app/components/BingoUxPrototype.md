@@ -24,3 +24,9 @@ Audience view here only hides controls on the same screen; it is not a remote di
 Capture branch: `codex/prototype-bingo-ux`. No layout has been selected or promoted.
 Before production, verify readability from the back of the actual room, at the
 projector's resolution and contrast. Full screen depends on browser support.
+
+Theme retention: all layouts now use the existing light/dark/system appearance.
+The original Classic, Modern, Vintage, Dark, High Contrast and Kids card themes,
+plus saved custom themes, are available in the header. Selection uses the existing
+provider and its persistence; it updates the card sample and demo call colours.
+Layout selection no longer imposes a separate colour palette.
