@@ -773,12 +773,22 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   opacity: 0.5;
   letter-spacing: 0;
 }
-.bingo-flow-preview-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 480px;
+.bingo-flow-sheet-preview {
+  display: grid;
+  grid-template-columns: repeat(var(--sheet-columns, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--sheet-rows, 4), var(--sheet-card-height, 23.4%));
+  align-content: center;
+  gap: 1.4% 2%;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 210 / 297;
   margin: auto;
+  padding: 5.7%;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  box-shadow: 0 18px 45px rgb(0 0 0 / 10%);
+  overflow: hidden;
 }
 .bingo-flow-paper-preview > p {
   text-align: center;
@@ -787,10 +797,17 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   margin-top: 20px;
 }
 .bingo-flow-card {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   background: var(--bingo-card-background);
   font-family: var(--bingo-card-font);
   color: #171717;
-  padding: 14px;
+  padding: 6px;
   border: 1px solid #ddd;
   border-radius: 4px;
   break-inside: avoid;
@@ -798,9 +815,10 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
 .bingo-flow-card header {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  font-size: 11px;
-  margin-bottom: 10px;
+  gap: 1.5cqw;
+  font-size: 2.3cqw;
+  line-height: 1.15;
+  margin-bottom: 1.4cqw;
   color: #171717;
 }
 .bingo-flow-card header b {
@@ -811,29 +829,109 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   white-space: nowrap;
 }
 .bingo-flow-card > div {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
 }
 .bingo-flow-card > div > span {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
   background: var(--bingo-accent);
   color: var(--bingo-accent-text);
   border: var(--bingo-card-border-width, 1px) solid var(--bingo-card-border);
   border-radius: var(--bingo-card-radius);
-  font-size: 18px;
+  font-size: 4cqw;
+  line-height: 1;
   font-weight: bold;
 }
 .bingo-flow-card > div > .is-empty {
   background: var(--bingo-card-background);
 }
 .bingo-flow-card footer {
-  font-size: 9px;
+  font-size: 1.9cqw;
+  line-height: 1.2;
   color: #666;
-  margin-top: 10px;
+  margin-top: 1.2cqw;
   text-align: center;
+}
+.bingo-flow-layout {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bingo-flow-layout legend {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  padding: 0;
+  margin-bottom: 2px;
+}
+.bingo-flow-layout-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.bingo-flow-layout-options label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+.bingo-flow-layout-options label:hover {
+  border-color: var(--bingo-accent);
+}
+.bingo-flow-layout-options label.is-selected {
+  border-color: var(--bingo-accent);
+  background: var(--progress-bg);
+  box-shadow: inset 0 0 0 1px var(--bingo-accent);
+}
+.bingo-flow-layout-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.bingo-flow-layout-options label:has(input:focus-visible) {
+  outline: 2px solid var(--bingo-accent);
+  outline-offset: 2px;
+}
+.bingo-flow-layout-icon {
+  display: grid;
+  gap: 1px;
+  width: 22px;
+  height: 22px;
+}
+.bingo-flow-layout-icon i {
+  display: block;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  opacity: 0.55;
+}
+.bingo-flow-layout.is-selected .bingo-flow-layout-icon i,
+.bingo-flow-layout-options label.is-selected .bingo-flow-layout-icon i {
+  opacity: 0.9;
+}
+.bingo-flow-layout > small {
+  font-size: 10px;
+  line-height: 1.5;
+  opacity: 0.55;
 }
 .bingo-flow-print-actions {
   display: flex;
@@ -919,12 +1017,8 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   .bingo-flow-paper-preview {
     padding: 16px;
   }
-  .bingo-flow-card {
-    padding: 10px;
-  }
-  .bingo-flow-card > div > span {
-    font-size: 15px;
-    min-height: 28px;
+  .bingo-flow-layout-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .bingo-flow-print-heading {
     align-items: start;
@@ -965,45 +1059,60 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     -webkit-print-color-adjust: exact;
   }
   .bingo-flow-print-sheet {
-    display: flex !important;
-    flex-direction: column;
-    gap: 8mm;
-    break-after: page;
+    display: grid !important;
+    grid-template-columns: repeat(
+      var(--sheet-columns, 1),
+      minmax(0, 1fr)
+    ) !important;
+    grid-template-rows: repeat(
+      var(--sheet-rows, 4),
+      var(--sheet-card-height, 64mm)
+    ) !important;
+    align-content: center !important;
+    box-sizing: border-box !important;
+    gap: 4mm !important;
+    width: 100% !important;
+    height: 272.5mm !important;
     padding: 0 !important;
     margin: 0 !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
   }
   .bingo-flow-print-sheet:last-child {
     break-after: auto;
+    page-break-after: auto;
   }
   .bingo-flow-print-sheet .bingo-flow-card {
-    display: block !important;
     width: 100% !important;
     max-width: none !important;
-    height: 58mm !important;
-    padding: 4mm !important;
+    height: 100% !important;
+    padding: 3mm !important;
     margin: 0 !important;
     break-inside: avoid !important;
+    page-break-inside: avoid !important;
     box-shadow: none !important;
     border: 1px solid #bbb !important;
   }
   .bingo-flow-print-sheet .bingo-flow-card > div {
     display: grid !important;
     grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+    grid-auto-rows: minmax(0, 1fr) !important;
   }
   .bingo-flow-print-sheet .bingo-flow-card > div > span {
-    height: 10mm !important;
-    font-size: 18pt !important;
+    height: auto !important;
     min-height: 0 !important;
+    font-size: 4cqw !important;
   }
   .bingo-flow-print-sheet .bingo-flow-card header {
     display: flex !important;
-    font-size: 10pt !important;
-    margin-bottom: 2mm !important;
+    font-size: 2.3cqw !important;
+    margin-bottom: 1.4cqw !important;
   }
   .bingo-flow-print-sheet .bingo-flow-card footer {
     display: block !important;
-    font-size: 8pt !important;
-    margin-top: 2mm !important;
+    font-size: 1.9cqw !important;
+    margin-top: 1.2cqw !important;
   }
 }
 

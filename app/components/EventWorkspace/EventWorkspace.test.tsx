@@ -85,6 +85,40 @@ it("generates, previews and hosts the same cards, preserving calls when returnin
   );
 });
 
+it("changes how many cards share a sheet without splitting card content", async () => {
+  renderEvent();
+  fireEvent.change(await screen.findByLabelText("Event name"), {
+    target: { value: "Office party" },
+  });
+  fireEvent.change(await screen.findByLabelText("Number of cards"), {
+    target: { value: "9" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Generate game →" }));
+  await screen.findByRole("heading", { name: "Your cards are ready." });
+
+  const printed = (): Element =>
+    document.querySelector(".bingo-flow-print-only")!;
+  expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(3);
+  expect(screen.getByText("4 per sheet · 3 A4 sheets")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("radio", { name: "8" }));
+  expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(2);
+  expect(screen.getByText("8 per sheet · 2 A4 sheets")).toBeInTheDocument();
+  expect(printed().querySelectorAll(".bingo-flow-card")).toHaveLength(9);
+  expect(
+    within(screen.getByRole("main")).getByText("Sheet 1 of 2"),
+  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(
+      JSON.parse(localStorage.getItem("bingoEventSession.v1")!).cardsPerPage,
+    ).toBe(8),
+  );
+
+  fireEvent.click(screen.getByRole("radio", { name: "1" }));
+  expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(9);
+  expect(screen.getByText("1 per sheet · 9 A4 sheets")).toBeInTheDocument();
+});
+
 it("opens a legacy backup straight into hosting without generation or printing", async () => {
   const { readFileSync } = await import("fs");
   renderEvent();

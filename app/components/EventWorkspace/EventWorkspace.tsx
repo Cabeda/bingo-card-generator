@@ -23,6 +23,12 @@ import {
   restoreSession,
   SESSION_KEY,
 } from "./session";
+import {
+  CARDS_PER_PAGE_OPTIONS,
+  layoutFor,
+  sheetCount,
+  sheetsOf,
+} from "./printLayout";
 import "./workspace.css";
 
 /** Generate, print and host one persistent bingo event. */
@@ -58,9 +64,15 @@ export function EventWorkspace({
   const generationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
   const announcement = useRef<number | null>(null);
-  const { game, drawn, paused, target, stage, started } = session;
+  const { game, drawn, paused, target, stage, started, cardsPerPage } =
+    session;
   const cards = game?.cards ?? [];
   const eventName = game?.filename ?? name;
+  const printLayout = layoutFor(cardsPerPage);
+  const printSheets = sheetsOf(cards, cardsPerPage);
+  const setCardsPerPage = (value: number): void => {
+    setSession((previous) => ({ ...previous, cardsPerPage: value }));
+  };
 
   useEffect(() => {
     try {
@@ -123,12 +135,13 @@ export function EventWorkspace({
     setError("");
   };
   const replaceGame = (next: Game, nextStage: EventStage): void => {
-    setSession({
+    setSession((previous) => ({
       ...emptySession,
+      cardsPerPage: previous.cardsPerPage,
       game: next,
       stage: nextStage,
       started: nextStage === "host",
-    });
+    }));
     setName(next.filename);
     setCount(next.cards.length);
     setAudience(false);
@@ -465,9 +478,16 @@ export function EventWorkspace({
                 <div className="bingo-flow-estimate">
                   <span>{t("cardsCount", { count: count || 0 })}</span>
                   <b>
-                    {t("sheetsCount", { count: Math.ceil((count || 0) / 4) })}
+                    {t("sheetsCount", {
+                      count: sheetCount(count || 0, cardsPerPage),
+                    })}
                   </b>
-                  <small>{t("sheetTheme", { theme: currentTheme.name })}</small>
+                  <small>
+                    {t("sheetTheme", {
+                      count: cardsPerPage,
+                      theme: currentTheme.name,
+                    })}
+                  </small>
                 </div>
                 <button className="bingo-primary" disabled={busy}>
                   {t(busy ? "generating" : "generateAction")}
@@ -502,7 +522,9 @@ export function EventWorkspace({
               <h1>{t("printTitle")}</h1>
               <p>
                 {eventName} · {t("cardsCount", { count: cards.length })} ·{" "}
-                {t("sheetsCount", { count: Math.ceil(cards.length / 4) })}
+                {t("sheetsCount", {
+                  count: sheetCount(cards.length, cardsPerPage),
+                })}
               </p>
             </div>
             <button onClick={() => navigate("generate")}>
@@ -514,20 +536,70 @@ export function EventWorkspace({
               <div className="bingo-flow-preview-label">
                 {t("cardPreview")}
                 <span>
-                  {t("showingCards", {
-                    count: Math.min(4, cards.length),
-                    total: cards.length,
+                  {t("showingSheet", {
+                    count: printSheets.length ? 1 : 0,
+                    total: printSheets.length,
                   })}
                 </span>
               </div>
-              <div className="bingo-flow-preview-cards">
-                {cards.slice(0, 4).map(previewCard)}
+              <div
+                className="bingo-flow-sheet-preview"
+                style={
+                  {
+                    "--sheet-columns": printLayout.columns,
+                    "--sheet-rows": printLayout.rows,
+                    "--sheet-card-height": `${(printLayout.cardHeightMm / 273) * 100}%`,
+                  } as React.CSSProperties
+                }
+              >
+                {printSheets[0]?.map(previewCard)}
               </div>
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
               <h2>{t("printHeading")}</h2>
               <p>{t("printHelp")}</p>
+              <fieldset className="bingo-flow-layout">
+                <legend>{t("cardsPerSheet")}</legend>
+                <div className="bingo-flow-layout-options">
+                  {CARDS_PER_PAGE_OPTIONS.map((option) => {
+                    const preset = layoutFor(option);
+                    return (
+                      <label
+                        key={option}
+                        className={option === cardsPerPage ? "is-selected" : ""}
+                      >
+                        <input
+                          type="radio"
+                          name="cards-per-sheet"
+                          value={option}
+                          checked={option === cardsPerPage}
+                          onChange={() => setCardsPerPage(option)}
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="bingo-flow-layout-icon"
+                          style={{
+                            gridTemplateColumns: `repeat(${preset.columns}, 1fr)`,
+                          }}
+                        >
+                          {Array.from({ length: option }, (_, index) => (
+                            <i key={index} />
+                          ))}
+                        </span>
+                        {option}
+                      </label>
+                    );
+                  })}
+                </div>
+                <small>
+                  {t("layoutSummary", {
+                    count: cardsPerPage,
+                    sheets: printSheets.length,
+                  })}
+                </small>
+                <small>{t("layoutFit")}</small>
+              </fieldset>
               <button className="bingo-primary" onClick={() => window.print()}>
                 {t("printAction")}
               </button>
@@ -829,10 +901,20 @@ export function EventWorkspace({
         }}
       />
       {!!cards.length && (
-        <div className="bingo-flow-print-only" aria-hidden="true">
-          {Array.from({ length: Math.ceil(cards.length / 4) }, (_, i) => (
-            <section className="bingo-flow-print-sheet" key={i}>
-              {cards.slice(i * 4, i * 4 + 4).map(previewCard)}
+        <div
+          className="bingo-flow-print-only"
+          aria-hidden="true"
+          style={
+            {
+              "--sheet-columns": printLayout.columns,
+              "--sheet-rows": printLayout.rows,
+              "--sheet-card-height": `${printLayout.cardHeightMm}mm`,
+            } as React.CSSProperties
+          }
+        >
+          {printSheets.map((sheet, index) => (
+            <section className="bingo-flow-print-sheet" key={index}>
+              {sheet.map(previewCard)}
             </section>
           ))}
         </div>

@@ -4,6 +4,10 @@ import {
   saveGameFile,
   WinningTarget,
 } from "../../utils/gameFiles";
+import {
+  DEFAULT_CARDS_PER_PAGE,
+  normalizeCardsPerPage,
+} from "./printLayout";
 
 export type EventStage = "generate" | "print" | "host";
 export interface EventSession {
@@ -13,6 +17,7 @@ export interface EventSession {
   target: WinningTarget;
   stage: EventStage;
   started: boolean;
+  cardsPerPage: number;
 }
 export const emptySession: EventSession = {
   game: null,
@@ -21,6 +26,7 @@ export const emptySession: EventSession = {
   target: "line",
   stage: "generate",
   started: false,
+  cardsPerPage: DEFAULT_CARDS_PER_PAGE,
 };
 export const SESSION_KEY = "bingoEventSession.v1";
 
@@ -53,5 +59,6 @@ export function restoreSession(value: unknown): EventSession {
       ? candidate.stage
       : "print",
     started: candidate.started === true,
+    cardsPerPage: normalizeCardsPerPage(candidate.cardsPerPage),
   };
 }

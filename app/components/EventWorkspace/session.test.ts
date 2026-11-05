@@ -12,6 +12,7 @@ const valid = {
   target: "full",
   stage: "host",
   started: true,
+  cardsPerPage: 4,
 };
 
 describe("stored bingo sessions", () => {
@@ -67,6 +68,14 @@ describe("stored bingo sessions", () => {
     expect(restored.stage).toBe("print");
     expect(restored.paused).toBe(false);
     expect(restored.started).toBe(false);
+    expect(restored.cardsPerPage).toBe(4);
+  });
+  it("keeps a supported print layout and ignores unsupported ones", () => {
+    expect(restoreSession({ ...valid, cardsPerPage: 8 }).cardsPerPage).toBe(8);
+    expect(restoreSession({ ...valid, cardsPerPage: 5 }).cardsPerPage).toBe(4);
+    expect(restoreSession({ ...valid, cardsPerPage: "8" }).cardsPerPage).toBe(
+      4,
+    );
   });
   it("rejects malformed card arrays even inside otherwise valid JSON", () => {
     for (const cards of [[], [null], [{}], [{ cardNumber: 7, numbers: [1] }]]) {
