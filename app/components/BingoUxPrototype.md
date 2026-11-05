@@ -1,32 +1,31 @@
-# Throwaway bingo UX exploration
+# Bingo UX prototype — C revision
 
-Question: which layout makes first use clear and keeps a room of players oriented?
+Run `bun prototype`, then open `/en?variant=C`.
 
-Run `bun install`, then `bun prototype`. Open `/en?variant=A` or
-`/en/game?variant=A`. Compare A, B and C using the floating arrows or keyboard
-left/right arrows. The default routes retain the existing application.
+C now follows the event from start to finish:
 
-- A, Guided studio: explain create → print → play, with setup beside the explanation.
-- B, Event workspace: a preparation checklist and dedicated host desk.
-- C, Audience first: lead with the projected game and prioritize the current call.
+1. Generate: event name, card count, retained theme, sheet estimate.
+2. Print: preview the actual cards, print four per A4 sheet (or use the browser’s
+   Save as PDF), and download a compatible `.bingoCards` backup.
+3. Host: use the same event, beginning with zero calls; draw without replacement,
+   pause, choose the winning target, and switch to audience view.
 
-Try drawing, pausing, changing the winning target, switching audience view and
-entering full screen. All state is in memory. Numbers are simulated; card creation,
-printing, claim validation and a synchronized second display are not implemented.
-The English-only prototype explores hierarchy before translation work.
+Step navigation preserves generated cards and calls in memory. Regeneration
+replaces the set and resets the next host session. Refreshing loses the session.
+The downloadable game file preserves cards only, not draw history or themes.
 
-Recommended direction, pending user review: A for preparation and C for projection.
-Always retain the current call, previous five calls, all 90 numbers, current target,
-paused state, number of calls and a clear instruction for claiming a win. Keep these
-in fixed positions. Host actions belong in a separate host surface for live events.
-Audience view here only hides controls on the same screen; it is not a remote display.
+C’s game screen separates current/recent calls and the winning target from the
+number board, with host controls in a single toolbar. Theme controls live under
+Settings while hosting. All original presets and light/dark/system modes remain.
+The original A/B explorations remain available via the prototype switcher.
 
-Capture branch: `codex/prototype-bingo-ux`. No layout has been selected or promoted.
-Before production, verify readability from the back of the actual room, at the
-projector's resolution and contrast. Full screen depends on browser support.
+This is throwaway code on `codex/prototype-bingo-ux`. Claim validation, restored
+sessions, translations and synchronized remote displays still need production
+integration. `/en/game?variant=C` opens the seeded demonstration directly.
 
-Theme retention: all layouts now use the existing light/dark/system appearance.
-The original Classic, Modern, Vintage, Dark, High Contrast and Kids card themes,
-plus saved custom themes, are available in the header. Selection uses the existing
-provider and its persistence; it updates the card sample and demo call colours.
-Layout selection no longer imposes a separate colour palette.
+Verified in the browser: generate eight cards, inspect the matching preview,
+start with zero calls, draw, return to printing, and resume with the call retained.
+The in-app print command was invoked, but native print-preview inspection was
+unavailable; physical pagination and PDF output still need visual verification.
+
+No variant has been promoted into the default production routes.
