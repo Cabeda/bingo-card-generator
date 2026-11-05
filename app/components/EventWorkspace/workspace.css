@@ -1,0 +1,1339 @@
+/* C layout: shared theme tokens, stable audience board, and separate host controls. */
+body:has(.bingo-workspace) {
+  background: var(--background);
+}
+body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
+  display: none;
+}
+.bingo-workspace {
+  color: var(--foreground);
+  background: var(--background);
+  min-height: 100dvh;
+  padding: 0 4vw 45px;
+  font:
+    16px Arial,
+    sans-serif;
+  line-height: 1.5;
+  color-scheme: inherit;
+}
+.bingo-workspace * {
+  box-sizing: border-box;
+}
+.bingo-workspace h1,
+.bingo-workspace h2,
+.bingo-workspace p {
+  margin: 0;
+  color: inherit;
+}
+.bingo-workspace button,
+.bingo-workspace summary {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.bingo-workspace button {
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  padding: 12px 18px;
+  background: var(--card-bg);
+  box-shadow: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.bingo-workspace button:hover {
+  background: var(--progress-bg);
+}
+.bingo-workspace button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.bingo-workspace :is(button, input, select, summary):focus-visible {
+  outline: 3px solid var(--bingo-accent);
+  outline-offset: 4px;
+}
+.bingo-workspace .bingo-primary {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  border-color: var(--bingo-accent);
+  font-weight: 700;
+}
+.bingo-workspace .bingo-primary:hover {
+  filter: brightness(1.08);
+}
+.bingo-workspace label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.bingo-workspace input,
+.bingo-workspace select {
+  background: var(--card-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  width: 100%;
+}
+.bingo-workspace .bingo-brand {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  border: 0;
+  padding: 0;
+}
+.bingo-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+.bingo-theme-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.bingo-theme-tools label {
+  font-size: 11px;
+}
+.bingo-theme-tools select {
+  padding: 6px;
+  font-size: 12px;
+}
+.bingo-theme-tools > div select {
+  min-width: 75px;
+}
+.bingo-flow {
+  max-width: 1200px;
+  margin: auto;
+}
+/* C revision: one audience arena, with a separate host toolbar. */
+.bingo-workspace.is-hosting {
+  padding: 0 3vw 90px;
+}
+.bingo-c-game {
+  max-width: 1800px;
+  margin: auto;
+}
+.bingo-c-heading {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.bingo-c-identity {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.bingo-c-identity > button {
+  border: 0;
+  font-size: 32px;
+  padding: 0;
+  color: var(--bingo-accent);
+}
+.bingo-c-identity h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  margin-top: 3px;
+}
+.bingo-c-identity .bingo-eyebrow {
+  font-size: 10px;
+  opacity: 0.55;
+  letter-spacing: 1.5px;
+}
+.bingo-c-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.bingo-c-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55a476;
+}
+.bingo-c-status.is-paused i {
+  background: #d69c34;
+}
+.bingo-c-arena {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 2fr);
+  gap: 24px;
+  height: clamp(440px, calc(100dvh - 285px), 900px);
+}
+.bingo-c-focus {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.bingo-c-current {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  padding: 18px;
+}
+.bingo-c-current .bingo-eyebrow {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.bingo-c-current strong {
+  font-size: clamp(110px, min(16vw, 24vh), 300px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -7px;
+  color: var(--bingo-accent);
+  font-variant-numeric: tabular-nums;
+}
+.bingo-c-current > span:last-child {
+  font-size: 12px;
+  opacity: 0.5;
+}
+.bingo-c-history {
+  padding: 18px 24px;
+  border-top: 1px solid var(--border-color);
+}
+.bingo-c-history > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.bingo-c-history .bingo-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  opacity: 0.65;
+}
+.bingo-c-history small {
+  font-size: 10px;
+  opacity: 0.45;
+}
+.bingo-c-history > div:last-child {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.bingo-c-history b {
+  text-align: center;
+  border-radius: 7px;
+  background: var(--progress-bg);
+  padding: 8px 0;
+  font-size: clamp(18px, 1.6vw, 32px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.bingo-c-prize {
+  padding: 20px 24px;
+  background: color-mix(in srgb, var(--bingo-accent) 5%, var(--card-bg));
+  border-top: 1px solid var(--border-color);
+}
+.bingo-c-prize .bingo-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  opacity: 0.6;
+}
+.bingo-c-prize h2 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+  font-weight: 600;
+  margin: 3px 0;
+}
+.bingo-c-prize p {
+  font-size: 12px;
+  opacity: 0.65;
+  max-width: 290px;
+}
+.bingo-c-board-panel {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+.bingo-c-board-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 20px;
+}
+.bingo-c-board-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.bingo-c-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+.bingo-c-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bingo-c-legend i {
+  width: 7px;
+  height: 7px;
+  background: var(--bingo-accent);
+  border-radius: 2px;
+}
+.bingo-c-legend span:last-child i {
+  background: var(--progress-bg);
+  border: 1px solid var(--border-color);
+}
+.bingo-c-board {
+  flex: 1;
+  display: grid;
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  gap: 7px;
+}
+.bingo-c-board-row {
+  display: grid;
+  grid-template-columns: 40px repeat(10, minmax(0, 1fr));
+  gap: 7px;
+  min-height: 0;
+  align-items: stretch;
+}
+.bingo-c-range {
+  display: flex;
+  align-items: center;
+  font-size: 9px;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+.bingo-c-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(18px, 2vw, 42px);
+  line-height: 1;
+  font-weight: 500;
+  background: var(--progress-bg);
+  color: var(--foreground);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.bingo-c-cell:not(.is-called) {
+  color: color-mix(in srgb, var(--foreground) 45%, var(--card-bg));
+}
+.bingo-c-cell.is-called {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  font-weight: 700;
+}
+.bingo-c-cell.is-latest {
+  border-color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.bingo-c-board-summary {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-top: 20px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0.65;
+}
+.bingo-c-board-summary > div {
+  flex: 1;
+  height: 3px;
+  background: var(--progress-bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bingo-c-board-summary i {
+  display: block;
+  height: 100%;
+  background: var(--bingo-accent);
+}
+.bingo-c-desk {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0;
+}
+.bingo-c-actions,
+.bingo-c-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bingo-c-desk button,
+.bingo-c-desk summary {
+  font-size: 12px;
+  padding: 11px 16px;
+}
+.bingo-c-actions .bingo-primary {
+  min-width: 200px;
+}
+.bingo-c-options label {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.bingo-c-options select {
+  font-size: 12px;
+  width: auto;
+  padding: 10px;
+}
+.bingo-c-options > button {
+  border: 0;
+}
+.bingo-c-options details {
+  position: relative;
+}
+.bingo-c-options summary {
+  cursor: pointer;
+  list-style: none;
+  opacity: 0.6;
+}
+.bingo-c-options details > div {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  z-index: 10;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 40px #0002;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 220px;
+}
+.bingo-c-options .bingo-theme-tools label {
+  flex-direction: column;
+  align-items: stretch;
+}
+.bingo-c-audience-actions {
+  display: flex;
+  justify-content: end;
+  gap: 12px;
+  padding-top: 14px;
+}
+.bingo-c-audience-actions button {
+  font-size: 10px;
+  padding: 6px 10px;
+  opacity: 0.6;
+}
+@media (min-width: 1600px) {
+  .bingo-c-heading {
+    height: 120px;
+  }
+  .bingo-c-identity h1 {
+    font-size: 32px;
+  }
+  .bingo-c-prize h2 {
+    font-size: 32px;
+  }
+  .bingo-c-prize p {
+    font-size: 16px;
+    max-width: 100%;
+  }
+  .bingo-c-current .bingo-eyebrow,
+  .bingo-c-prize .bingo-eyebrow,
+  .bingo-c-history .bingo-eyebrow {
+    font-size: 13px;
+  }
+  .bingo-c-history small,
+  .bingo-c-range {
+    font-size: 12px;
+  }
+  .bingo-c-board-heading h2 {
+    font-size: 20px;
+  }
+  .bingo-c-legend,
+  .bingo-c-board-summary,
+  .bingo-c-status {
+    font-size: 15px;
+  }
+  .bingo-c-arena {
+    height: calc(100dvh - 330px);
+  }
+}
+@media (max-width: 900px) {
+  .bingo-c-arena {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .bingo-c-board-panel {
+    padding: 16px 12px;
+  }
+  .bingo-c-board-row {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .bingo-c-range {
+    display: none;
+  }
+  .bingo-c-board {
+    gap: 4px;
+  }
+  .bingo-c-cell {
+    font-size: 17px;
+  }
+  .bingo-c-desk {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .bingo-c-history,
+  .bingo-c-prize {
+    padding: 16px;
+  }
+  .bingo-c-options {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  .bingo-workspace.is-hosting {
+    padding: 0 4vw 100px;
+  }
+  .bingo-c-heading {
+    height: 90px;
+  }
+  .bingo-c-identity h1 {
+    font-size: 20px;
+  }
+  .bingo-c-status {
+    font-size: 10px;
+    max-width: 80px;
+  }
+  .bingo-c-identity {
+    gap: 10px;
+  }
+  .bingo-c-arena {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+  .bingo-c-focus {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .bingo-c-current {
+    grid-row: span 2;
+  }
+  .bingo-c-current strong {
+    font-size: 105px;
+  }
+  .bingo-c-history {
+    border-top: 0;
+    border-left: 1px solid var(--border-color);
+    padding: 14px 10px;
+  }
+  .bingo-c-history > div:first-child {
+    display: block;
+  }
+  .bingo-c-history small {
+    display: block;
+    margin-top: 4px;
+  }
+  .bingo-c-history > div:last-child {
+    gap: 3px;
+  }
+  .bingo-c-history b {
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .bingo-c-prize {
+    border-left: 1px solid var(--border-color);
+    padding: 12px;
+  }
+  .bingo-c-prize h2 {
+    font-size: 20px;
+  }
+  .bingo-c-prize p {
+    font-size: 10px;
+  }
+  .bingo-c-board-panel {
+    min-height: 400px;
+    padding: 16px 12px;
+  }
+  .bingo-c-board-heading {
+    padding-bottom: 14px;
+  }
+  .bingo-c-board-summary {
+    padding-top: 14px;
+  }
+  .bingo-c-actions {
+    width: 100%;
+  }
+  .bingo-c-actions .bingo-primary {
+    flex: 1;
+  }
+  .bingo-c-options {
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .bingo-c-options label {
+    font-size: 10px;
+    gap: 6px;
+  }
+  .bingo-c-options > button,
+  .bingo-c-desk summary {
+    font-size: 11px;
+    padding: 10px 6px;
+  }
+}
+/* C: a single event moves through generate, print and host. */
+.bingo-flow {
+  max-width: 1200px;
+  margin: auto;
+}
+.bingo-flow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 100px;
+  border-bottom: 1px solid var(--border-color);
+}
+.bingo-flow-header > span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.45;
+}
+.bingo-flow-nav {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 28px 0;
+}
+.bingo-flow-nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  padding: 8px 4px;
+  font-size: 12px;
+  opacity: 0.5;
+}
+.bingo-flow-nav button[aria-current="step"] {
+  opacity: 1;
+  font-weight: bold;
+}
+.bingo-flow-nav button > span {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 11px;
+}
+.bingo-flow-nav button[aria-current="step"] > span {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  border-color: var(--bingo-accent);
+}
+.bingo-flow-nav i {
+  font-style: normal;
+  margin-left: 22px;
+  opacity: 0.3;
+}
+.bingo-flow-setup {
+  display: grid;
+  grid-template-columns: 1fr 430px;
+  gap: 90px;
+  padding: 35px 0 60px;
+  align-items: start;
+}
+.bingo-flow h1 {
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.1;
+  letter-spacing: -2px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+.bingo-flow-setup > section > p {
+  font-size: 16px;
+  line-height: 1.8;
+  opacity: 0.65;
+  max-width: 500px;
+}
+.bingo-flow-setup ol {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 36px 0;
+}
+.bingo-flow-setup li {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+}
+.bingo-flow-setup li span {
+  font-size: 12px;
+  opacity: 0.6;
+}
+.bingo-flow small {
+  font-size: 11px;
+  opacity: 0.6;
+  line-height: 1.6;
+}
+.bingo-flow form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 30px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+.bingo-flow h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.bingo-flow label {
+  font-size: 12px;
+}
+.bingo-flow label small {
+  font-weight: normal;
+}
+.bingo-flow-estimate {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 13px;
+  padding: 16px;
+  background: var(--progress-bg);
+  border-radius: 8px;
+}
+.bingo-flow-estimate b {
+  text-align: right;
+}
+.bingo-flow-estimate small {
+  grid-column: 1/-1;
+}
+.bingo-flow form > small {
+  text-align: center;
+}
+.bingo-flow-warning {
+  font-size: 12px;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+.bingo-flow-print-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0 28px;
+}
+.bingo-flow-print-heading p {
+  font-size: 13px;
+  opacity: 0.6;
+}
+.bingo-flow-print-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 35px;
+  align-items: start;
+}
+.bingo-flow-paper-preview {
+  background: var(--progress-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 24px;
+}
+.bingo-flow-preview-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.bingo-flow-preview-label span {
+  opacity: 0.5;
+  letter-spacing: 0;
+}
+.bingo-flow-preview-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+  margin: auto;
+}
+.bingo-flow-paper-preview > p {
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.5;
+  margin-top: 20px;
+}
+.bingo-flow-card {
+  background: var(--bingo-card-background);
+  font-family: var(--bingo-card-font);
+  color: #171717;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  break-inside: avoid;
+}
+.bingo-flow-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 11px;
+  margin-bottom: 10px;
+  color: #171717;
+}
+.bingo-flow-card header b {
+  max-width: 70%;
+  overflow-wrap: anywhere;
+}
+.bingo-flow-card header span {
+  white-space: nowrap;
+}
+.bingo-flow-card > div {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+.bingo-flow-card > div > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  border: var(--bingo-card-border-width, 1px) solid var(--bingo-card-border);
+  border-radius: var(--bingo-card-radius);
+  font-size: 18px;
+  font-weight: bold;
+}
+.bingo-flow-card > div > .is-empty {
+  background: var(--bingo-card-background);
+}
+.bingo-flow-card footer {
+  font-size: 9px;
+  color: #666;
+  margin-top: 10px;
+  text-align: center;
+}
+.bingo-flow-print-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+}
+.bingo-flow-print-actions p {
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: 0.65;
+}
+.bingo-flow-print-actions hr {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+  margin: 10px 0;
+}
+.bingo-flow-print-only {
+  display: none;
+}
+.bingo-c-no-calls {
+  grid-column: 1/-1;
+  padding: 8px 0;
+  font-size: 11px;
+  opacity: 0.5;
+}
+@media (max-width: 900px) {
+  .bingo-flow-setup {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  .bingo-flow-print-layout {
+    gap: 20px;
+  }
+  .bingo-flow-print-actions {
+    padding: 20px;
+  }
+  .bingo-flow-header > span {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .bingo-flow-setup,
+  .bingo-flow-print-layout {
+    grid-template-columns: 1fr;
+  }
+  .bingo-flow-setup {
+    padding-top: 10px;
+    gap: 25px;
+  }
+  .bingo-flow-setup ol {
+    display: none;
+  }
+  .bingo-flow-header {
+    gap: 10px;
+    min-height: 90px;
+  }
+  .bingo-flow-header .bingo-brand {
+    font-size: 24px;
+  }
+  .bingo-flow-nav {
+    gap: 10px;
+    padding: 20px 0;
+  }
+  .bingo-flow-nav button {
+    font-size: 10px;
+    gap: 5px;
+  }
+  .bingo-flow-nav i {
+    margin-left: 5px;
+  }
+  .bingo-flow-nav button > span {
+    width: 22px;
+    height: 22px;
+  }
+  .bingo-flow form {
+    padding: 22px;
+  }
+  .bingo-flow-paper-preview {
+    padding: 16px;
+  }
+  .bingo-flow-card {
+    padding: 10px;
+  }
+  .bingo-flow-card > div > span {
+    font-size: 15px;
+    min-height: 28px;
+  }
+  .bingo-flow-print-heading {
+    align-items: start;
+  }
+  .bingo-flow-print-heading > button {
+    font-size: 11px;
+    padding: 8px;
+  }
+}
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+  body:has(.bingo-flow-print-only),
+  body:has(.bingo-flow-print-only) main,
+  body:has(.bingo-flow-print-only) .bingo-workspace {
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+  body:has(.bingo-flow-print-only) nav,
+  body:has(.bingo-flow-print-only) .skip-to-main,
+  body:has(.bingo-flow-print-only)
+    .bingo-workspace
+    > :not(.bingo-flow-print-only),
+  body:has(.bingo-flow-print-only) nextjs-portal {
+    display: none !important;
+  }
+  .bingo-flow-print-only {
+    display: block !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .bingo-flow-print-sheet {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8mm;
+    break-after: page;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .bingo-flow-print-sheet:last-child {
+    break-after: auto;
+  }
+  .bingo-flow-print-sheet .bingo-flow-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 58mm !important;
+    padding: 4mm !important;
+    margin: 0 !important;
+    break-inside: avoid !important;
+    box-shadow: none !important;
+    border: 1px solid #bbb !important;
+  }
+  .bingo-flow-print-sheet .bingo-flow-card > div {
+    display: grid !important;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  }
+  .bingo-flow-print-sheet .bingo-flow-card > div > span {
+    height: 10mm !important;
+    font-size: 18pt !important;
+    min-height: 0 !important;
+  }
+  .bingo-flow-print-sheet .bingo-flow-card header {
+    display: flex !important;
+    font-size: 10pt !important;
+    margin-bottom: 2mm !important;
+  }
+  .bingo-flow-print-sheet .bingo-flow-card footer {
+    display: block !important;
+    font-size: 8pt !important;
+    margin-top: 2mm !important;
+  }
+}
+
+.bingo-workspace.is-hosting {
+  padding-bottom: 30px;
+}
+.bingo-entry-choice {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px auto 20px;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: fit-content;
+  background: var(--progress-bg);
+}
+.bingo-entry-choice button {
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+}
+.bingo-entry-choice button[aria-pressed="true"] {
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px #0001;
+  font-weight: bold;
+}
+.bingo-open-panel {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: stretch;
+  background: var(--card-bg);
+}
+.bingo-open-panel > p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+.bingo-file-icon {
+  font-size: 40px;
+  color: var(--bingo-accent);
+}
+.bingo-open-panel small {
+  font-size: 12px;
+  opacity: 0.6;
+}
+.bingo-error {
+  border-left: 3px solid #d85a49;
+  padding: 12px 18px;
+  margin: 12px auto;
+  max-width: 1200px;
+  font-size: 13px;
+}
+.bingo-loading {
+  text-align: center;
+  padding: 60px;
+}
+.bingo-workspace .bingo-checkbox {
+  flex-direction: row;
+  align-items: center;
+  font-size: 12px;
+}
+.bingo-checkbox input {
+  width: auto;
+}
+.bingo-claim-form {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  border-top: 1px solid var(--border-color);
+  padding: 18px 0;
+}
+.bingo-claim-form label {
+  font-size: 11px;
+}
+.bingo-claim-form input {
+  max-width: 170px;
+  padding: 10px;
+}
+.bingo-claim-form button {
+  font-size: 12px;
+}
+.bingo-claim-form small {
+  font-size: 11px;
+  opacity: 0.55;
+  align-self: center;
+  max-width: 280px;
+}
+.bingo-workspace .bingo-c-options details > div {
+  max-width: 360px;
+}
+.bingo-workspace .bingo-c-options .bingo-theme-tools {
+  flex-wrap: wrap;
+}
+.bingo-claim-dialog {
+  background: var(--card-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  max-width: 520px;
+  width: 90vw;
+  padding: 30px;
+  margin: auto;
+  box-shadow: 0 30px 100px #0003;
+}
+.bingo-claim-dialog::backdrop {
+  background: #0008;
+}
+.bingo-claim-dialog h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 14px;
+}
+.bingo-claim-dialog p {
+  font-size: 13px;
+  margin: 14px 0;
+  opacity: 0.75;
+}
+.bingo-claim-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
+}
+.bingo-claim-grid span {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-color);
+  min-height: 35px;
+  border-radius: 3px;
+}
+.bingo-claim-grid .is-marked {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+}
+.bingo-win-symbol {
+  display: block;
+  font-size: 45px;
+  color: var(--bingo-accent);
+}
+.bingo-workspace.is-audience .bingo-flow-nav {
+  display: none;
+}
+.is-audience .bingo-c-arena {
+  height: calc(100dvh - 180px);
+}
+.is-audience .bingo-c-prize p {
+  font-size: clamp(14px, 1.1vw, 24px);
+}
+.is-audience .bingo-c-history b {
+  font-size: clamp(22px, 2vw, 40px);
+}
+/* Reveal only the current call; the full board never moves during a draw. */
+.bingo-c-focus {
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--bingo-accent) 6%, var(--card-bg)),
+    var(--card-bg)
+  );
+}
+.bingo-c-current strong {
+  filter: drop-shadow(
+    0 6px 12px color-mix(in srgb, var(--bingo-accent) 13%, transparent)
+  );
+}
+.bingo-reveal {
+  animation: bingo-reveal 0.48s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+.bingo-history-arrival {
+  animation: bingo-arrival 0.24s ease-out both;
+}
+.bingo-c-status:not(.is-paused) i {
+  box-shadow: 0 0 0 4px #55a47612;
+}
+.is-winning .bingo-win-symbol {
+  animation: bingo-win 0.6s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+@keyframes bingo-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.82) rotate(-4deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.04) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes bingo-arrival {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes bingo-win {
+  0% {
+    transform: scale(0.5) rotate(-25deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bingo-workspace * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (min-width: 901px) {
+  .bingo-workspace .bingo-c-arena {
+    height: clamp(380px, calc(100dvh - 340px), 900px);
+  }
+  .bingo-workspace.is-audience .bingo-c-arena {
+    height: calc(100dvh - 180px);
+  }
+}
+@media (max-width: 600px) {
+  .bingo-workspace {
+    padding: 0 4vw 25px;
+  }
+  .bingo-flow-header {
+    flex-wrap: wrap;
+    padding: 16px 0;
+    gap: 12px;
+  }
+  .bingo-theme-tools {
+    gap: 8px;
+  }
+  .bingo-theme-tools select {
+    font-size: 11px;
+  }
+  .bingo-entry-choice button {
+    font-size: 11px;
+    padding: 10px;
+  }
+  .bingo-claim-form {
+    flex-wrap: wrap;
+  }
+  .bingo-claim-form small {
+    max-width: none;
+  }
+  .bingo-workspace.is-audience .bingo-c-arena {
+    height: auto;
+  }
+  .bingo-workspace.is-hosting .bingo-c-arena {
+    height: auto;
+  }
+  .bingo-open-panel {
+    padding: 24px;
+  }
+  .bingo-workspace .bingo-c-options {
+    gap: 12px;
+  }
+}
+
+/* Keep the complete board and host actions together on laptop displays. */
+.bingo-flow h1,
+.bingo-c-identity h1 {
+  text-align: left;
+}
+@media (min-width: 601px) {
+  .bingo-workspace.is-hosting .bingo-c-arena {
+    height: calc(100dvh - 360px);
+    min-height: 360px;
+    max-height: 1000px;
+  }
+  .bingo-workspace.is-audience .bingo-c-arena {
+    height: calc(100dvh - 175px);
+    min-height: 360px;
+    max-height: none;
+  }
+}
+
+/* Card labels stay legible across light and dark card themes. */
+.bingo-flow-card header {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  padding: 5px 8px;
+  border-radius: 3px;
+}
+.bingo-flow-card footer {
+  background: #fff;
+  color: #333;
+  border-radius: 3px;
+  padding: 3px;
+}
+
+.bingo-flow-card > div > span {
+  padding: var(--bingo-card-padding);
+}
+/* A thin light/dark edge preserves themed call legibility on either appearance. */
+.bingo-c-current strong {
+  text-shadow:
+    1px 0 var(--background),
+    -1px 0 var(--background),
+    0 1px var(--background),
+    0 -1px var(--background);
+}
+/* The revealed call reads like a game tile and keeps preset text/background pairs. */
+.bingo-c-current strong {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  border-radius: 0.18em;
+  padding: 0.035em 0.18em;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  text-shadow: none;
+  font-size: clamp(90px, min(15vw, 20vh), 250px);
+  margin: 12px 0;
+}
+@media print {
+  .bingo-flow-card header b {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+  }
+}

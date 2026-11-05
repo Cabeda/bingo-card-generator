@@ -3,7 +3,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "../routing";
-import Navbar from "../components/Navbar";
 import { PWARegister } from "../components/PWARegister";
 import ViewTransition from "../components/ViewTransition";
 import { ToastProvider } from "../components/ToastProvider";
@@ -61,7 +60,6 @@ export default async function LocaleLayout({
                 <a href="#main-content" className="skip-to-main">
                   Skip to main content
                 </a>
-                <Navbar />
                 <main id="main-content">
                   {children}
                 </main>
