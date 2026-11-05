@@ -29,3 +29,11 @@ The in-app print command was invoked, but native print-preview inspection was
 unavailable; physical pagination and PDF output still need visual verification.
 
 No variant has been promoted into the default production routes.
+
+Saved-game shortcut: C’s entry screen offers “Open game file → Host”. It uses
+the existing parser and retains the file’s card numbers and grids, accepting
+legacy trailing separators and case-insensitive .bingoCards extensions. On success
+it goes straight to hosting with no calls drawn, without generation or printing.
+The event name comes from the filename because this format stores only cards.
+Invalid file structure leaves the current game intact. Legacy repeated numbers
+within a card are preserved rather than silently altering printed cards.

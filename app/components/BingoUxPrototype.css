@@ -50,3 +50,5 @@ body:has(.ux-prototype){background:var(--background)}
  .ux-flow-print-sheet .ux-flow-card header{display:flex!important;font-size:10pt!important;margin-bottom:2mm!important}
  .ux-flow-print-sheet .ux-flow-card footer{display:block!important;font-size:8pt!important;margin-top:2mm!important}
 }
+.ux-open-game{border:1px solid var(--border-color);border-radius:12px;padding:22px;margin:28px 0;background:var(--card-bg);display:flex;flex-direction:column;align-items:start;gap:12px}.ux-open-game .ux-eyebrow{font-size:9px;opacity:.6}.ux-open-game h2{font-size:24px}.ux-open-game p{font-size:13px;line-height:1.7;opacity:.7;max-width:420px}.ux-open-game .ux-primary{width:100%;font-size:14px}.ux-open-game .ux-file-error{color:var(--foreground);opacity:1;border-left:3px solid #dc4545;padding-left:12px}.ux-game-file-input{display:none}
+@media(max-width:600px){.ux-open-game{margin:22px 0 14px}}
