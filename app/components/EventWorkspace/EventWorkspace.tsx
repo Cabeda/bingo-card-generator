@@ -543,16 +543,18 @@ export function EventWorkspace({
                 </span>
               </div>
               <div
-                className="bingo-flow-sheet-preview"
+                className="bingo-flow-sheet-frame"
                 style={
                   {
                     "--sheet-columns": printLayout.columns,
                     "--sheet-rows": printLayout.rows,
-                    "--sheet-card-height": `${(printLayout.cardHeightMm / 273) * 100}%`,
+                    "--sheet-card-height": `${printLayout.cardHeightMm}em`,
                   } as React.CSSProperties
                 }
               >
-                {printSheets[0]?.map(previewCard)}
+                <div className="bingo-flow-sheet-page">
+                  {printSheets[0]?.map(previewCard)}
+                </div>
               </div>
               <p>{t("sameCards")}</p>
             </section>
@@ -908,7 +910,7 @@ export function EventWorkspace({
             {
               "--sheet-columns": printLayout.columns,
               "--sheet-rows": printLayout.rows,
-              "--sheet-card-height": `${printLayout.cardHeightMm}mm`,
+              "--sheet-card-height": `${printLayout.cardHeightMm}em`,
             } as React.CSSProperties
           }
         >

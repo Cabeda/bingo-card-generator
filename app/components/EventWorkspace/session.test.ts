@@ -71,8 +71,8 @@ describe("stored bingo sessions", () => {
     expect(restored.cardsPerPage).toBe(4);
   });
   it("keeps a supported print layout and ignores unsupported ones", () => {
-    expect(restoreSession({ ...valid, cardsPerPage: 8 }).cardsPerPage).toBe(8);
-    expect(restoreSession({ ...valid, cardsPerPage: 5 }).cardsPerPage).toBe(4);
+    expect(restoreSession({ ...valid, cardsPerPage: 3 }).cardsPerPage).toBe(3);
+    expect(restoreSession({ ...valid, cardsPerPage: 8 }).cardsPerPage).toBe(4);
     expect(restoreSession({ ...valid, cardsPerPage: "8" }).cardsPerPage).toBe(
       4,
     );

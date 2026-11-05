@@ -773,22 +773,30 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   opacity: 0.5;
   letter-spacing: 0;
 }
-.bingo-flow-sheet-preview {
-  display: grid;
-  grid-template-columns: repeat(var(--sheet-columns, 1), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--sheet-rows, 4), var(--sheet-card-height, 23.4%));
-  align-content: center;
-  gap: 1.4% 2%;
+/* The frame and the printed sheet share one scale: 1em is 1 mm on paper. */
+.bingo-flow-sheet-frame {
+  container-type: inline-size;
   width: 100%;
   max-width: 520px;
   aspect-ratio: 210 / 297;
   margin: auto;
-  padding: 5.7%;
-  background: #fff;
   border: 1px solid var(--border-color);
   border-radius: 2px;
   box-shadow: 0 18px 45px rgb(0 0 0 / 10%);
   overflow: hidden;
+}
+.bingo-flow-sheet-page {
+  display: grid;
+  grid-template-columns: repeat(var(--sheet-columns, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--sheet-rows, 4), var(--sheet-card-height, 60em));
+  align-content: center;
+  gap: 4em;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 12em;
+  background: #fff;
+  font-size: calc(100cqw / 210);
 }
 .bingo-flow-paper-preview > p {
   text-align: center;
@@ -797,7 +805,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   margin-top: 20px;
 }
 .bingo-flow-card {
-  container-type: inline-size;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -807,7 +814,7 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   background: var(--bingo-card-background);
   font-family: var(--bingo-card-font);
   color: #171717;
-  padding: 6px;
+  padding: 3em;
   border: 1px solid #ddd;
   border-radius: 4px;
   break-inside: avoid;
@@ -815,15 +822,17 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
 .bingo-flow-card header {
   display: flex;
   justify-content: space-between;
-  gap: 1.5cqw;
-  font-size: 2.3cqw;
+  gap: 2em;
+  font-size: 3.2em;
   line-height: 1.15;
-  margin-bottom: 1.4cqw;
+  margin-bottom: 2em;
   color: #171717;
 }
 .bingo-flow-card header b {
   max-width: 70%;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .bingo-flow-card header span {
   white-space: nowrap;
@@ -843,7 +852,7 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   color: var(--bingo-accent-text);
   border: var(--bingo-card-border-width, 1px) solid var(--bingo-card-border);
   border-radius: var(--bingo-card-radius);
-  font-size: 4cqw;
+  font-size: 6.5em;
   line-height: 1;
   font-weight: bold;
 }
@@ -851,10 +860,10 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   background: var(--bingo-card-background);
 }
 .bingo-flow-card footer {
-  font-size: 1.9cqw;
+  font-size: 2.2em;
   line-height: 1.2;
   color: #666;
-  margin-top: 1.2cqw;
+  margin-top: 2em;
   text-align: center;
 }
 .bingo-flow-layout {
@@ -1066,16 +1075,17 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     ) !important;
     grid-template-rows: repeat(
       var(--sheet-rows, 4),
-      var(--sheet-card-height, 64mm)
+      var(--sheet-card-height, 60em)
     ) !important;
     align-content: center !important;
     box-sizing: border-box !important;
-    gap: 4mm !important;
+    gap: 4em !important;
     width: 100% !important;
     height: 272.5mm !important;
     padding: 0 !important;
     margin: 0 !important;
     overflow: hidden !important;
+    font-size: 1mm !important;
     break-after: page;
     page-break-after: always;
   }
@@ -1087,7 +1097,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     width: 100% !important;
     max-width: none !important;
     height: 100% !important;
-    padding: 3mm !important;
     margin: 0 !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
@@ -1102,17 +1111,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   .bingo-flow-print-sheet .bingo-flow-card > div > span {
     height: auto !important;
     min-height: 0 !important;
-    font-size: 4cqw !important;
-  }
-  .bingo-flow-print-sheet .bingo-flow-card header {
-    display: flex !important;
-    font-size: 2.3cqw !important;
-    margin-bottom: 1.4cqw !important;
-  }
-  .bingo-flow-print-sheet .bingo-flow-card footer {
-    display: block !important;
-    font-size: 1.9cqw !important;
-    margin-top: 1.2cqw !important;
   }
 }
 
@@ -1437,12 +1435,4 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   text-shadow: none;
   font-size: clamp(90px, min(15vw, 20vh), 250px);
   margin: 12px 0;
-}
-@media print {
-  .bingo-flow-card header b {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 70%;
-  }
 }

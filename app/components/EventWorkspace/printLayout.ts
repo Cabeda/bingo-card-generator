@@ -1,10 +1,10 @@
 /**
  * Print layouts for A4 sheets.
  *
- * A 90-ball card is nine columns wide, so the number of cards on a sheet
- * decides both the grid and the card height. Every layout below fits inside
- * the 186 x 273 mm printable area of A4 with 12 mm margins, and each sheet
- * owns a whole page, so a card is never split across two pages.
+ * The preview and the printed sheet share these measurements: every card is
+ * full width and has a fixed height, so cards stop growing once they are
+ * comfortable to read instead of stretching to fill the page. Each sheet owns
+ * a whole page, so a card is never split across two pages.
  */
 export interface PrintLayout {
   cardsPerPage: number;
@@ -16,11 +16,9 @@ export interface PrintLayout {
 
 export const PRINT_LAYOUTS: readonly PrintLayout[] = [
   { cardsPerPage: 1, columns: 1, rows: 1, cardHeightMm: 120 },
-  { cardsPerPage: 2, columns: 1, rows: 2, cardHeightMm: 120 },
-  { cardsPerPage: 3, columns: 1, rows: 3, cardHeightMm: 88 },
-  { cardsPerPage: 4, columns: 1, rows: 4, cardHeightMm: 65 },
-  { cardsPerPage: 6, columns: 2, rows: 3, cardHeightMm: 88 },
-  { cardsPerPage: 8, columns: 2, rows: 4, cardHeightMm: 65 },
+  { cardsPerPage: 2, columns: 1, rows: 2, cardHeightMm: 105 },
+  { cardsPerPage: 3, columns: 1, rows: 3, cardHeightMm: 80 },
+  { cardsPerPage: 4, columns: 1, rows: 4, cardHeightMm: 60 },
 ];
 
 export const CARDS_PER_PAGE_OPTIONS = PRINT_LAYOUTS.map(
@@ -28,6 +26,11 @@ export const CARDS_PER_PAGE_OPTIONS = PRINT_LAYOUTS.map(
 );
 
 export const DEFAULT_CARDS_PER_PAGE = 4;
+
+/** A4 with 12 mm margins, in millimetres. */
+export const SHEET_WIDTH_MM = 186;
+export const SHEET_HEIGHT_MM = 273;
+export const SHEET_GAP_MM = 4;
 
 export function normalizeCardsPerPage(value: unknown): number {
   return typeof value === "number" &&

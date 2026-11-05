@@ -101,17 +101,17 @@ it("changes how many cards share a sheet without splitting card content", async 
   expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(3);
   expect(screen.getByText("4 per sheet · 3 A4 sheets")).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole("radio", { name: "8" }));
-  expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(2);
-  expect(screen.getByText("8 per sheet · 2 A4 sheets")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("radio", { name: "2" }));
+  expect(printed().querySelectorAll(".bingo-flow-print-sheet")).toHaveLength(5);
+  expect(screen.getByText("2 per sheet · 5 A4 sheets")).toBeInTheDocument();
   expect(printed().querySelectorAll(".bingo-flow-card")).toHaveLength(9);
   expect(
-    within(screen.getByRole("main")).getByText("Sheet 1 of 2"),
+    within(screen.getByRole("main")).getByText("Sheet 1 of 5"),
   ).toBeInTheDocument();
   await waitFor(() =>
     expect(
       JSON.parse(localStorage.getItem("bingoEventSession.v1")!).cardsPerPage,
-    ).toBe(8),
+    ).toBe(2),
   );
 
   fireEvent.click(screen.getByRole("radio", { name: "1" }));
