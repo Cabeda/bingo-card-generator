@@ -1,7 +1,8 @@
 // app/[locale]/page.tsx
 'use client';
 
-import React, { useState } from "react";
+import BingoUxPrototype from "../components/BingoUxPrototype";
+import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "../routing";
 import { ErrorBoundary } from "../components/ErrorBoundary";
@@ -11,7 +12,7 @@ import { generateRandomBingoCards, getCurrentDate } from "../utils/utils";
 import { createGameId } from "../utils/types";
 import { Game } from "../utils/bingo.interface";
 
-export default function Home(): React.JSX.Element {
+function OriginalHome(): React.JSX.Element {
   const t = useTranslations('fileUpload');
   const router = useRouter();
   const [numCards, setNumCards] = useState<number>(10);
@@ -63,4 +64,11 @@ export default function Home(): React.JSX.Element {
       </div>
     </ErrorBoundary>
   );
+}
+
+// Design exploration is opt-in and never replaces the default application.
+export default function Home(): React.JSX.Element {
+  const [prototype, setPrototype] = useState(false);
+  useEffect(() => { setPrototype(new URLSearchParams(window.location.search).has('variant')); }, []);
+  return prototype ? <BingoUxPrototype /> : <OriginalHome />;
 }
