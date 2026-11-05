@@ -48,8 +48,10 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
 
+  // Extensions such as Dark Reader inject attributes into <html> before
+  // hydration; ignore attribute differences on that element only.
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <NextIntlClientProvider messages={messages}>
           <ToastProvider>
