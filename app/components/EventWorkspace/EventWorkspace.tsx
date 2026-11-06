@@ -376,7 +376,7 @@ export function EventWorkspace({
           </details>
         </header>
       )}
-      {!audience && steps}
+      {stage !== "host" && steps}
       {error && (
         <p className="bingo-error" role="alert">
           {t(error)}
@@ -600,12 +600,16 @@ export function EventWorkspace({
         <main className="bingo-c-game">
           <header className="bingo-c-heading">
             <div className="bingo-c-identity">
-              <button
-                onClick={() => navigate("print")}
-                aria-label={t("backToCards")}
-              >
-                ✳
-              </button>
+              {audience ? (
+                <span className="bingo-c-brand-mark" aria-hidden="true">✳</span>
+              ) : (
+                <button
+                  onClick={() => navigate("print")}
+                  aria-label={t("backToCards")}
+                >
+                  ✳
+                </button>
+              )}
               <div>
                 <span className="bingo-eyebrow">
                   {t("hostMeta", { count: cards.length })}
@@ -685,18 +689,40 @@ export function EventWorkspace({
                 <span className="bingo-eyebrow">
                   {t(drawn.length ? "latest" : "letsPlay")}
                 </span>
-                <strong
-                  key={drawn.length}
-                  className={drawn.length ? "bingo-reveal" : ""}
-                >
-                  {drawn.at(-1) ?? "—"}
-                </strong>
-                <span>
-                  {drawn.length
-                    ? t("callCount", { count: drawn.length })
-                    : t("firstCallHelp")}
-                </span>
+                {drawn.length ? (
+                  <>
+                    <strong key={drawn.length} className="bingo-reveal">
+                      {drawn.at(-1)}
+                    </strong>
+                    <span>{t("callCount", { count: drawn.length })}</span>
+                  </>
+                ) : (
+                  <p className="bingo-c-empty">{t("firstCallHelp")}</p>
+                )}
               </div>
+              {!audience && (
+                <div className="bingo-c-actions" role="group" aria-label={t("hostControls")}>
+                  <button
+                    className="bingo-primary"
+                    onClick={draw}
+                    disabled={paused || drawn.length === 90}
+                    aria-keyshortcuts="Space Enter"
+                  >
+                    {t(drawn.length ? "drawNext" : "drawFirst")}
+                  </button>
+                  <button
+                    onClick={() =>
+                      setSession((previous) => ({
+                        ...previous,
+                        paused: !previous.paused,
+                      }))
+                    }
+                  >
+                    {t(paused ? "resume" : "pause")}
+                  </button>
+                  <span className="bingo-keyboard-hint">{t("keyboardHelp")}</span>
+                </div>
+              )}
               <div className="bingo-c-history">
                 <div>
                   <span className="bingo-eyebrow">{t("previous")}</span>
@@ -796,28 +822,7 @@ export function EventWorkspace({
           </div>
           {!audience ? (
             <>
-              <footer className="bingo-c-desk" aria-label={t("hostControls")}>
-                <div className="bingo-c-actions">
-                  <button
-                    className="bingo-primary"
-                    onClick={draw}
-                    disabled={paused || drawn.length === 90}
-                    aria-keyshortcuts="Space Enter"
-                  >
-                    {t(drawn.length ? "drawNext" : "drawFirst")}
-                  </button>
-                  <button
-                    onClick={() =>
-                      setSession((previous) => ({
-                        ...previous,
-                        paused: !previous.paused,
-                      }))
-                    }
-                  >
-                    {t(paused ? "resume" : "pause")}
-                  </button>
-                  <span className="bingo-keyboard-hint">{t("keyboardHelp")}</span>
-                </div>
+              <footer className="bingo-c-desk">
                 <div className="bingo-c-options">
                   <label>
                     {t("playingFor")}

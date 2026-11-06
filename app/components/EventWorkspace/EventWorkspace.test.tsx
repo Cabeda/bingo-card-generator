@@ -76,6 +76,10 @@ beforeAll(() => {
     this.dispatchEvent(new Event("close"));
   };
 });
+async function returnToSetup() {
+  fireEvent.click(await screen.findByRole("button", { name: "Back to cards" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit game" }));
+}
 it("generates, previews and hosts the same cards, preserving calls when returning to print", async () => {
   renderEvent();
   fireEvent.change(await screen.findByLabelText("Event name"), {
@@ -97,7 +101,7 @@ it("generates, previews and hosts the same cards, preserving calls when returnin
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Draw first number →" }));
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Back to cards" }));
   fireEvent.click(
     screen.getByRole("button", { name: "Return to your game →" }),
   );
@@ -188,7 +192,7 @@ it("restores the game and calls after refresh and keeps them when an invalid fil
   view.unmount();
   renderEvent();
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   const invalid = new File(["bad"], "broken.bingoCards");
   Object.defineProperty(invalid, "text", { value: async () => "not a game" });
@@ -301,6 +305,8 @@ it("removes host actions and keyboard draws from audience view", async () => {
   expect(
     screen.queryByLabelText("Check a player’s claim"),
   ).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Back to cards" })).not.toBeInTheDocument();
+  expect(screen.getAllByLabelText(/^\d+, /)).toHaveLength(90);
   fireEvent.keyDown(document.body, { key: " " });
   expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Return to host" }));
@@ -361,9 +367,7 @@ it.each([false, true])(
   async (confirmed) => {
     seedHost([1, 90]);
     renderEvent();
-    fireEvent.click(
-      await screen.findByRole("button", { name: /1.*Generate game/ }),
-    );
+    await returnToSetup();
     fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
     const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
     selectFile("Replacement.bingoCards", savedCard);
@@ -454,9 +458,7 @@ it("handles read failures without leaving the file button disabled", async () =>
 it("does not clear or replace a game when the file chooser is cancelled", async () => {
   seedHost([1]);
   renderEvent();
-  fireEvent.click(
-    await screen.findByRole("button", { name: /1.*Generate game/ }),
-  );
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   fireEvent.change(screen.getByLabelText("Open saved bingo game"), {
     target: { files: [] },
@@ -579,7 +581,7 @@ it.each(["host", "print"] as const)("opens the %s route with a migrated session"
 it.each([false, true])("confirms replacement before generating a new deck (%s)", async (confirmed) => {
   seedHost([1]);
   renderEvent();
-  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
   fireEvent.change(screen.getByLabelText("Event name"), { target: { value: "New deck" } });
   fireEvent.submit(screen.getByLabelText("Event name").closest("form")!);
@@ -594,7 +596,7 @@ it.each([false, true])("confirms replacement before generating a new deck (%s)",
 it("opens the native file chooser and prints the prepared cards", async () => {
   seedHost();
   renderEvent();
-  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   const choose = jest.spyOn(HTMLInputElement.prototype, "click");
   fireEvent.click(screen.getByRole("button", { name: "Open game file → Host" }));
@@ -719,7 +721,7 @@ it("changes the card theme and restores the line target after selecting full hou
   fireEvent.change(await screen.findByLabelText("Playing for"), { target: { value: "full" } });
   fireEvent.change(screen.getByLabelText("Playing for"), { target: { value: "line" } });
   expect(screen.getByRole("heading", { name: "One line" })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Back to cards" }));
   const theme = screen.getByLabelText("Card theme") as HTMLSelectElement;
   fireEvent.change(theme, { target: { value: theme.options[1].value } });
   expect(theme.value).toBe(theme.options[1].value);

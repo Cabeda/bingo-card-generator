@@ -58,6 +58,7 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   font-weight: 700;
 }
 .bingo-workspace .bingo-primary:hover {
+  background: var(--bingo-accent);
   filter: brightness(1.08);
 }
 .bingo-workspace label {
@@ -107,495 +108,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
 .bingo-flow {
   max-width: 1200px;
   margin: auto;
-}
-/* C revision: one audience arena, with a separate host toolbar. */
-.bingo-workspace.is-hosting {
-  padding: 0 3vw 90px;
-}
-.bingo-c-game {
-  max-width: 1800px;
-  margin: auto;
-}
-.bingo-c-heading {
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.bingo-c-identity {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.bingo-c-identity > button {
-  border: 0;
-  font-size: 32px;
-  padding: 0;
-  color: var(--bingo-accent);
-}
-.bingo-c-identity h1 {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.7px;
-  margin-top: 3px;
-}
-.bingo-c-identity .bingo-eyebrow {
-  font-size: 10px;
-  opacity: 0.55;
-  letter-spacing: 1.5px;
-}
-.bingo-c-status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 12px;
-  opacity: 0.8;
-}
-.bingo-c-status i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #55a476;
-}
-.bingo-c-status.is-paused i {
-  background: #d69c34;
-}
-.bingo-c-arena {
-  display: grid;
-  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 2fr);
-  gap: 24px;
-  height: clamp(440px, calc(100dvh - 285px), 900px);
-}
-.bingo-c-focus {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  background: var(--card-bg);
-  overflow: hidden;
-}
-.bingo-c-current {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 0;
-  padding: 18px;
-}
-.bingo-c-current .bingo-eyebrow {
-  font-size: 11px;
-  opacity: 0.6;
-}
-.bingo-c-current strong {
-  font-size: clamp(110px, min(16vw, 24vh), 300px);
-  line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: -7px;
-  color: var(--bingo-accent);
-  font-variant-numeric: tabular-nums;
-}
-.bingo-c-current > span:last-child {
-  font-size: 12px;
-  opacity: 0.5;
-}
-.bingo-c-history {
-  padding: 18px 24px;
-  border-top: 1px solid var(--border-color);
-}
-.bingo-c-history > div:first-child {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.bingo-c-history .bingo-eyebrow {
-  font-size: 9px;
-  letter-spacing: 1.4px;
-  opacity: 0.65;
-}
-.bingo-c-history small {
-  font-size: 10px;
-  opacity: 0.45;
-}
-.bingo-c-history > div:last-child {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-}
-.bingo-c-history b {
-  text-align: center;
-  border-radius: 7px;
-  background: var(--progress-bg);
-  padding: 8px 0;
-  font-size: clamp(18px, 1.6vw, 32px);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.bingo-c-prize {
-  padding: 20px 24px;
-  background: color-mix(in srgb, var(--bingo-accent) 5%, var(--card-bg));
-  border-top: 1px solid var(--border-color);
-}
-.bingo-c-prize .bingo-eyebrow {
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  opacity: 0.6;
-}
-.bingo-c-prize h2 {
-  font-size: 24px;
-  letter-spacing: -0.6px;
-  font-weight: 600;
-  margin: 3px 0;
-}
-.bingo-c-prize p {
-  font-size: 12px;
-  opacity: 0.65;
-  max-width: 290px;
-}
-.bingo-c-board-panel {
-  padding: 22px 24px;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-}
-.bingo-c-board-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  padding-bottom: 20px;
-}
-.bingo-c-board-heading h2 {
-  font-size: 15px;
-  font-weight: 600;
-}
-.bingo-c-legend {
-  display: flex;
-  gap: 16px;
-  font-size: 10px;
-  opacity: 0.7;
-}
-.bingo-c-legend span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.bingo-c-legend i {
-  width: 7px;
-  height: 7px;
-  background: var(--bingo-accent);
-  border-radius: 2px;
-}
-.bingo-c-legend span:last-child i {
-  background: var(--progress-bg);
-  border: 1px solid var(--border-color);
-}
-.bingo-c-board {
-  flex: 1;
-  display: grid;
-  grid-template-rows: repeat(9, minmax(0, 1fr));
-  gap: 7px;
-}
-.bingo-c-board-row {
-  display: grid;
-  grid-template-columns: 40px repeat(10, minmax(0, 1fr));
-  gap: 7px;
-  min-height: 0;
-  align-items: stretch;
-}
-.bingo-c-range {
-  display: flex;
-  align-items: center;
-  font-size: 9px;
-  opacity: 0.4;
-  white-space: nowrap;
-}
-.bingo-c-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(18px, 2vw, 42px);
-  line-height: 1;
-  font-weight: 500;
-  background: var(--progress-bg);
-  color: var(--foreground);
-  border: 2px solid transparent;
-  border-radius: 6px;
-  font-variant-numeric: tabular-nums;
-}
-.bingo-c-cell:not(.is-called) {
-  color: color-mix(in srgb, var(--foreground) 45%, var(--card-bg));
-}
-.bingo-c-cell.is-called {
-  background: var(--bingo-accent);
-  color: var(--bingo-accent-text);
-  font-weight: 700;
-}
-.bingo-c-cell.is-latest {
-  border-color: var(--foreground);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.bingo-c-board-summary {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding-top: 20px;
-  font-size: 11px;
-  white-space: nowrap;
-  opacity: 0.65;
-}
-.bingo-c-board-summary > div {
-  flex: 1;
-  height: 3px;
-  background: var(--progress-bg);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.bingo-c-board-summary i {
-  display: block;
-  height: 100%;
-  background: var(--bingo-accent);
-}
-.bingo-c-desk {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  padding: 20px 0;
-}
-.bingo-c-actions,
-.bingo-c-options {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.bingo-c-desk button,
-.bingo-c-desk summary {
-  font-size: 12px;
-  padding: 11px 16px;
-}
-.bingo-c-actions .bingo-primary {
-  min-width: 200px;
-}
-.bingo-c-options label {
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  white-space: nowrap;
-  opacity: 0.85;
-}
-.bingo-c-options select {
-  font-size: 12px;
-  width: auto;
-  padding: 10px;
-}
-.bingo-c-options > button {
-  border: 0;
-}
-.bingo-c-options details {
-  position: relative;
-}
-.bingo-c-options summary {
-  cursor: pointer;
-  list-style: none;
-  opacity: 0.6;
-}
-.bingo-c-options details > div {
-  position: absolute;
-  bottom: 48px;
-  right: 0;
-  z-index: 10;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 12px 40px #0002;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  min-width: 220px;
-}
-.bingo-c-options .bingo-theme-tools label {
-  flex-direction: column;
-  align-items: stretch;
-}
-.bingo-c-audience-actions {
-  display: flex;
-  justify-content: end;
-  gap: 12px;
-  padding-top: 14px;
-}
-.bingo-c-audience-actions button {
-  font-size: 10px;
-  padding: 6px 10px;
-  opacity: 0.6;
-}
-@media (min-width: 1600px) {
-  .bingo-c-heading {
-    height: 120px;
-  }
-  .bingo-c-identity h1 {
-    font-size: 32px;
-  }
-  .bingo-c-prize h2 {
-    font-size: 32px;
-  }
-  .bingo-c-prize p {
-    font-size: 16px;
-    max-width: 100%;
-  }
-  .bingo-c-current .bingo-eyebrow,
-  .bingo-c-prize .bingo-eyebrow,
-  .bingo-c-history .bingo-eyebrow {
-    font-size: 13px;
-  }
-  .bingo-c-history small,
-  .bingo-c-range {
-    font-size: 12px;
-  }
-  .bingo-c-board-heading h2 {
-    font-size: 20px;
-  }
-  .bingo-c-legend,
-  .bingo-c-board-summary,
-  .bingo-c-status {
-    font-size: 15px;
-  }
-  .bingo-c-arena {
-    height: calc(100dvh - 330px);
-  }
-}
-@media (max-width: 900px) {
-  .bingo-c-arena {
-    grid-template-columns: 240px minmax(0, 1fr);
-    gap: 14px;
-  }
-  .bingo-c-board-panel {
-    padding: 16px 12px;
-  }
-  .bingo-c-board-row {
-    grid-template-columns: repeat(10, minmax(0, 1fr));
-    gap: 4px;
-  }
-  .bingo-c-range {
-    display: none;
-  }
-  .bingo-c-board {
-    gap: 4px;
-  }
-  .bingo-c-cell {
-    font-size: 17px;
-  }
-  .bingo-c-desk {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-  .bingo-c-history,
-  .bingo-c-prize {
-    padding: 16px;
-  }
-  .bingo-c-options {
-    flex-wrap: wrap;
-  }
-}
-@media (max-width: 600px) {
-  .bingo-workspace.is-hosting {
-    padding: 0 4vw 100px;
-  }
-  .bingo-c-heading {
-    height: 90px;
-  }
-  .bingo-c-identity h1 {
-    font-size: 20px;
-  }
-  .bingo-c-status {
-    font-size: 10px;
-    max-width: 80px;
-  }
-  .bingo-c-identity {
-    gap: 10px;
-  }
-  .bingo-c-arena {
-    height: auto;
-    grid-template-columns: 1fr;
-  }
-  .bingo-c-focus {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .bingo-c-current {
-    grid-row: span 2;
-  }
-  .bingo-c-current strong {
-    font-size: 105px;
-  }
-  .bingo-c-history {
-    border-top: 0;
-    border-left: 1px solid var(--border-color);
-    padding: 14px 10px;
-  }
-  .bingo-c-history > div:first-child {
-    display: block;
-  }
-  .bingo-c-history small {
-    display: block;
-    margin-top: 4px;
-  }
-  .bingo-c-history > div:last-child {
-    gap: 3px;
-  }
-  .bingo-c-history b {
-    font-size: 15px;
-    padding: 6px 0;
-  }
-  .bingo-c-prize {
-    border-left: 1px solid var(--border-color);
-    padding: 12px;
-  }
-  .bingo-c-prize h2 {
-    font-size: 20px;
-  }
-  .bingo-c-prize p {
-    font-size: 10px;
-  }
-  .bingo-c-board-panel {
-    min-height: 400px;
-    padding: 16px 12px;
-  }
-  .bingo-c-board-heading {
-    padding-bottom: 14px;
-  }
-  .bingo-c-board-summary {
-    padding-top: 14px;
-  }
-  .bingo-c-actions {
-    width: 100%;
-  }
-  .bingo-c-actions .bingo-primary {
-    flex: 1;
-  }
-  .bingo-c-options {
-    width: 100%;
-    justify-content: space-between;
-    gap: 4px;
-  }
-  .bingo-c-options label {
-    font-size: 10px;
-    gap: 6px;
-  }
-  .bingo-c-options > button,
-  .bingo-c-desk summary {
-    font-size: 11px;
-    padding: 10px 6px;
-  }
 }
 /* C: a single event moves through generate, print and host. */
 .bingo-flow {
@@ -869,12 +381,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   width: 100%;
   margin: 10px 0;
 }
-.bingo-c-no-calls {
-  grid-column: 1/-1;
-  padding: 8px 0;
-  font-size: 11px;
-  opacity: 0.5;
-}
 @media (max-width: 900px) {
   .bingo-flow-setup {
     grid-template-columns: 1fr 1fr;
@@ -941,10 +447,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     padding: 8px;
   }
 }
-
-.bingo-workspace.is-hosting {
-  padding-bottom: 30px;
-}
 .bingo-entry-choice {
   display: flex;
   justify-content: center;
@@ -1007,35 +509,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
 .bingo-checkbox input {
   width: auto;
 }
-.bingo-claim-form {
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  border-top: 1px solid var(--border-color);
-  padding: 18px 0;
-}
-.bingo-claim-form label {
-  font-size: 11px;
-}
-.bingo-claim-form input {
-  max-width: 170px;
-  padding: 10px;
-}
-.bingo-claim-form button {
-  font-size: 12px;
-}
-.bingo-claim-form small {
-  font-size: 11px;
-  opacity: 0.55;
-  align-self: center;
-  max-width: 280px;
-}
-.bingo-workspace .bingo-c-options details > div {
-  max-width: 360px;
-}
-.bingo-workspace .bingo-c-options .bingo-theme-tools {
-  flex-wrap: wrap;
-}
 .bingo-claim-dialog {
   background: var(--card-bg);
   color: var(--foreground);
@@ -1081,40 +554,11 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   font-size: 45px;
   color: var(--bingo-accent);
 }
-.bingo-workspace.is-audience .bingo-flow-nav {
-  display: none;
-}
-.is-audience .bingo-c-arena {
-  height: calc(100dvh - 180px);
-}
-.is-audience .bingo-c-prize p {
-  font-size: clamp(14px, 1.1vw, 24px);
-}
-.is-audience .bingo-c-history b {
-  font-size: clamp(22px, 2vw, 40px);
-}
-/* Reveal only the current call; the full board never moves during a draw. */
-.bingo-c-focus {
-  position: relative;
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--bingo-accent) 6%, var(--card-bg)),
-    var(--card-bg)
-  );
-}
-.bingo-c-current strong {
-  filter: drop-shadow(
-    0 6px 12px color-mix(in srgb, var(--bingo-accent) 13%, transparent)
-  );
-}
 .bingo-reveal {
   animation: bingo-reveal 0.48s cubic-bezier(0.2, 0.8, 0.25, 1) both;
 }
 .bingo-history-arrival {
   animation: bingo-arrival 0.24s ease-out both;
-}
-.bingo-c-status:not(.is-paused) i {
-  box-shadow: 0 0 0 4px #55a47612;
 }
 .is-winning .bingo-win-symbol {
   animation: bingo-win 0.6s cubic-bezier(0.2, 0.8, 0.25, 1) both;
@@ -1162,14 +606,6 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     transition: none !important;
   }
 }
-@media (min-width: 901px) {
-  .bingo-workspace .bingo-c-arena {
-    height: clamp(380px, calc(100dvh - 340px), 900px);
-  }
-  .bingo-workspace.is-audience .bingo-c-arena {
-    height: calc(100dvh - 180px);
-  }
-}
 @media (max-width: 600px) {
   .bingo-workspace {
     padding: 0 4vw 25px;
@@ -1189,63 +625,12 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     font-size: 11px;
     padding: 10px;
   }
-  .bingo-claim-form {
-    flex-wrap: wrap;
-  }
-  .bingo-claim-form small {
-    max-width: none;
-  }
-  .bingo-workspace.is-audience .bingo-c-arena {
-    height: auto;
-  }
-  .bingo-workspace.is-hosting .bingo-c-arena {
-    height: auto;
-  }
   .bingo-open-panel {
     padding: 24px;
   }
-  .bingo-workspace .bingo-c-options {
-    gap: 12px;
-  }
 }
-
-/* Keep the complete board and host actions together on laptop displays. */
-.bingo-flow h1,
-.bingo-c-identity h1 {
+.bingo-flow h1 {
   text-align: left;
-}
-@media (min-width: 601px) {
-  .bingo-workspace.is-hosting .bingo-c-arena {
-    height: calc(100dvh - 360px);
-    min-height: 360px;
-    max-height: 1000px;
-  }
-  .bingo-workspace.is-audience .bingo-c-arena {
-    height: calc(100dvh - 175px);
-    min-height: 360px;
-    max-height: none;
-  }
-}
-
-/* A thin light/dark edge preserves themed call legibility on either appearance. */
-.bingo-c-current strong {
-  text-shadow:
-    1px 0 var(--background),
-    -1px 0 var(--background),
-    0 1px var(--background),
-    0 -1px var(--background);
-}
-/* The revealed call reads like a game tile and keeps preset text/background pairs. */
-.bingo-c-current strong {
-  background: var(--bingo-accent);
-  color: var(--bingo-accent-text);
-  border-radius: 0.18em;
-  padding: 0.035em 0.18em;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
-  text-shadow: none;
-  font-size: clamp(90px, min(15vw, 20vh), 250px);
-  margin: 12px 0;
 }
 
 /* Keep event navigation quiet; occasional preferences live behind one control. */
@@ -1352,36 +737,72 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   }
 }
 
-/* The caller's desk: the call leads, the board follows, tools stay peripheral. */
+/* Host layout A: one caller's console beside a bounded 90-number board. */
+.bingo-workspace.is-hosting {
+  padding: 0 4vw 40px;
+}
+.bingo-c-game {
+  max-width: 1400px;
+  margin: auto;
+}
 .bingo-c-heading {
-  height: auto;
-  min-height: 96px;
-  padding: 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 94px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 32px;
 }
 .bingo-c-identity {
-  min-width: 0;
+  display: flex;
   flex: 1;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
 }
 .bingo-c-identity > div {
   min-width: 0;
 }
-.bingo-c-identity > button {
+.bingo-c-identity > button,
+.bingo-c-brand-mark {
+  display: grid;
+  place-items: center;
   min-width: 44px;
   min-height: 44px;
+  border: 0;
+  padding: 0;
+  font-size: 32px;
   background: transparent;
+  color: var(--foreground);
 }
 .bingo-c-identity h1 {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
   overflow-wrap: anywhere;
 }
-.bingo-c-identity .bingo-eyebrow,
-.bingo-c-focus .bingo-eyebrow {
+.bingo-c-identity .bingo-eyebrow {
+  font-size: 11px;
   letter-spacing: 0;
-  font-size: 12px;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 .bingo-c-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
   white-space: nowrap;
-  opacity: 1;
+}
+.bingo-c-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55a476;
+}
+.bingo-c-status.is-paused i {
+  background: #d69c34;
 }
 .bingo-host-utilities {
   display: flex;
@@ -1395,8 +816,8 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   font-size: 12px;
 }
 .bingo-host-utilities > button {
-  border: 0;
   background: transparent;
+  border: 0;
 }
 .bingo-host-settings {
   position: relative;
@@ -1466,56 +887,295 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   margin-top: 8px;
   border-style: dashed;
 }
-.bingo-c-current > span:last-child,
-.bingo-c-history small,
-.bingo-c-prize p {
+.bingo-c-arena {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 760px);
+  justify-content: space-between;
+  align-items: start;
+  gap: 48px;
+}
+.bingo-c-focus {
+  min-width: 0;
+}
+.bingo-c-focus .bingo-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0;
   opacity: 0.75;
 }
-.bingo-c-cell:not(.is-called) {
-  color: color-mix(in srgb, var(--foreground) 70%, var(--card-bg));
+.bingo-c-current {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 220px;
 }
-.bingo-c-desk {
-  border-bottom: 1px solid var(--border-color);
+.bingo-c-current strong {
+  color: var(--foreground);
+  font-size: clamp(120px, 13vw, 190px);
+  line-height: 1.05;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.06em;
+  margin: 6px 0 10px;
+}
+.bingo-c-current > span:last-child {
+  font-size: 12px;
+  opacity: 0.75;
+}
+.bingo-workspace .bingo-c-empty {
+  max-width: 11ch;
+  margin: 30px 0;
+  font-size: clamp(28px, 3.2vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
 }
 .bingo-c-actions {
+  display: flex;
   flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 0 24px;
 }
-.bingo-c-desk button {
-  min-height: 48px;
-  font-size: 14px;
+.bingo-c-actions button {
+  min-height: 50px;
+  font-size: 13px;
 }
 .bingo-c-actions .bingo-primary {
-  min-width: 220px;
+  flex: 1;
   font-weight: 700;
+  white-space: nowrap;
 }
 .bingo-keyboard-hint {
-  color: var(--foreground);
-  opacity: 0.65;
+  flex-basis: 100%;
+  font-size: 11px;
+  opacity: 0.7;
+}
+.bingo-c-history {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.bingo-c-history > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.bingo-c-history small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.bingo-c-history > div:last-child {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.bingo-c-history b {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 6px;
+  background: var(--progress-bg);
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.bingo-c-no-calls {
+  grid-column: 1 / -1;
+}
+.bingo-c-prize {
+  padding: 24px 0 0;
+}
+.bingo-c-prize h2 {
+  text-align: left;
+  font-size: 25px;
+  line-height: 1.3;
+  margin: 4px 0 8px;
+  font-weight: 600;
+}
+.bingo-c-prize p {
+  max-width: 35ch;
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.75;
+}
+.bingo-c-board-panel {
+  width: 100%;
+  max-width: min(760px, calc((100dvh - 250px) * 1.18));
+  justify-self: end;
+  min-width: 0;
+}
+.bingo-c-board-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 18px;
+}
+.bingo-c-board-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.bingo-c-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+}
+.bingo-c-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bingo-c-legend i {
+  width: 8px;
+  height: 8px;
+  background: var(--bingo-accent);
+  border: 1px solid var(--foreground);
+  border-radius: 2px;
+}
+.bingo-c-legend span:last-child i {
+  background: var(--progress-bg);
+  border-color: var(--border-color);
+}
+.bingo-c-board {
+  display: grid;
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  gap: 7px;
+  aspect-ratio: 1.18;
+}
+.bingo-c-board-row {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 7px;
+  min-height: 0;
+}
+.bingo-c-range {
+  display: none;
+}
+.bingo-c-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  font-size: clamp(17px, 1.8vw, 30px);
+  line-height: 1;
+  font-weight: 400;
+  background: var(--progress-bg);
+  color: color-mix(in srgb, var(--foreground) 70%, var(--card-bg));
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.bingo-c-cell.is-called {
+  background: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  border-color: var(--foreground);
+  font-weight: 800;
+}
+.bingo-c-cell.is-latest {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.bingo-c-board-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 18px;
   font-size: 12px;
-  margin-left: 6px;
+  white-space: nowrap;
+}
+.bingo-c-board-summary > div {
+  flex: 1;
+  height: 3px;
+  background: var(--progress-bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bingo-c-board-summary i {
+  display: block;
+  height: 100%;
+  background: var(--bingo-accent);
+}
+.bingo-c-desk {
+  margin-top: 28px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
 }
 .bingo-c-options label {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   font-size: 12px;
-  opacity: 1;
 }
 .bingo-c-options select {
+  width: auto;
   min-height: 44px;
+  font-size: 13px;
 }
 .bingo-claim-form {
-  border-top: 0;
+  display: flex;
+  align-items: end;
+  gap: 12px;
   padding: 20px 0;
 }
 .bingo-claim-form label {
   font-size: 12px;
 }
 .bingo-claim-form input {
+  max-width: 170px;
+  min-height: 44px;
+}
+.bingo-claim-form button {
+  font-size: 13px;
   min-height: 44px;
 }
 .bingo-claim-form small {
+  font-size: 12px;
   opacity: 0.75;
+  align-self: center;
   max-width: 420px;
 }
-@media (max-width: 900px) {
+.bingo-c-audience-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 18px;
+}
+.bingo-c-audience-actions button {
+  min-height: 44px;
+  font-size: 12px;
+  background: transparent;
+}
+/* Projection keeps the complete board in view and removes navigational affordances. */
+.bingo-workspace.is-audience {
+  padding-bottom: 16px;
+}
+.is-audience .bingo-c-heading {
+  min-height: 76px;
+  padding: 14px 0;
+  margin-bottom: 24px;
+}
+.is-audience .bingo-c-arena {
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.65fr);
+  gap: 40px;
+}
+.is-audience .bingo-c-current strong {
+  font-size: clamp(130px, min(19vw, 32dvh), 330px);
+}
+.is-audience .bingo-c-current {
+  min-height: 0;
+}
+.is-audience .bingo-c-board-panel {
+  max-width: min(900px, calc((100dvh - 300px) * 1.18));
+}
+.is-audience .bingo-c-prize p {
+  font-size: clamp(14px, 1.15vw, 20px);
+}
+@media (max-width: 1000px) {
+  .bingo-c-arena {
+    grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr);
+    gap: 28px;
+  }
   .bingo-c-heading {
     gap: 14px;
   }
@@ -1525,13 +1185,14 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   .bingo-c-status {
     font-size: 11px;
   }
-  .bingo-keyboard-hint {
-    display: none;
+  .bingo-c-board,
+  .bingo-c-board-row {
+    gap: 5px;
   }
 }
-@media (max-width: 600px) {
-  .bingo-workspace.is-hosting:not(.is-audience) {
-    padding-bottom: calc(108px + env(safe-area-inset-bottom));
+@media (max-width: 700px) {
+  .bingo-workspace.is-hosting {
+    padding: 0 4vw calc(110px + env(safe-area-inset-bottom));
   }
   .bingo-c-heading {
     display: grid;
@@ -1539,12 +1200,14 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     gap: 6px 12px;
     min-height: 102px;
     padding: 16px 0;
+    margin-bottom: 22px;
   }
   .bingo-c-identity {
     grid-column: 1;
     gap: 8px;
   }
-  .bingo-c-identity > button {
+  .bingo-c-identity > button,
+  .bingo-c-brand-mark {
     min-width: 32px;
     font-size: 26px;
   }
@@ -1556,9 +1219,7 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   }
   .bingo-c-status {
     grid-column: 1;
-    max-width: none;
     padding-left: 40px;
-    font-size: 11px;
   }
   .bingo-host-utilities {
     grid-column: 2;
@@ -1574,71 +1235,71 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     font-size: 11px;
     justify-content: center;
   }
+  .bingo-c-arena,
+  .is-audience .bingo-c-arena {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
   .bingo-c-focus {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 20px;
+    align-items: center;
   }
   .bingo-c-current {
     grid-column: 1;
     grid-row: 1;
-    padding: 18px 12px;
+    min-height: 180px;
   }
-  .bingo-c-current strong {
-    font-size: clamp(82px, 23vw, 132px);
-    margin: 12px 0;
+  .bingo-c-current strong,
+  .is-audience .bingo-c-current strong {
+    font-size: clamp(90px, 25vw, 150px);
   }
-  .bingo-c-current .bingo-eyebrow,
-  .bingo-c-current > span:last-child {
-    font-size: 11px;
+  .bingo-workspace .bingo-c-empty {
+    margin: 18px 0;
+    font-size: 27px;
   }
   .bingo-c-prize {
     grid-column: 2;
     grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-top: 0;
-    padding: 18px;
+    padding: 0;
   }
   .bingo-c-prize h2 {
     font-size: 23px;
-    margin: 5px 0 9px;
   }
   .bingo-c-prize p {
     font-size: 12px;
-    line-height: 1.6;
   }
   .bingo-c-history {
     grid-column: 1 / -1;
     grid-row: 2;
-    border-left: 0;
-    border-top: 1px solid var(--border-color);
-    padding: 14px 16px;
-  }
-  .bingo-c-history > div:first-child {
-    display: flex;
-    margin-bottom: 10px;
-  }
-  .bingo-c-history small {
-    margin: 0;
-    font-size: 11px;
-  }
-  .bingo-c-history > div:last-child {
-    gap: 8px;
+    padding: 14px 0 0;
+    border-bottom: 0;
   }
   .bingo-c-history b {
     font-size: 21px;
-    padding: 8px 0;
   }
-  .bingo-c-board-panel {
-    min-height: 370px;
-    padding: 16px 12px;
+  .bingo-c-board-panel,
+  .is-audience .bingo-c-board-panel {
+    max-width: 100%;
+  }
+  .bingo-c-board,
+  .bingo-c-board-row {
+    gap: 4px;
+  }
+  .bingo-c-board-heading {
+    padding-bottom: 14px;
   }
   .bingo-c-board-heading h2 {
     font-size: 14px;
   }
+  .bingo-c-cell {
+    font-size: clamp(15px, 3.8vw, 23px);
+  }
   .bingo-c-board-summary {
+    padding-top: 14px;
     gap: 10px;
-    opacity: 0.85;
+    font-size: 11px;
   }
   .bingo-c-actions {
     position: fixed;
@@ -1662,17 +1323,8 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     min-width: 84px;
     min-height: 52px;
   }
-  .bingo-c-desk {
-    padding: 18px 0;
-  }
-  .bingo-c-options {
-    justify-content: flex-start;
-  }
-  .bingo-c-options label {
-    font-size: 13px;
-  }
-  .bingo-c-options select {
-    min-width: 145px;
+  .bingo-keyboard-hint {
+    display: none;
   }
   .bingo-claim-form {
     display: grid;
@@ -1684,5 +1336,11 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   }
   .bingo-claim-form small {
     grid-column: 1 / -1;
+  }
+  .bingo-workspace.is-audience {
+    padding-bottom: 20px;
+  }
+  .is-audience .bingo-c-heading {
+    min-height: 80px;
   }
 }
