@@ -4,7 +4,8 @@
 ![Lint Auto-Fix](https://github.com/Cabeda/bingo-card-generator/workflows/Lint%20Auto-Fix/badge.svg)
 ![CodeQL](https://github.com/Cabeda/bingo-card-generator/workflows/CodeQL%20Security%20Scanning/badge.svg)
 
-A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript, and TailwindCSS.
+A modern web application for generating, managing, and playing bingo games. Built with Next.js, TypeScript,
+and TailwindCSS.
 
 ## ✨ Features
 
@@ -53,11 +54,24 @@ Cards follow traditional bingo rules:
 
 ### 📱 Progressive Web App (PWA)
 
-- **Offline Support**: Works offline after initial visit
-- **Installable**: Can be installed on mobile and desktop devices
-- **App-like Experience**: Runs in standalone mode when installed
-- **Service Worker**: Automatically caches assets for faster loading
-- **Fast Performance**: Instant loading on repeat visits
+- **Offline readiness**: Open the production app online and wait for the visible **Ready offline** status
+  before disconnecting. This confirms caching of all 13 entry routes: `/` and the home, cards and game pages
+  in English, Portuguese, Spanish and French.
+- **Session recovery**: Cards, drawn numbers and settings are saved automatically in browser storage, so a
+  normal refresh or reopening the app in the same browser profile restores the session.
+- **Optional installation**: Use Chrome or Edge's install option, Safari's **Add to Dock**, or iOS Safari's
+  **Add to Home Screen**, where supported. Open the installed app online initially and wait for **Ready
+  offline** there too.
+- **Storage limits**: The app requests persistent storage where available, on a best-effort basis. It cannot
+  prevent data removal by the user, browser eviction or private-browsing cleanup. Offline access and session
+  storage are not guaranteed indefinitely.
+
+A separate desktop release is unnecessary for offline use and tab recovery: the PWA keeps one codebase for
+browser and installed use. A dedicated desktop app can be reconsidered if kiosk operation, platform installers
+or native file control become requirements.
+
+Offline recovery is covered by Chromium end-to-end tests. Native Safari and iOS offline installation and
+recovery have not been fully tested.
 
 ## 🚀 Getting Started
 
@@ -100,7 +114,8 @@ bun run start
 - **Framework**: [Next.js 15](https://nextjs.org) with App Router
 - **Language**: [TypeScript](https://www.typescriptlang.org/) (strict mode)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/) with custom CSS modules
-- **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF) with [html-to-image](https://github.com/bubkoo/html-to-image)
+- **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF) with
+  [html-to-image](https://github.com/bubkoo/html-to-image)
 - **PWA**: [next-pwa](https://github.com/shadowwalker/next-pwa) for Progressive Web App support
 - **Testing**: [Jest](https://jestjs.io/) with ts-jest and jsdom
 - **Linting**: [ESLint](https://eslint.org/) with Next.js configuration
@@ -145,6 +160,7 @@ bun run start          # Start production server
 bun run lint           # Run ESLint
 bun run lint:fix       # Fix ESLint issues automatically
 bun run test           # Run Jest tests
+bun run test:offline   # Run Chromium offline and recovery tests (production build required)
 ```
 
 ### Bundle Size Analysis
@@ -183,7 +199,20 @@ bun run validate:i18n  # Quick validation of translation files
 bun run test:i18n      # Comprehensive i18n test suite
 ```
 
-See [TESTING.md](./TESTING.md) for detailed testing documentation, including i18n testing strategies.
+**Offline browser testing:**
+
+```bash
+bun install --frozen-lockfile
+bunx playwright install --with-deps chromium
+bun run build
+bun run test:offline
+```
+
+Playwright starts the production server automatically. The Chromium suite checks offline readiness, cached
+routes, navigation and recovery after refresh, tab reopening and a browser restart using the same profile. CI
+runs this as a required `offline` job and uploads Playwright reports and test results on failure.
+
+See [TESTING.md](./TESTING.md) for detailed testing documentation, including i18n and offline testing strategies.
 
 > **Note:** Tests use Jest through Bun. The `bun run test` command runs Jest with the proper
 > configuration (`NODE_OPTIONS='--experimental-vm-modules' bunx jest`).
@@ -200,7 +229,8 @@ See [TESTING.md](./TESTING.md) for detailed testing documentation, including i18
 The project uses [Husky](https://typicode.github.io/husky/) for Git hooks:
 
 - **Pre-commit**: Automatically runs linting and tests before each commit
-- **Commit message**: Validates commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) format
+- **Commit message**: Validates commit messages follow [Conventional
+  Commits](https://www.conventionalcommits.org/) format
 
 Hooks are automatically installed when running `bun install`. See [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
 
@@ -225,6 +255,9 @@ Hooks are automatically installed when running `bun install`. See [CONTRIBUTING.
 6. Click "Reiniciar Jogo" (Restart Game) to start over with the same cards
 
 ### File Format
+
+A `.bingoCards` export contains cards only. It does not include drawn numbers or the full saved session;
+full-session backup and restore are not implemented. Keep browser storage intact to retain game progress.
 
 The `.bingoCards` format structure:
 
@@ -287,7 +320,8 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 🔒 Security
 
-If you discover a security vulnerability, please see [SECURITY.md](./SECURITY.md) for information on how to report it responsibly.
+If you discover a security vulnerability, please see [SECURITY.md](./SECURITY.md) for information on how to
+report it responsibly.
 
 ## 📞 Support
 

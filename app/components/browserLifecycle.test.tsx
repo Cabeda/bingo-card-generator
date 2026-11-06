@@ -2,7 +2,6 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { ThemeToggle } from './ThemeToggle';
-import { PWARegister } from './PWARegister';
 import ViewTransition from './ViewTransition';
 import { LanguageSelector } from './LanguageSelector';
 const replace = jest.fn();
@@ -45,34 +44,6 @@ it.each([false, true])('renders view-transition infrastructure without visible U
   if (supported) Object.defineProperty(document, 'startViewTransition', { configurable: true, value: jest.fn() });
   const { container } = render(<ViewTransition />);
   expect(container).toBeEmptyDOMElement();
-});
-it('registers a production service worker and reports success', async () => {
-  Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'production' });
-  const registration = { scope: '/' };
-  const register = jest.fn().mockResolvedValue(registration);
-  Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: { register } });
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-  await act(async () => { render(<PWARegister />); });
-  expect(register).toHaveBeenCalledWith('/sw.js', { scope: '/' });
-  expect(console.log).toHaveBeenCalledWith('Service Worker registered:', registration);
-});
-it('reports rejected service worker registration', async () => {
-  Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'production' });
-  const failure = new Error('registration denied');
-  const register = jest.fn().mockRejectedValue(failure);
-  Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: { register } });
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-  await act(async () => { render(<PWARegister />); });
-  expect(console.error).toHaveBeenCalledWith('Service Worker registration failed:', failure);
-});
-it('does not register service workers during development or without browser support', () => {
-  const register = jest.fn();
-  Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: { register } });
-  Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'development' });
-  const first = render(<PWARegister />); expect(register).not.toHaveBeenCalled(); first.unmount();
-  Reflect.deleteProperty(navigator, 'serviceWorker');
-  Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'production' });
-  expect(render(<PWARegister />).container).toBeEmptyDOMElement();
 });
 it('renders locale options on the server and changes locale in the browser', () => {
   const markup = renderToString(<LanguageSelector />);

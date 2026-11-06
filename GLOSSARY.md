@@ -12,3 +12,7 @@ Every card, including its heading and footer, fits entirely on that page.
 
 **Print preview**:
 A scaled view of the first printed sheet, showing the same cards, layout and theme as the printed deck.
+
+**Offline readiness**:
+Confirmation that this device has cached every application entry page and its required files.
+It does not guarantee that the browser will retain those files permanently.

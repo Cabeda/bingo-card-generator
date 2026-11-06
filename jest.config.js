@@ -5,7 +5,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/', '/e2e/'],
   transformIgnorePatterns: [
     'node_modules/(?!(next-intl)/)',
   ],
@@ -21,6 +21,7 @@ module.exports = {
     'app/**/*.{ts,tsx}',
     'proxy.ts',
     'next.config.ts',
+    'worker/**/*.js',
     '!**/*.test.{ts,tsx}',
     '!**/*.d.ts',
   ],

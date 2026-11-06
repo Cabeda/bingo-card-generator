@@ -82,19 +82,29 @@ it.each([[GeneratePage, 'generate'], [CardsPage, 'print'], [GamePage, 'host']] a
 it.each([
   ['development', undefined, undefined, true, false, '.next'],
   ['production', 'true', 'custom-build', false, true, 'custom-build'],
-] as const)('configures build plugins for %s', (nodeEnv, analyze, buildDir, disabled, enabled, distDir) => {
+] as const)('configures build plugins for %s', async (nodeEnv, analyze, buildDir, disabled, enabled, distDir) => {
   const previous = { NODE_ENV: process.env.NODE_ENV, ANALYZE: process.env.ANALYZE, NEXT_BUILD_DIR: process.env.NEXT_BUILD_DIR };
   Object.assign(process.env, { NODE_ENV: nodeEnv });
   if (analyze === undefined) delete process.env.ANALYZE; else process.env.ANALYZE = analyze;
   if (buildDir === undefined) delete process.env.NEXT_BUILD_DIR; else process.env.NEXT_BUILD_DIR = buildDir;
+  let options: { manifestTransforms: ((entries: unknown[]) => Promise<{manifest: unknown[]; warnings: string[]}>)[] };
   try {
     jest.isolateModules(() => {
       const nextConfig = require('../next.config').default;
       expect(nextConfig).toEqual({ distDir, typescript: { tsconfigPath: './tsconfig.app.json' } });
-      expect(require('next-pwa')).toHaveBeenLastCalledWith(expect.objectContaining({ dest: 'public', disable: disabled, register: true, skipWaiting: true }));
+      expect(require('next-pwa')).toHaveBeenLastCalledWith(expect.objectContaining({ dest: 'public', disable: disabled, register: false, skipWaiting: false, dynamicStartUrl: false, reloadOnOnline: false }));
+      options = require('next-pwa').mock.calls.at(-1)[0];
       expect(require('@next/bundle-analyzer')).toHaveBeenLastCalledWith({ enabled });
       expect(require('next-intl/plugin').default).toHaveBeenLastCalledWith('./app/i18n.ts');
     });
+    const asset = { url: '/icon.png', revision: 'asset-revision' };
+    const transformed = await options!.manifestTransforms[0]([asset]);
+    expect(transformed.warnings).toEqual([]);
+    expect(transformed.manifest[0]).toEqual(asset);
+    expect(transformed.manifest.slice(1)).toEqual([
+      '/en', '/en/cards', '/en/game', '/pt', '/pt/cards', '/pt/game',
+      '/es', '/es/cards', '/es/game', '/fr', '/fr/cards', '/fr/game',
+    ].map(url => ({ url, revision: null })));
   } finally {
     for (const [name, value] of Object.entries(previous)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
   }

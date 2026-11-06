@@ -136,9 +136,45 @@ jobs:
         path: print-diagnostics/
         if-no-files-found: ignore
 
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      run: bun install --frozen-lockfile
+
+    - name: Install Chromium
+      run: bunx playwright install --with-deps chromium
+
+    - name: Build application
+      run: bun run build
+
+    - name: Check offline recovery in Chromium
+      run: bun run test:offline
+
+    - name: Upload offline failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: offline-diagnostics
+        path: |
+          playwright-report/
+          test-results/
+        if-no-files-found: ignore
+
   checks:
     if: always()
-    needs: [test, native-print]
+    needs: [test, native-print, offline]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -147,7 +183,9 @@ jobs:
       env:
         TEST_RESULT: ${{ needs.test.result }}
         PRINT_RESULT: ${{ needs.native-print.result }}
+        OFFLINE_RESULT: ${{ needs.offline.result }}
       run: |
         test "$TEST_RESULT" = success
         test "$PRINT_RESULT" = success
-        echo 'Tests, complete coverage, build and native print checks passed.'
+        test "$OFFLINE_RESULT" = success
+        echo 'Tests, complete coverage, build, native print and offline checks passed.'

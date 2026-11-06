@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
  
 
@@ -9,7 +9,7 @@
  * It can be run manually or as part of CI/CD pipelines.
  * 
  * Usage:
- *   node scripts/validate-translations.js
+ *   bun scripts/validate-translations.js
  * 
  * Exit codes:
  *   0 - All translations are valid
@@ -21,27 +21,8 @@ const path = require('path');
 
 const MESSAGES_DIR = path.join(__dirname, '../messages');
 
-// Read locales from routing.ts to maintain single source of truth
-function getLocalesFromRouting() {
-  const routingPath = path.join(__dirname, '../app/routing.ts');
-  const routingContent = fs.readFileSync(routingPath, 'utf8');
-  const localesMatch = routingContent.match(/locales:\s*\[(.*?)\]/s);
-  
-  if (!localesMatch) {
-    throw new Error('Could not find locales array in routing.ts');
-  }
-  
-  // Extract locale strings from the array
-  const localesStr = localesMatch[1];
-  const locales = localesStr
-    .split(',')
-    .map(s => s.trim().replace(/['"]/g, ''))
-    .filter(s => s.length > 0);
-  
-  return locales;
-}
-
-const LOCALES = getLocalesFromRouting();
+const { SUPPORTED_LOCALES } = require('../app/utils/offlineRoutes.ts');
+const LOCALES = [...SUPPORTED_LOCALES];
 
 /**
  * Get all keys from a nested object

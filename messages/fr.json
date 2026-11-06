@@ -214,5 +214,12 @@
     "restoreError": "Impossible de restaurer la session. Ouvrez votre sauvegarde pour continuer.",
     "storageError": "Le navigateur ne peut pas enregistrer la session. Téléchargez le fichier avant de quitter ; il conserve les cartons, pas les tirages.",
     "fullscreenError": "Le plein écran est indisponible ici. Utilisez la commande de votre navigateur."
+  },
+  "offline": {
+    "preparing": "Préparation de l’accès hors connexion…",
+    "ready": "Prêt à fonctionner hors connexion",
+    "offlineReady": "Hors connexion — la partie enregistrée est disponible sur cet appareil",
+    "unavailable": "L’accès hors connexion n’est pas prêt. Connectez-vous avant de fermer cet onglet.",
+    "retry": "Réessayer la préparation hors connexion"
   }
 }

@@ -23,6 +23,20 @@ Tests are configured in `jest.config.js` with the following key settings:
 
 ## Running Tests
 
+### Offline recovery in a real browser
+
+Run `bunx playwright install chromium`, `bun run build`, then `bun run test:offline`.
+Playwright starts the production server; a development server does not exercise offline caching.
+
+The suite uses fresh persistent Chromium profiles and real service workers. It checks the first
+online visit followed by offline play, refresh, closing and reopening a tab, restarting the browser
+with the same profile, and loading all 13 entry routes without first visiting them. Cache eviction
+must remove the ready claim; reconnecting must repair the cache without losing game state.
+
+The `offline` CI job runs this suite and is required by the final `checks` job.
+Failure traces are saved in `test-results/` and `playwright-report/`. These generated files are
+excluded from source linting. This suite does not replace physical iPhone Safari verification.
+
 ### Basic Commands
 
 ```bash
@@ -73,7 +87,7 @@ Every coverage metric must reach **100%**: statements, branches, functions and
 lines. A failed test or a lower percentage makes Jest exit unsuccessfully.
 
 `collectCoverageFrom` includes all production TypeScript and TSX under `app/`,
-plus `proxy.ts` and `next.config.ts`, including files that no test imports.
+plus `proxy.ts`, `next.config.ts` and the production worker, including files that no test imports.
 Only test files and TypeScript declaration files are excluded. New untested
 production files therefore count against the gate.
 

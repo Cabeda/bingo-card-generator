@@ -38,6 +38,21 @@ page breaks separate the ordered sheets.
 
 ## Browser effects
 
+Offline installation precaches the root and all localised home, cards and game pages alongside
+the build's scripts, styles and public assets. Locales are shared between routing and the precache
+manifest. The worker waits to activate updates until existing sessions release it, and reconnecting
+does not automatically reload a running game.
+
+The offline readiness module asks the active worker for its exact precache and revision keys,
+then verifies cached HTML and every referenced script and stylesheet.
+Missing entries can be repaired online. The status module shows readiness only after verification
+and checks again on reconnect or returning to the page. Storage persistence is requested without
+blocking readiness; the browser can deny it. Saved game state remains in localStorage.
+
+A separately packaged desktop release is not required for these offline behaviours. The existing
+installable web app remains the primary distribution; local file ownership or managed kiosk
+requirements would justify reconsidering a native package.
+
 The workspace handles storage recovery/migration, file selection and downloads,
 keyboard input, speech, audio and fullscreen. Theme and toast providers retain
 shared appearance and notification state. Localised routes use next-intl.
@@ -51,7 +66,7 @@ FileUpload module. It is not the active event workspace's print path.
 
 `bun run test:coverage --runInBand` includes all production TypeScript/TSX under
 `app/`, plus `proxy.ts` and `next.config.ts`, even when no test imports a file.
-Only test files and type declarations are excluded. Statements, branches,
+The production service worker is also included. Only test files and type declarations are excluded. Statements, branches,
 functions and lines must each reach 100%; a test failure or coverage shortfall
 returns a failing exit code.
 

@@ -214,5 +214,12 @@
     "restoreError": "The saved session could not be restored. Open your game backup to continue.",
     "storageError": "Your browser cannot save this session. Download the game file before leaving; it preserves cards, not calls.",
     "fullscreenError": "Full screen is unavailable here. Use your browser’s full-screen command."
+  },
+  "offline": {
+    "preparing": "Preparing offline access…",
+    "ready": "Ready offline",
+    "offlineReady": "Offline — your saved game is available on this device",
+    "unavailable": "Offline access is not ready. Connect before closing this tab.",
+    "retry": "Retry offline setup"
   }
 }

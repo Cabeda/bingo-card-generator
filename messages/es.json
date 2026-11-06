@@ -214,5 +214,12 @@
     "restoreError": "No se pudo recuperar la sesión. Abre la copia del juego para continuar.",
     "storageError": "El navegador no puede guardar la sesión. Descarga el archivo antes de salir; conserva cartones, no sorteos.",
     "fullscreenError": "La pantalla completa no está disponible aquí. Usa la opción del navegador."
+  },
+  "offline": {
+    "preparing": "Preparando el acceso sin conexión…",
+    "ready": "Listo para usar sin conexión",
+    "offlineReady": "Sin conexión — la partida guardada está disponible en este dispositivo",
+    "unavailable": "El acceso sin conexión aún no está listo. Conéctate antes de cerrar esta pestaña.",
+    "retry": "Volver a preparar el acceso sin conexión"
   }
 }
