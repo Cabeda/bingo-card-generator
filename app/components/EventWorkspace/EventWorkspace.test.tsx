@@ -10,7 +10,11 @@ import {
 import messages from "../../../messages/en.json";
 import { ThemeProvider } from "../ThemeProvider";
 import { loadGameFile } from "../../utils/gameFiles";
-import * as cardGeneration from "../../utils/utils";
+import * as cardGeneration from "../../utils/shareGame";
+import { webcrypto } from 'node:crypto';
+import { TextDecoder, TextEncoder } from 'node:util';
+Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
+Object.assign(globalThis, { TextEncoder, TextDecoder });
 import { EventWorkspace } from "./EventWorkspace";
 import * as library from "./gameLibrary";
 import { PRESET_THEMES } from "../../utils/themes";
@@ -49,6 +53,7 @@ async function renderEvent() {
 }
 beforeEach(() => {
   mockLocale = "en";
+  window.history.replaceState(null, "", "/");
   localStorage.clear();
   sessionStorage.clear();
   mockSavedRecords.clear();
@@ -727,7 +732,7 @@ it("dismisses claim verification using the browser's cancel event", async () => 
 
 
 it("keeps setup usable after card generation fails", async () => {
-  jest.spyOn(cardGeneration, "generateRandomBingoCards").mockImplementation(() => { throw new Error("Generation failed"); });
+  jest.spyOn(cardGeneration, "createSharedGame").mockImplementation(() => { throw new Error("Generation failed"); });
   await renderEvent();
   await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), { target: { value: "Family" } }); });
   await act(async () => { fireEvent.submit(screen.getByLabelText("Game name").closest("form")!); });
@@ -998,6 +1003,219 @@ it("keeps a newly saved identity if removing the previous saved copy later fails
   expect(JSON.parse(localStorage.getItem("bingoEventSession.v1")!).libraryId).toBe(newId);
 });
 
+it('opens a shared game without another game’s calls and resumes its own local progress', async () => {
+  const { webcrypto } = await import('node:crypto');
+  const { TextEncoder, TextDecoder } = await import('node:util');
+  Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
+  Object.assign(globalThis, { TextEncoder, TextDecoder });
+  const { createSharedGame, encodeGameLink } = await import('../../utils/shareGame');
+  const link = await encodeGameLink(await createSharedGame('Shared evening', 2));
+  seedHost([5, 6]);
+  window.history.replaceState(null, '', '/' + link);
+  const view = await renderEvent();
+  await screen.findByRole('heading', { name: 'Your cards are ready.' });
+  expect(screen.getAllByText(/Shared evening/).length).toBeGreaterThan(0);
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Play bingo' })); });
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Pick first number' })); });
+  await screen.findByText('Call 1 of 90');
+  view.unmount();
+  await renderEvent();
+  await screen.findByText('Call 1 of 90');
+  window.history.replaceState(null, '', '/');
+});
+
+it('shares only game contents and offers manual copying when clipboard is unavailable', async () => {
+  seedHost([1, 90]);
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Back to cards' })); });
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Share game link' })); });
+  const input = await screen.findByLabelText('Game link') as HTMLInputElement;
+  const { decodeGameLink } = await import('../../utils/shareGame');
+  const decoded = await decodeGameLink(new URL(input.value).hash);
+  expect(decoded.filename).toBe('Family');
+  expect(Object.keys(decoded).sort()).toEqual(['cards', 'filename']);
+  expect(screen.getByText('Select and copy the link above.')).toBeInTheDocument();
+  fireEvent.focus(input);
+  expect(input.selectionEnd).toBe(input.value.length);
+});
+
+it('keeps the saved game after an invalid shared link', async () => {
+  seedHost([1, 90]);
+  const saved = localStorage.getItem('bingoEventSession.v1');
+  window.history.replaceState(null, '', '/#bingo=broken');
+  await renderEvent();
+  expect(await screen.findByRole('alert')).toHaveTextContent('game link is invalid');
+  expect(localStorage.getItem('bingoEventSession.v1')).toBe(saved);
+});
+
+it('copies a shared link when clipboard access is available', async () => {
+  const writeText = jest.fn().mockResolvedValue(undefined);
+  const descriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+  try {
+    seedHost();
+    await renderEvent();
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Back to cards' })); });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Share game link' })); });
+    await screen.findByText('Link copied.');
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/en/game#bingo='));
+  } finally {
+    if (descriptor) Object.defineProperty(navigator, 'clipboard', descriptor);
+    else Reflect.deleteProperty(navigator, 'clipboard');
+  }
+});
+
+it('offers a file fallback when a deck is too large to share as a link', async () => {
+  const game = await cardGeneration.createSharedGame('Large deck', 1000);
+  delete game.generation;
+  localStorage.setItem('bingoEventSession.v1', JSON.stringify({ ...emptySession, game, stage: 'print' }));
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Share game link' })); });
+  await screen.findByText(/For large games, download and share/);
+  expect(screen.queryByLabelText('Game link')).not.toBeInTheDocument();
+});
+
+it.each(['broken', 'wrong game', 'storage denied'])('opens valid shared cards despite %s local progress', async mode => {
+  const game = await cardGeneration.createSharedGame('Shared recovery', 1);
+  const hash = await cardGeneration.encodeGameLink(game);
+  const key = await cardGeneration.sharedGameKey(game);
+  if (mode === 'broken') localStorage.setItem(key, 'broken');
+  if (mode === 'wrong game') {
+    seedHost([1]);
+    localStorage.setItem(key, localStorage.getItem('bingoEventSession.v1')!);
+  }
+  let storage: jest.SpyInstance | undefined;
+  if (mode === 'storage denied') {
+    const get = Storage.prototype.getItem;
+    storage = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, name: string) {
+      if (name === key) throw new Error('Denied');
+      return get.call(this, name);
+    });
+  }
+  window.history.replaceState(null, '', '/' + hash);
+  try {
+    await renderEvent();
+    await screen.findByRole('heading', { name: 'Your cards are ready.' });
+    expect(screen.getAllByText(/Shared recovery/).length).toBeGreaterThan(0);
+  } finally { storage?.mockRestore(); }
+});
+
+it('handles a different shared link without reloading the page', async () => {
+  const one = await cardGeneration.createSharedGame('First shared', 1);
+  const two = await cardGeneration.createSharedGame('Second shared', 1);
+  window.history.replaceState(null, '', '/' + await cardGeneration.encodeGameLink(one));
+  await renderEvent();
+  await screen.findByRole('heading', { name: 'Your cards are ready.' });
+  await act(async () => {
+    window.history.replaceState(null, '', '/' + await cardGeneration.encodeGameLink(two));
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  });
+  await waitFor(() => expect(screen.getAllByText(/Second shared/).length).toBeGreaterThan(0));
+});
+
+it('discards a pending shared link when the workspace unmounts', async () => {
+  let resolve!: (game: Awaited<ReturnType<typeof cardGeneration.createSharedGame>>) => void;
+  const game = await cardGeneration.createSharedGame('Cancelled', 1);
+  jest.spyOn(cardGeneration, 'decodeGameLink').mockReturnValue(new Promise(done => { resolve = done; }));
+  window.history.replaceState(null, '', '/#bingo=pending');
+  const view = await renderEvent();
+  view.unmount();
+  await act(async () => { resolve(game); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it('discards failed pending links after unmount', async () => {
+  let reject!: (error: Error) => void;
+  jest.spyOn(cardGeneration, 'decodeGameLink').mockReturnValue(new Promise((_done, fail) => { reject = fail; }));
+  window.history.replaceState(null, '', '/#bingo=pending');
+  const view = await renderEvent();
+  view.unmount();
+  await act(async () => { reject(new Error('Invalid')); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it('discards pending generation after unmount', async () => {
+  const game = await cardGeneration.createSharedGame('Cancelled generation', 1);
+  let resolve!: (value: typeof game) => void;
+  const started = jest.spyOn(cardGeneration, 'createSharedGame').mockReturnValue(new Promise(done => { resolve = done; }));
+  const view = await renderEvent();
+  await act(async () => { fireEvent.change(screen.getByLabelText('Game name'), { target: { value: 'Cancelled generation' } }); });
+  await act(async () => { fireEvent.submit(screen.getByLabelText('Game name').closest('form')!); });
+  await waitFor(() => expect(started).toHaveBeenCalled());
+  view.unmount();
+  await act(async () => { resolve(game); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it('discards a pending local copy after unmount', async () => {
+  const game = await cardGeneration.createSharedGame('Cancelled local copy', 1);
+  const hash = await cardGeneration.encodeGameLink(game);
+  const key = await cardGeneration.sharedGameKey(game);
+  localStorage.setItem(key, JSON.stringify({ ...emptySession, game }));
+  let resolve!: (value: string) => void;
+  const original = cardGeneration.sharedGameKey;
+  const keySpy = jest.spyOn(cardGeneration, 'sharedGameKey').mockResolvedValueOnce(key).mockReturnValueOnce(new Promise(done => { resolve = done; }));
+  window.history.replaceState(null, '', '/' + hash);
+  const view = await renderEvent();
+  await waitFor(() => expect(keySpy).toHaveBeenCalledTimes(2));
+  view.unmount();
+  await act(async () => { resolve(key); });
+  keySpy.mockImplementation(original);
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it.each([null, 'original-copy'])('preserves a shared local copy’s library identity %s', async libraryId => {
+  const game = await cardGeneration.createSharedGame('Existing copy', 1);
+  const hash = await cardGeneration.encodeGameLink(game);
+  const shareKey = await cardGeneration.sharedGameKey(game);
+  localStorage.setItem(shareKey, JSON.stringify({ ...emptySession, game, shareKey, libraryId, stage: 'print' }));
+  window.history.replaceState(null, '', '/' + hash);
+  await renderEvent();
+  await screen.findByRole('heading', { name: 'Your cards are ready.' });
+  await waitFor(() => expect(JSON.parse(localStorage.getItem('bingoEventSession.v1')!).libraryId).toBe(libraryId));
+});
+
+it('resumes an imported local game from an identical shared link without first sharing it', async () => {
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Open a file' })); });
+  await act(async () => { selectFile('Imported.bingoCards', savedCard); });
+  await screen.findByRole('heading', { name: 'Imported' });
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Pick first number' })); });
+  await screen.findByText('Call 1 of 90');
+  const saved = JSON.parse(localStorage.getItem('bingoEventSession.v1')!);
+  const hash = await cardGeneration.encodeGameLink(saved.game);
+  await act(async () => {
+    window.history.replaceState(null, '', '/' + hash);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  });
+  await screen.findByText('Call 1 of 90');
+});
+
+it('does not activate an imported game after leaving during identity calculation', async () => {
+  const pending = deferred<string>();
+  const hashing = jest.spyOn(cardGeneration, 'sharedGameKey').mockReturnValue(pending.promise);
+  const view = await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Open a file' })); });
+  await act(async () => { selectFile('Imported.bingoCards', savedCard); });
+  await waitFor(() => expect(hashing).toHaveBeenCalled());
+  view.unmount();
+  await act(async () => { pending.resolve('unused'); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it('does not activate a library game after leaving during identity calculation', async () => {
+  mockSavedRecords.set('stored', storedGame());
+  const view = await renderEvent();
+  await act(async () => { fireEvent.click(within(screen.getByRole('group', { name: messages.event.choosePath })).getByRole('button', { name: 'Saved games', exact: true })); });
+  const pending = deferred<string>();
+  const hashing = jest.spyOn(cardGeneration, 'sharedGameKey').mockReturnValue(pending.promise);
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Resume game' })); });
+  await waitFor(() => expect(hashing).toHaveBeenCalled());
+  view.unmount();
+  await act(async () => { pending.resolve('unused'); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
 it("offers a ready-to-use small game and keeps printing help out of the main path", async () => {
   await renderEvent();
   expect(screen.getByLabelText("Game name")).toHaveValue("My bingo game");
@@ -1007,4 +1225,12 @@ it("offers a ready-to-use small game and keeps printing help out of the main pat
   expect(screen.getByText("Need help printing?").closest("details")).not.toHaveAttribute("open");
   expect(screen.getByText("Save a backup file").closest("details")).not.toHaveAttribute("open");
   expect(screen.getByRole("button", { name: "Play bingo", exact: true })).toBeEnabled();
+});
+
+
+it('explains how to take the printed game to another computer', async () => {
+  seedHost();
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Back to cards' })); });
+  expect(screen.getByText('Playing on another computer? Share the game link or save the .bingoCards file and open it there. You’ll need the same cards to check winners; printing alone doesn’t transfer the game.')).toBeVisible();
 });

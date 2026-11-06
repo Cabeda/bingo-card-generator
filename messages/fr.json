@@ -216,9 +216,11 @@
     "restoreError": "Impossible de restaurer la session. Ouvrez votre sauvegarde pour continuer.",
     "storageError": "Le navigateur ne peut pas enregistrer la session. Téléchargez le fichier avant de quitter ; il conserve les cartons, pas les tirages.",
     "fullscreenError": "Le plein écran est indisponible ici. Utilisez la commande de votre navigateur.",
+    "shareError": "Ce lien est invalide ou non pris en charge. Votre jeu enregistré a été conservé.",
     "defaultName": "Mon jeu de bingo",
     "backupTitle": "Garder un fichier de copie",
-    "printSettingsTitle": "Besoin d’aide pour imprimer ?"
+    "printSettingsTitle": "Besoin d’aide pour imprimer ?",
+    "otherComputerHelp": "Tu vas jouer sur un autre ordinateur ? Partage le lien du jeu ou enregistre le fichier .bingoCards et ouvre-le sur cet ordinateur. Il faut les mêmes cartons pour vérifier les gagnants ; imprimer ne transfère pas le jeu."
   },
   "offline": {
     "preparing": "Préparation de l’accès hors connexion…",
@@ -278,5 +280,14 @@
     "removeLogo": "Retirer l’image",
     "imageError": "Choisissez une image PNG, JPEG ou WebP de 1 Mo maximum.",
     "title": "Préférences d’impression"
+  },
+  "sharing": {
+    "action": "Partager le lien du jeu",
+    "preparing": "Préparation du lien…",
+    "help": "Partage uniquement les cartons. Les numéros tirés et la progression restent sur chaque appareil.",
+    "link": "Lien du jeu",
+    "copied": "Lien copié.",
+    "copyHelp": "Sélectionnez et copiez le lien ci-dessus.",
+    "error": "Impossible de créer le lien. Pour les grands jeux, téléchargez et partagez le fichier du jeu."
   }
 }

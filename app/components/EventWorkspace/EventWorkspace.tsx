@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Card, Game } from "../../utils/bingo.interface";
-import { createGameId } from "../../utils/types";
-import { generateRandomBingoCards } from "../../utils/utils";
+import { createSharedGame, decodeGameLink, sharedGameKey } from "../../utils/shareGame";
+import { ShareGame } from "./ShareGame";
 import {
   checkClaim,
   drawNextNumber,
@@ -90,40 +90,72 @@ export function EventWorkspace({
   };
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(SESSION_KEY);
-      let restored: EventSession | null = saved
-        ? restoreSession(JSON.parse(saved))
-        : null;
-      // Preserve games from the previous host and card-generation pages.
-      if (!restored) {
-        const oldGame =
-          localStorage.getItem("bingoGame") ||
-          sessionStorage.getItem("bingoGame");
-        if (oldGame)
-          restored = restoreSession({
-            game: JSON.parse(oldGame),
-            drawn: JSON.parse(localStorage.getItem("drawnNumbers") || "[]"),
-            stage: entry === "generate" ? "print" : entry,
-            started: true,
+    let current = true;
+    let request = 0;
+    const restore = async (): Promise<void> => {
+      const version = ++request;
+      setReady(false);
+      try {
+        if (window.location.hash.startsWith("#bingo=")) {
+          const shared = await decodeGameLink(window.location.hash);
+          const shareKey = await sharedGameKey(shared);
+          if (!current || version !== request) return;
+          let restored: EventSession = { ...emptySession, game: shared, shareKey, libraryId: crypto.randomUUID(), stage: "print" };
+          try {
+            const saved = localStorage.getItem(shareKey) ?? localStorage.getItem(SESSION_KEY);
+            if (saved) {
+              const candidate = restoreSession(JSON.parse(saved));
+              if (await sharedGameKey(candidate.game!) === shareKey) restored = { ...candidate, game: shared, shareKey, libraryId: candidate.libraryId === undefined ? crypto.randomUUID() : candidate.libraryId };
+            }
+          } catch { /* A bad local copy must not prevent opening a valid link. */ }
+          if (!current || version !== request) return;
+          setSession(restored);
+          setName(shared.filename);
+          setCount(shared.cards.length);
+          setError("");
+          setAudience(false);
+          setClaim(null);
+          return;
+        }
+        const saved = localStorage.getItem(SESSION_KEY);
+        let restored: EventSession | null = saved
+          ? restoreSession(JSON.parse(saved))
+          : null;
+        // Preserve games from the previous host and card-generation pages.
+        if (!restored) {
+          const oldGame =
+            localStorage.getItem("bingoGame") ||
+            sessionStorage.getItem("bingoGame");
+          if (oldGame)
+            restored = restoreSession({
+              game: JSON.parse(oldGame),
+              drawn: JSON.parse(localStorage.getItem("drawnNumbers") || "[]"),
+              stage: entry === "generate" ? "print" : entry,
+              started: true,
+            });
+        }
+        if (restored) {
+          setSession({
+            ...restored,
+            libraryId: restored.libraryId === undefined ? crypto.randomUUID() : restored.libraryId,
+            stage: entry === "generate" ? restored.stage : entry,
+            started: restored.started || entry === "host",
           });
+          setName(restored.game!.filename);
+          setCount(restored.game!.cards.length);
+        }
+      } catch {
+        if (current && version === request) setError(window.location.hash.startsWith("#bingo=") ? "shareError" : "restoreError");
+      } finally {
+        if (current && version === request) setReady(true);
       }
-      if (restored) {
-        setSession({
-          ...restored,
-          libraryId: restored.libraryId === undefined ? crypto.randomUUID() : restored.libraryId,
-          stage: entry === "generate" ? restored.stage : entry,
-          started: restored.started || entry === "host",
-        });
-        setName(restored.game!.filename);
-        setCount(restored.game!.cards.length);
-      }
-    } catch {
-      setError("restoreError");
-    } finally {
-      setReady(true);
-    }
+    };
+    void restore();
+    const changed = (): void => { void restore(); };
+    window.addEventListener("hashchange", changed);
     return () => {
+      current = false;
+      window.removeEventListener("hashchange", changed);
       if (generationTimer.current) clearTimeout(generationTimer.current);
       void audioContext.current?.close();
       window.speechSynthesis?.cancel();
@@ -166,6 +198,7 @@ export function EventWorkspace({
     if (!ready || !game) return;
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      if (session.shareKey) localStorage.setItem(session.shareKey, JSON.stringify(session));
       setStorageWarning(false);
     } catch {
       setStorageWarning(true);
@@ -181,11 +214,15 @@ export function EventWorkspace({
     setClaim(null);
     setError("");
   };
-  const replaceGame = (next: Game, nextStage: EventStage): void => {
+  const replaceGame = async (next: Game, nextStage: EventStage): Promise<void> => {
+    const shareKey = await sharedGameKey(next);
+    if (!libraryMounted.current) return;
     const libraryId = crypto.randomUUID();
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
     setSession((previous) => ({
       ...emptySession,
       libraryId,
+      shareKey,
       printOptions: previous.printOptions,
       cardsPerPage: previous.cardsPerPage,
       game: next,
@@ -209,7 +246,10 @@ export function EventWorkspace({
       const knownTheme = PRESET_THEMES[saved.themeKey] ?? customThemes[saved.themeKey];
       if (knownTheme && JSON.stringify(knownTheme) === JSON.stringify(saved.theme)) setTheme(saved.themeKey);
       else setCustomTheme(saved.theme);
-      setSession({ ...saved.session, libraryId: saved.id, stage: mode === "print" ? "print" : saved.session.started ? "host" : "print" });
+      const shareKey = await sharedGameKey(saved.session.game!);
+      if (!libraryMounted.current) return;
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      setSession({ ...saved.session, shareKey, libraryId: saved.id, stage: mode === "print" ? "print" : saved.session.started ? "host" : "print" });
       setName(saved.session.game!.filename);
       setCount(saved.session.game!.cards.length);
       setAudience(false);
@@ -244,15 +284,10 @@ export function EventWorkspace({
     if (game && !window.confirm(t("replaceConfirm"))) return;
     setBusy(true);
     setError("");
-    generationTimer.current = setTimeout(() => {
+    generationTimer.current = setTimeout(async () => {
       try {
-        replaceGame(
-          {
-            filename: createGameId(name.trim()),
-            cards: generateRandomBingoCards(count),
-          },
-          "print",
-        );
+        const generated = await createSharedGame(name.trim(), count);
+        if (libraryMounted.current) await replaceGame(generated, "print");
       } catch {
         setError("generateError");
       } finally {
@@ -268,7 +303,7 @@ export function EventWorkspace({
       if (file.size > 10 * 1024 * 1024) throw new Error("File too large");
       const loaded = loadGameFile(file.name, await file.text());
       if (game && !window.confirm(t("replaceConfirm"))) return;
-      replaceGame(loaded, "host");
+      await replaceGame(loaded, "host");
     } catch {
       setError("fileError");
     } finally {
@@ -633,6 +668,8 @@ export function EventWorkspace({
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
+              <p>{t("otherComputerHelp")}</p>
+              {game && <ShareGame key={session.libraryId} game={game} />}
               <h2>{t("printHeading")}</h2>
               <p>{t("printHelp")}</p>
               <fieldset className="bingo-flow-layout">
@@ -769,6 +806,7 @@ export function EventWorkspace({
                         {t("voice")}
                       </label>
                       <button onClick={fullScreen}>{t("fullscreen")}</button>
+                      <ShareGame key={session.libraryId} game={game!} />
                       <button onClick={download}>{t("downloadAction")}</button>
                       <button
                         onClick={() => {

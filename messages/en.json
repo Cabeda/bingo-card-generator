@@ -216,9 +216,11 @@
     "restoreError": "The saved session could not be restored. Open your game backup to continue.",
     "storageError": "Your browser cannot save this session. Download the game file before leaving; it preserves cards, not calls.",
     "fullscreenError": "Full screen is unavailable here. Use your browser’s full-screen command.",
+    "shareError": "This game link is invalid or unsupported. Your saved game has been kept.",
     "defaultName": "My bingo game",
     "backupTitle": "Save a backup file",
-    "printSettingsTitle": "Need help printing?"
+    "printSettingsTitle": "Need help printing?",
+    "otherComputerHelp": "Playing on another computer? Share the game link or save the .bingoCards file and open it there. You’ll need the same cards to check winners; printing alone doesn’t transfer the game."
   },
   "offline": {
     "preparing": "Preparing offline access…",
@@ -278,5 +280,14 @@
     "removeLogo": "Remove image",
     "imageError": "Choose a PNG, JPEG or WebP image up to 1 MB.",
     "title": "Print preferences"
+  },
+  "sharing": {
+    "action": "Share game link",
+    "preparing": "Preparing link…",
+    "help": "Shares the cards only. Calls and progress stay on each device.",
+    "link": "Game link",
+    "copied": "Link copied.",
+    "copyHelp": "Select and copy the link above.",
+    "error": "Unable to create a link. For large games, download and share the game file instead."
   }
 }

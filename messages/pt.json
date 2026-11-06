@@ -216,9 +216,11 @@
     "restoreError": "Não foi possível recuperar a sessão. Abra a cópia do jogo para continuar.",
     "storageError": "O navegador não consegue guardar a sessão. Descarregue o ficheiro antes de sair; guarda os cartões, não os sorteios.",
     "fullscreenError": "O ecrã inteiro não está disponível aqui. Use a opção do navegador.",
+    "shareError": "Esta ligação é inválida ou não é suportada. O seu jogo guardado foi mantido.",
     "defaultName": "O meu jogo de bingo",
     "backupTitle": "Guardar um ficheiro de cópia",
-    "printSettingsTitle": "Precisas de ajuda para imprimir?"
+    "printSettingsTitle": "Precisas de ajuda para imprimir?",
+    "otherComputerHelp": "Vais jogar noutro computador? Partilha a ligação do jogo ou guarda o ficheiro .bingoCards e abre-o nesse computador. Precisas dos mesmos cartões para verificar os vencedores; imprimir não transfere o jogo."
   },
   "offline": {
     "preparing": "A preparar o acesso offline…",
@@ -278,5 +280,14 @@
     "removeLogo": "Remover imagem",
     "imageError": "Escolha uma imagem PNG, JPEG ou WebP até 1 MB.",
     "title": "Preferências de impressão"
+  },
+  "sharing": {
+    "action": "Partilhar ligação do jogo",
+    "preparing": "A preparar a ligação…",
+    "help": "Partilha apenas os cartões. Os números sorteados e o progresso ficam em cada dispositivo.",
+    "link": "Ligação do jogo",
+    "copied": "Ligação copiada.",
+    "copyHelp": "Selecione e copie a ligação acima.",
+    "error": "Não foi possível criar uma ligação. Para jogos grandes, descarregue e partilhe o ficheiro do jogo."
   }
 }
