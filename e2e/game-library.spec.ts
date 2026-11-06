@@ -24,9 +24,9 @@ async function library(page: Page) {
 
 test('multiple local games retain calls and all print settings across an offline refresh', async ({ page, context }) => {
   await page.goto('/en');
-  await page.getByLabel('Event name', { exact: true }).fill('Community');
-  await page.getByRole('spinbutton', { name: 'Number of cards' }).fill('4');
-  await page.getByRole('button', { name: 'Generate game →' }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('Community');
+  await page.getByRole('spinbutton', { name: 'How many cards?' }).fill('4');
+  await page.getByRole('button', { name: 'Make cards', exact: true }).click();
   await page.locator('.bingo-print-preferences > summary').click();
   const preferences = page.locator('.bingo-print-preferences');
   await preferences.locator('input[type=checkbox]').nth(0).check();
@@ -38,15 +38,15 @@ test('multiple local games retain calls and all print settings across an offline
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQ0AAAAASUVORK5CYII=', 'base64'),
   });
   await expect.poll(async () => (await state(page)).printOptions.logo).toMatch(/^data:image\/png/);
-  await page.getByRole('button', { name: 'Host this game →' }).click();
-  await page.getByRole('button', { name: 'Draw first number →' }).click();
+  await page.getByRole('button', { name: 'Play bingo', exact: true }).click();
+  await page.getByRole('button', { name: 'Pick first number' }).click();
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   const first = await state(page);
   await expect.poll(async () => (await records(page))[0]?.session.paused).toBe(true);
   await page.getByRole('button', { name: 'Back to cards' }).click();
   await page.getByRole('button', { name: 'Edit game' }).click();
   page.once('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: 'Generate game →' }).click();
+  await page.getByRole('button', { name: 'Make cards', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Your cards are ready.' })).toBeVisible();
   await expect.poll(async () => (await records(page)).length).toBe(2);
   const second = await state(page);
@@ -82,9 +82,9 @@ test('multiple local games retain calls and all print settings across an offline
 
 test('a second tab cannot recreate a saved copy removed in the first tab', async ({ page, context }) => {
   await page.goto('/en');
-  await page.getByLabel('Event name', { exact: true }).fill('Two tabs');
-  await page.getByRole('spinbutton', { name: 'Number of cards' }).fill('2');
-  await page.getByRole('button', { name: 'Generate game →' }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('Two tabs');
+  await page.getByRole('spinbutton', { name: 'How many cards?' }).fill('2');
+  await page.getByRole('button', { name: 'Make cards', exact: true }).click();
   await expect.poll(async () => (await records(page)).length).toBe(1);
   const other = await context.newPage();
   await other.goto('/en');
@@ -93,8 +93,8 @@ test('a second tab cannot recreate a saved copy removed in the first tab', async
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Remove saved copy' }).click();
   await expect.poll(async () => (await records(page)).length).toBe(0);
-  await other.getByRole('button', { name: 'Host this game →' }).click();
-  await other.getByRole('button', { name: 'Draw first number →' }).click();
+  await other.getByRole('button', { name: 'Play bingo', exact: true }).click();
+  await other.getByRole('button', { name: 'Pick first number' }).click();
   await expect(other.getByText('Call 1 of 90', { exact: true })).toBeVisible();
   await expect(other.locator('.bingo-error[role=alert]')).toBeVisible();
   expect(await records(other)).toEqual([]);

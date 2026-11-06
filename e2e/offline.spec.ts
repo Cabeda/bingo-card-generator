@@ -28,11 +28,11 @@ async function saved(page: Page) {
 
 async function prepare(page: Page) {
   await page.goto(`${origin}/en`);
-  await page.getByLabel('Event name', { exact: true }).fill('Offline community bingo');
-  await page.getByRole('spinbutton', { name: 'Number of cards' }).fill('4');
-  await page.getByRole('button', { name: 'Generate game →', exact: true }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('Offline community bingo');
+  await page.getByRole('spinbutton', { name: 'How many cards?' }).fill('4');
+  await page.getByRole('button', { name: 'Make cards', exact: true }).click();
   await page.getByRole('radio', { name: '2', exact: true }).locator('..').click();
-  await page.getByRole('button', { name: 'Host this game →' }).click();
+  await page.getByRole('button', { name: 'Play bingo', exact: true }).click();
   for (let count = 1; count <= 3; count++) {
     await draw(page, count);
   }

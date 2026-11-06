@@ -1376,3 +1376,77 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     font-size: 11px;
   }
 }
+
+/* Plain instructions and large controls for first-time players. */
+.bingo-workspace .bingo-eyebrow {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.bingo-flow-header > span {
+  font-size: 15px;
+  letter-spacing: 0;
+  opacity: 0.85;
+}
+.bingo-flow label {
+  font-size: 16px;
+}
+.bingo-flow small,
+.bingo-flow-print-actions p {
+  font-size: 14px;
+  opacity: 0.85;
+}
+.bingo-flow-setup > section > p {
+  opacity: 0.9;
+  max-width: 45ch;
+}
+.bingo-flow-setup ol {
+  list-style: decimal;
+  padding-left: 24px;
+  gap: 14px;
+}
+.bingo-flow-setup li {
+  display: list-item;
+  padding-left: 6px;
+  font-size: 16px;
+}
+.bingo-workspace .bingo-flow-nav button {
+  min-height: 48px;
+  font-size: 14px;
+}
+.bingo-workspace .bingo-primary {
+  min-height: 52px;
+  font-size: 17px;
+}
+.bingo-extra-options > summary {
+  min-height: 48px;
+  display: list-item;
+  align-content: center;
+  padding: 10px 0;
+  font-size: 15px;
+}
+.bingo-extra-options[open] {
+  padding-bottom: 12px;
+}
+.bingo-extra-options p {
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+  .bingo-flow-print-actions { grid-row: 1; }
+  .bingo-workspace .bingo-flow-nav button {
+    font-size: 13px;
+    gap: 6px;
+  }
+  .bingo-flow-nav i { display: none; }
+}
+@media (max-width: 600px) {
+  .bingo-workspace .bingo-flow-nav button {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    text-align: center;
+  }
+  .bingo-c-actions .bingo-primary {
+    white-space: normal;
+    line-height: 1.25;
+  }
+}

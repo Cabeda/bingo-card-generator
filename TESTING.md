@@ -23,6 +23,15 @@ Tests are configured in `jest.config.js` with the following key settings:
 
 ## Running Tests
 
+### First-time player flow
+
+Browser tests cover creating the default 20-card game without entering any setup,
+then picking, pausing and resuming numbers. They check mobile and desktop layouts,
+and all four languages at 320px so translated buttons stay inside the screen.
+Printing help and backup options stay collapsed by default. These checks verify
+interaction and layout; a usability session with a child is still needed to assess
+whether the wording and game rules are understood without help.
+
 ### Offline recovery in a real browser
 
 Run `bunx playwright install chromium firefox`, `bun run build`, then `bun run test:offline`.

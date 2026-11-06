@@ -52,12 +52,12 @@ for (const kind of ['incomplete cache', 'legacy protocol']) {
         await navigator.serviceWorker.ready;
       });
       await page.goto(`${origin}/en`);
-      await page.getByLabel('Event name', { exact: true }).fill('Keep this event');
-      await page.getByRole('spinbutton', { name: 'Number of cards' }).fill('4');
-      await page.getByRole('button', { name: 'Generate game →', exact: true }).click();
-      await page.getByRole('button', { name: 'Host this game →' }).click();
-      await page.getByRole('button', { name: 'Draw first number →' }).click();
-      await page.getByRole('button', { name: 'Draw next number →' }).click();
+      await page.getByLabel('Game name', { exact: true }).fill('Keep this event');
+      await page.getByRole('spinbutton', { name: 'How many cards?' }).fill('4');
+      await page.getByRole('button', { name: 'Make cards', exact: true }).click();
+      await page.getByRole('button', { name: 'Play bingo', exact: true }).click();
+      await page.getByRole('button', { name: 'Pick first number' }).click();
+      await page.getByRole('button', { name: 'Pick next number' }).click();
       await expect(page.getByText('Call 2 of 90', { exact: true })).toBeVisible();
       const before = await page.evaluate(() => localStorage.getItem('bingoEventSession.v1'));
       let navigations = 0;
