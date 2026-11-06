@@ -107,7 +107,7 @@ import WebKit
         guard pdf.pageCount == expectedPages else {
             fail("\(count) cards at \(perPage)/sheet: expected \(expectedPages) A4 pages, got \(pdf.pageCount)")
         }
-        let pattern = try! NSRegularExpression(pattern: "Card (\\d+)")
+        let pattern = try! NSRegularExpression(pattern: "#(\\d+)")
         let firstPage = pdf.page(at: 0)!
         let labelRange = ((firstPage.string ?? "") as NSString).range(of: "BINGO_PRINT_ORIGIN")
         guard labelRange.location != NSNotFound,

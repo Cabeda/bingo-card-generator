@@ -46,7 +46,7 @@ export function PrintedSheets({
     <article className="bingo-flow-card" key={card.cardNumber}>
       <header>
         <b>{eventName}</b>
-        <span>{t("cardId", { number: String(card.cardNumber).padStart(3, "0") })}</span>
+        <span>#{String(card.cardNumber).padStart(3, "0")}</span>
       </header>
       <div>
         {card.numbers.map((number, index) => (

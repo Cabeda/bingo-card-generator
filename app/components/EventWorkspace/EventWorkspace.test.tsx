@@ -93,7 +93,7 @@ it("generates, previews and hosts the same cards, preserving calls when returnin
     await screen.findByRole("heading", { name: "Your cards are ready." }),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("main")).getByText("Card 001"),
+    within(screen.getByRole("main")).getByText("#001"),
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Host this game →" }));
   expect(
@@ -501,10 +501,10 @@ it("rejects a blank event name and generates a valid one-card game", async () =>
     await screen.findByRole("heading", { name: "Your cards are ready." }),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("main")).getByText("Card 001"),
+    within(screen.getByRole("main")).getByText("#001"),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("main")).queryByText("Card 002"),
+    within(screen.getByRole("main")).queryByText("#002"),
   ).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Host this game →" }));
   expect(

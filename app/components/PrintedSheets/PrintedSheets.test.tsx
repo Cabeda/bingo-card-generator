@@ -6,8 +6,8 @@ import { PRESET_THEMES } from "../../utils/themes";
 import { PrintedSheets } from "./PrintedSheets";
 
 jest.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { number: string }) =>
-    key === "cardId" ? `Card ${values!.number}` : "90-ball bingo · One line, then full house",
+  useTranslations: () => () =>
+    "90-ball bingo · One line, then full house",
 }));
 const cards = loadGameFile("Family.bingoCards", readFileSync("app/test.bingoCards", "utf8")).cards.slice(0, 9);
 const props = { cards, eventName: "Family night", cardsPerPage: 4, theme: PRESET_THEMES.classic };
@@ -24,7 +24,7 @@ it.each([
   sheets.forEach((sheet, index) => {
     const articles = [...sheet.querySelectorAll("article")];
     expect(articles.map(article => article.querySelector("header span")!.textContent)).toEqual(
-      expected[index].map(id => `Card ${String(id).padStart(3, "0")}`),
+      expected[index].map(id => `#${String(id).padStart(3, "0")}`),
     );
     articles.forEach((article, offset) => {
       expect(within(article).getByText("Family night")).toBeInTheDocument();
@@ -39,8 +39,8 @@ it.each([
 it("previews only the first sheet and keeps empty previews available", () => {
   const { container, rerender } = render(<PrintedSheets {...props} preview />);
   expect(container.querySelectorAll("article")).toHaveLength(4);
-  expect(container).toHaveTextContent("Card 004");
-  expect(container).not.toHaveTextContent("Card 005");
+  expect(container).toHaveTextContent("#004");
+  expect(container).not.toHaveTextContent("#005");
   expect(container.querySelector("style")).toBeNull();
   rerender(<PrintedSheets {...props} cards={[]} preview />);
   expect(container.querySelector(".bingo-flow-sheet-frame")).toBeInTheDocument();

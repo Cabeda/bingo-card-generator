@@ -156,7 +156,6 @@
     "startHelp": "Conecta la pantalla. El juego empieza sin números sorteados.",
     "resumeAction": "Volver al juego →",
     "hostAction": "Dirigir este juego →",
-    "cardId": "Cartón {number}",
     "cardFooter": "Bingo de 90 bolas · Línea, después bingo",
     "backToCards": "Volver a los cartones",
     "hostMeta": "Bingo de 90 bolas · {count} cartones",

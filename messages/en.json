@@ -156,7 +156,6 @@
     "startHelp": "Connect your display. The game starts with zero calls drawn.",
     "resumeAction": "Return to your game →",
     "hostAction": "Host this game →",
-    "cardId": "Card {number}",
     "cardFooter": "90-ball bingo · One line, then full house",
     "backToCards": "Back to cards",
     "hostMeta": "90-ball bingo · {count} cards",

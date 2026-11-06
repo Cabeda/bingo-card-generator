@@ -156,7 +156,6 @@
     "startHelp": "Connectez votre écran. La partie commence sans numéro tiré.",
     "resumeAction": "Reprendre la partie →",
     "hostAction": "Animer cette partie →",
-    "cardId": "Carton {number}",
     "cardFooter": "Bingo à 90 boules · Une ligne, puis carton plein",
     "backToCards": "Retour aux cartons",
     "hostMeta": "Bingo à 90 boules · {count} cartons",

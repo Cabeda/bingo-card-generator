@@ -156,7 +156,6 @@
     "startHelp": "Ligue o ecrã. O jogo começa sem números sorteados.",
     "resumeAction": "Voltar ao jogo →",
     "hostAction": "Conduzir este jogo →",
-    "cardId": "Cartão {number}",
     "cardFooter": "Bingo de 90 números · Linha, depois bingo",
     "backToCards": "Voltar aos cartões",
     "hostMeta": "Bingo de 90 bolas · {count} cartões",
