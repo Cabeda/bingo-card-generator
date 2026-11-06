@@ -219,7 +219,8 @@
     "shareError": "This game link is invalid or unsupported. Your saved game has been kept.",
     "defaultName": "My bingo game",
     "backupTitle": "Save a backup file",
-    "printSettingsTitle": "Need help printing?"
+    "printSettingsTitle": "Need help printing?",
+    "otherComputerHelp": "Playing on another computer? Share the game link or save the .bingoCards file and open it there. You’ll need the same cards to check winners; printing alone doesn’t transfer the game."
   },
   "offline": {
     "preparing": "Preparing offline access…",

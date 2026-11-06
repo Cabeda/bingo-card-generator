@@ -219,7 +219,8 @@
     "shareError": "Ce lien est invalide ou non pris en charge. Votre jeu enregistré a été conservé.",
     "defaultName": "Mon jeu de bingo",
     "backupTitle": "Garder un fichier de copie",
-    "printSettingsTitle": "Besoin d’aide pour imprimer ?"
+    "printSettingsTitle": "Besoin d’aide pour imprimer ?",
+    "otherComputerHelp": "Tu vas jouer sur un autre ordinateur ? Partage le lien du jeu ou enregistre le fichier .bingoCards et ouvre-le sur cet ordinateur. Il faut les mêmes cartons pour vérifier les gagnants ; imprimer ne transfère pas le jeu."
   },
   "offline": {
     "preparing": "Préparation de l’accès hors connexion…",

@@ -219,7 +219,8 @@
     "shareError": "Esta ligação é inválida ou não é suportada. O seu jogo guardado foi mantido.",
     "defaultName": "O meu jogo de bingo",
     "backupTitle": "Guardar um ficheiro de cópia",
-    "printSettingsTitle": "Precisas de ajuda para imprimir?"
+    "printSettingsTitle": "Precisas de ajuda para imprimir?",
+    "otherComputerHelp": "Vais jogar noutro computador? Partilha a ligação do jogo ou guarda o ficheiro .bingoCards e abre-o nesse computador. Precisas dos mesmos cartões para verificar os vencedores; imprimir não transfere o jogo."
   },
   "offline": {
     "preparing": "A preparar o acesso offline…",

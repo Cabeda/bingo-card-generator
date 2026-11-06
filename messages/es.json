@@ -219,7 +219,8 @@
     "shareError": "Este enlace no es válido o no es compatible. Tu juego guardado se ha conservado.",
     "defaultName": "Mi juego de bingo",
     "backupTitle": "Guardar un archivo de copia",
-    "printSettingsTitle": "¿Necesitas ayuda para imprimir?"
+    "printSettingsTitle": "¿Necesitas ayuda para imprimir?",
+    "otherComputerHelp": "¿Vas a jugar en otro ordenador? Comparte el enlace del juego o guarda el archivo .bingoCards y ábrelo allí. Necesitas los mismos cartones para comprobar los ganadores; imprimir no transfiere el juego."
   },
   "offline": {
     "preparing": "Preparando el acceso sin conexión…",

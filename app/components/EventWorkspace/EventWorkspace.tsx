@@ -668,6 +668,7 @@ export function EventWorkspace({
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
+              <p>{t("otherComputerHelp")}</p>
               {game && <ShareGame key={session.libraryId} game={game} />}
               <h2>{t("printHeading")}</h2>
               <p>{t("printHelp")}</p>

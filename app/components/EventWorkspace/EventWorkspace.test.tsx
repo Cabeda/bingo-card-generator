@@ -1226,3 +1226,11 @@ it("offers a ready-to-use small game and keeps printing help out of the main pat
   expect(screen.getByText("Save a backup file").closest("details")).not.toHaveAttribute("open");
   expect(screen.getByRole("button", { name: "Play bingo", exact: true })).toBeEnabled();
 });
+
+
+it('explains how to take the printed game to another computer', async () => {
+  seedHost();
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Back to cards' })); });
+  expect(screen.getByText('Playing on another computer? Share the game link or save the .bingoCards file and open it there. You’ll need the same cards to check winners; printing alone doesn’t transfer the game.')).toBeVisible();
+});
