@@ -164,7 +164,7 @@ it("opens a legacy backup straight into hosting without generation or printing",
   expect(
     await screen.findByRole("heading", { name: "Family night" }),
   ).toBeInTheDocument();
-  expect(screen.getByText("90-BALL BINGO · 200 CARDS")).toBeInTheDocument();
+  expect(screen.getByText("90-ball bingo · 200 cards")).toBeInTheDocument();
   expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: "Draw first number →" }),
@@ -353,7 +353,7 @@ it.each([false, true])(
     expect(
       screen.getByText(confirmed ? "Ready for the first call" : "Call 2 of 90"),
     ).toBeInTheDocument();
-    expect(screen.getByText("90-BALL BINGO · 1 CARDS")).toBeInTheDocument();
+    expect(screen.getByText("90-ball bingo · 1 cards")).toBeInTheDocument();
   },
 );
 it.each([false, true])(
@@ -566,7 +566,7 @@ it("keeps rapid draws distinct under React Strict Mode", async () => {
   for (let i = 0; i < 5; i++) fireEvent.click(draw);
   expect(await screen.findByText("Call 5 of 90")).toBeInTheDocument();
   expect(screen.getAllByLabelText(/^\d+, Called$/)).toHaveLength(4);
-  expect(screen.getAllByLabelText(/^\d+, LATEST NUMBER$/)).toHaveLength(1);
+  expect(screen.getAllByLabelText(/^\d+, Latest number$/)).toHaveLength(1);
 });
 
 it.each(["host", "print"] as const)("opens the %s route with a migrated session", async (entry) => {
@@ -777,4 +777,21 @@ it("keeps appearance controls in a labelled, initially closed header disclosure"
   expect(within(settings).getByRole("button", { name: /Switch to/ })).toBeInTheDocument();
   fireEvent.click(settings.querySelector("summary")!);
   expect(settings.open).toBe(false);
+});
+
+it("groups display preferences beside event identity and keeps drawing in host controls", async () => {
+  seedHost([1, 2]);
+  renderEvent();
+  const heading = await screen.findByRole("heading", { name: "Family" });
+  const header = heading.closest("header")!;
+  expect(within(header).getByRole("button", { name: "Audience view ↗" })).toBeInTheDocument();
+  const settings = within(header).getByText("Settings").closest("details") as HTMLDetailsElement;
+  expect(settings.open).toBe(false);
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(within(settings).getByRole("heading", { name: "Preferences" })).toBeInTheDocument();
+  expect(within(settings).getByLabelText("Card theme")).toBeInTheDocument();
+  const controls = screen.getByLabelText("Host controls");
+  expect(within(controls).getByRole("button", { name: "Draw next number →" })).toBeInTheDocument();
+  expect(within(controls).getByText("Space or Enter to draw")).toBeInTheDocument();
+  expect(within(controls).queryByText("Settings")).not.toBeInTheDocument();
 });

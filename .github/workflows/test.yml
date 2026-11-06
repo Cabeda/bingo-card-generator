@@ -36,7 +36,9 @@ jobs:
       run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
 
     - name: Validate workflows
-      run: bun run lint:workflows
+      run: |
+        shellcheck --version
+        bun run lint:workflows
 
   test:
     runs-on: ubuntu-latest
@@ -136,6 +138,7 @@ jobs:
         trap 'kill "$server_pid" 2>/dev/null || true' EXIT
         ready=false
         for attempt in {1..60}; do
+          echo "Waiting for application (attempt $attempt/60)"
           if ! kill -0 "$server_pid" 2>/dev/null; then
             echo 'Application server exited before becoming ready.' >&2
             cat print-diagnostics/server.log

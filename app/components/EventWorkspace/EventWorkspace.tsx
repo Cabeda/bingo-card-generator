@@ -628,6 +628,52 @@ export function EventWorkspace({
                       : "live",
               )}
             </div>
+            {!audience && (
+              <div className="bingo-host-utilities">
+                  <button onClick={() => setAudience(true)}>
+                    {t("audienceAction")}
+                  </button>
+                  <details className="bingo-host-settings">
+                    <summary>{t("settings")}</summary>
+                    <div className="bingo-host-settings-panel">
+                      <h2>{t("preferences")}</h2>
+                      {themeTools}
+                      <label className="bingo-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={sound}
+                          onChange={(e) => setSound(e.target.checked)}
+                        />
+                        {t("sound")}
+                      </label>
+                      <label className="bingo-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={voice}
+                          onChange={(e) => setVoice(e.target.checked)}
+                        />
+                        {t("voice")}
+                      </label>
+                      <button onClick={fullScreen}>{t("fullscreen")}</button>
+                      <button onClick={download}>{t("downloadAction")}</button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(t("restartConfirm"))) {
+                            setSession((previous) => ({
+                              ...previous,
+                              drawn: [],
+                              paused: false,
+                            }));
+                            announcement.current = null;
+                          }
+                        }}
+                      >
+                        {t("restart")}
+                      </button>
+                    </div>
+                  </details>
+              </div>
+            )}
           </header>
           <div className="bingo-c-arena">
             <section className="bingo-c-focus" aria-label={t("callRegion")}>
@@ -770,6 +816,7 @@ export function EventWorkspace({
                   >
                     {t(paused ? "resume" : "pause")}
                   </button>
+                  <span className="bingo-keyboard-hint">{t("keyboardHelp")}</span>
                 </div>
                 <div className="bingo-c-options">
                   <label>
@@ -787,47 +834,7 @@ export function EventWorkspace({
                       <option value="full">{t("full")}</option>
                     </select>
                   </label>
-                  <button onClick={() => setAudience(true)}>
-                    {t("audienceAction")}
-                  </button>
-                  <details>
-                    <summary>{t("settings")}</summary>
-                    <div>
-                      {themeTools}
-                      <label className="bingo-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={sound}
-                          onChange={(e) => setSound(e.target.checked)}
-                        />
-                        {t("sound")}
-                      </label>
-                      <label className="bingo-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={voice}
-                          onChange={(e) => setVoice(e.target.checked)}
-                        />
-                        {t("voice")}
-                      </label>
-                      <button onClick={fullScreen}>{t("fullscreen")}</button>
-                      <button onClick={download}>{t("downloadAction")}</button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(t("restartConfirm"))) {
-                            setSession((previous) => ({
-                              ...previous,
-                              drawn: [],
-                              paused: false,
-                            }));
-                            announcement.current = null;
-                          }
-                        }}
-                      >
-                        {t("restart")}
-                      </button>
-                    </div>
-                  </details>
+
                 </div>
               </footer>
               <form
@@ -846,6 +853,7 @@ export function EventWorkspace({
                     value={claimNumber}
                     onChange={(e) => setClaimNumber(e.target.value)}
                     placeholder={t("cardNumber")}
+                    inputMode="numeric"
                   />
                 </label>
                 <button disabled={!claimNumber}>{t("checkClaim")}</button>

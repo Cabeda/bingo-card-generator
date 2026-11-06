@@ -325,7 +325,8 @@ npm test -- app/components/I18nVisualTest.test.tsx
 - The offline job checks recovery in a real Chromium browser. Browser installation
   has a five-minute step timeout within the job's twenty-minute limit.
 - The workflows job installs pinned actionlint and runs `bun run lint:workflows`.
-  To run it locally, install actionlint v1.7.12 and place it on `PATH`.
+  To run it locally, install actionlint v1.7.12 and ShellCheck and place both
+  on `PATH`; actionlint otherwise skips shell diagnostics when ShellCheck is absent.
 - The final `checks` job requires workflow validation, tests, native print and
   offline recovery to succeed. No test or coverage failure may continue as success.
 
