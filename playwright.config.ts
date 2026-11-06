@@ -5,6 +5,10 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 15_000 },
   workers: 1,
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'firefox', use: { browserName: 'firefox' } },
+  ],
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'retain-on-failure' },
   webServer: {

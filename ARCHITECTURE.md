@@ -40,14 +40,19 @@ page breaks separate the ordered sheets.
 
 Offline installation precaches the root and all localised home, cards and game pages alongside
 the build's scripts, styles and public assets. Locales are shared between routing and the precache
-manifest. The worker waits to activate updates until existing sessions release it, and reconnecting
+manifest. The worker waits to activate updates while the previous cache remains complete. An
+invalid or unsupported previous cache allows the replacement to activate without
+reloading clients or clearing saved event state, and reconnecting
 does not automatically reload a running game.
 
 The offline readiness module asks the active worker for its exact precache and revision keys,
 then verifies cached HTML and every referenced script and stylesheet.
-Missing entries can be repaired online. The status module shows readiness only after verification
-and checks again on reconnect or returning to the page. Storage persistence is requested without
-blocking readiness; the browser can deny it. Saved game state remains in localStorage.
+Missing entries can be repaired online. The status module remains silent when ready and shows a warning on failure. It
+checks again on reconnect, controller replacement or returning to the page. Storage persistence is requested without
+blocking readiness; the browser can deny it. Missing resources are repaired by the
+active worker through a bounded message exchange, avoiding page fetches through a
+missing precache route. Online checks discover worker updates without blocking cache verification. Controller
+changes trigger a fresh readiness check. Saved game state remains in localStorage.
 
 A separately packaged desktop release is not required for these offline behaviours. The existing
 installable web app remains the primary distribution; local file ownership or managed kiosk

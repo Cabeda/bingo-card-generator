@@ -54,14 +54,13 @@ Cards follow traditional bingo rules:
 
 ### 📱 Progressive Web App (PWA)
 
-- **Offline readiness**: Open the production app online and wait for the visible **Ready offline** status
-  before disconnecting. This confirms caching of all 13 entry routes: `/` and the home, cards and game pages
-  in English, Portuguese, Spanish and French.
+- **Offline readiness**: The production app prepares offline access in the background while online,
+  including all 13 entry routes in English, Portuguese, Spanish and French. No success banner is shown.
+  If setup fails, keep the connection available and use the retry action.
 - **Session recovery**: Cards, drawn numbers and settings are saved automatically in browser storage, so a
   normal refresh or reopening the app in the same browser profile restores the session.
 - **Optional installation**: Use Chrome or Edge's install option, Safari's **Add to Dock**, or iOS Safari's
-  **Add to Home Screen**, where supported. Open the installed app online initially and wait for **Ready
-  offline** there too.
+  **Add to Home Screen**, where supported. Open the installed app online initially to prepare its offline cache.
 - **Storage limits**: The app requests persistent storage where available, on a best-effort basis. It cannot
   prevent data removal by the user, browser eviction or private-browsing cleanup. Offline access and session
   storage are not guaranteed indefinitely.
@@ -203,14 +202,15 @@ bun run test:i18n      # Comprehensive i18n test suite
 
 ```bash
 bun install --frozen-lockfile
-bunx playwright install --with-deps chromium
+bunx playwright install --with-deps chromium firefox
 bun run build
 bun run test:offline
 ```
 
-Playwright starts the production server automatically. The Chromium suite checks offline readiness, cached
+Playwright starts the production server automatically. The Chromium and Firefox suites check offline readiness, cached
 routes, navigation and recovery after refresh, tab reopening and a browser restart using the same profile. CI
-runs this as a required `offline` job and uploads Playwright reports and test results on failure.
+also verifies cache repair and upgrades from obsolete workers. The required `offline` job uploads
+Playwright reports and test results on failure.
 
 See [TESTING.md](./TESTING.md) for detailed testing documentation, including i18n and offline testing strategies.
 

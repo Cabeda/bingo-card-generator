@@ -14,6 +14,7 @@ let put: jest.Mock;
 let open: jest.Mock;
 let info: { cacheName: string; keys: Record<string, string> };
 let postMessage: jest.Mock;
+let repaired: Map<string, ReturnType<typeof response>>;
 let port1: { onmessage: ((event: { data: unknown }) => void) | null; close: jest.Mock };
 let port2: { close: jest.Mock };
 
@@ -21,7 +22,8 @@ beforeEach(() => {
   jest.useFakeTimers();
   Object.defineProperty(navigator, 'onLine', { configurable: true, value: false });
   fetchMock = jest.fn().mockResolvedValue(response());
-  put = jest.fn().mockResolvedValue(undefined);
+  repaired = new Map();
+  put = jest.fn(async (key: string, value: ReturnType<typeof response>) => { repaired.set(key, value); });
   open = jest.fn();
   Object.defineProperty(globalThis, 'fetch', { configurable: true, value: fetchMock });
   const urls = [...OFFLINE_ROUTES, '/app.js', '/manifest.json', '/icon-192x192.png', '/icon-384x384.png', '/icon-512x512.png', ...OFFLINE_ROUTES.map(route => new URL('./style.css', new URL(route, location.origin)).pathname)];
@@ -29,7 +31,16 @@ beforeEach(() => {
   port1 = { onmessage: null, close: jest.fn() };
   port2 = { close: jest.fn() };
   Object.defineProperty(globalThis, 'MessageChannel', { configurable: true, value: jest.fn(() => ({ port1, port2 })) });
-  postMessage = jest.fn(() => port1.onmessage!({ data: info }));
+  postMessage = jest.fn(async (data: { type: string; url?: string }) => {
+    if (data.type === 'OFFLINE_CACHE_INFO') return port1.onmessage!({ data: info });
+    try {
+      const url = new URL(data.url!);
+      url.searchParams.delete('dpl');
+      const fresh = await fetchMock(url.href, { cache: 'reload' });
+      if (fresh.ok) await put(info.keys[url.href], fresh.clone());
+      port1.onmessage!({ data: { ok: fresh.ok } });
+    } catch { port1.onmessage!({ data: { ok: false } }); }
+  });
   match = jest.fn(async (url: string) => response(OFFLINE_ROUTES.includes(new URL(url).pathname) ? html : 'asset'));
   register = jest.fn().mockResolvedValue({});
   getRegistration = jest.fn().mockResolvedValue(undefined);
@@ -105,8 +116,9 @@ it('propagates registration lookup failure', async () => {
 
 it('recovers missing pages and essential assets online before reporting ready', async () => {
   Object.defineProperty(navigator, 'onLine', { value: true });
-  match.mockResolvedValue(undefined);
+  match.mockImplementation(async (key: string) => repaired.get(key));
   await prepareOffline();
+  expect(postMessage).toHaveBeenCalledWith({ type: 'OFFLINE_REPAIR', url: new URL('/fr/game', location.origin).href }, [port2]);
   expect(fetchMock).toHaveBeenCalledWith(new URL('/fr/game', location.origin).href, { cache: 'reload' });
   expect(fetchMock).toHaveBeenCalledWith(new URL('/app.js', location.origin).href, { cache: 'reload' });
   expect(open).toHaveBeenCalledWith('active-precache-v1');
@@ -211,4 +223,11 @@ it('verifies deployment-tagged scripts and styles against their canonical manife
   await expect(prepareOffline()).resolves.toBeUndefined();
   expect(match).toHaveBeenCalledWith(info.keys[script]);
   expect(match).toHaveBeenCalledWith(info.keys[style]);
+});
+
+it.each([null, {}, { ok: false }])('rejects unsuccessful worker repair replies: %p', async data => {
+  Object.defineProperty(navigator, 'onLine', { value: true });
+  match.mockResolvedValue(undefined);
+  postMessage.mockImplementation((request: { type: string }) => port1.onmessage!({ data: request.type === 'OFFLINE_CACHE_INFO' ? info : data }));
+  await expect(prepareOffline()).rejects.toThrow('Offline resource repair failed');
 });

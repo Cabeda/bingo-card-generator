@@ -5,17 +5,16 @@ interface OfflineCacheInfo {
   keys: Record<string, string>;
 }
 
-async function ensureCached(url: string, cache: Cache, keys: Record<string, string>): Promise<Response | undefined> {
-  // Vercel tags HTML asset URLs with a deployment id; the worker caches canonical URLs.
+async function ensureCached(url: string, cache: Cache, keys: Record<string, string>, repair: (url: string) => Promise<void>): Promise<Response | undefined> {
   const canonical = new URL(url);
   canonical.searchParams.delete('dpl');
   const key = keys[canonical.href];
   if (!key) throw new Error(`Resource is not in the active offline manifest: ${url}`);
   const cached = await cache.match(key);
   if (cached || !navigator.onLine) return cached;
-  const response = await fetch(url, { cache: 'reload' });
-  if (response.ok) await cache.put(key, response.clone());
-  return response;
+  // The worker fetches directly from the network, avoiding a fetch through its own missing precache route.
+  await repair(url);
+  return cache.match(key);
 }
 
 const REQUIRED_FILES = ['/manifest.json', '/icon-192x192.png', '/icon-384x384.png', '/icon-512x512.png'];
@@ -33,21 +32,28 @@ export async function prepareOffline(): Promise<void> {
     if (!registration) await navigator.serviceWorker.register('/sw.js', { scope: '/' });
     const ready = await navigator.serviceWorker.ready;
     if (finished) return;
-    channel = new MessageChannel();
-    const info = await new Promise<OfflineCacheInfo>((resolve, reject) => {
-      channel!.port1.onmessage = event => {
-        const data = event.data as OfflineCacheInfo;
-        if (!data || typeof data.cacheName !== 'string' || !data.keys || typeof data.keys !== 'object') {
-          reject(new Error('Invalid active offline cache information'));
-        } else resolve(data);
-      };
-      ready.active!.postMessage({ type: 'OFFLINE_CACHE_INFO' }, [channel!.port2]);
-    });
+    const message = (data: unknown) => {
+      channel?.port1.close();
+      channel?.port2.close();
+      channel = new MessageChannel();
+      return new Promise<unknown>(resolve => {
+        channel!.port1.onmessage = event => resolve(event.data);
+        ready.active!.postMessage(data, [channel!.port2]);
+      });
+    };
+    const info = await message({ type: 'OFFLINE_CACHE_INFO' }) as OfflineCacheInfo;
+    if (!info || typeof info.cacheName !== 'string' || !info.keys || typeof info.keys !== 'object') {
+      throw new Error('Invalid active offline cache information');
+    }
+    const repair = async (url: string) => {
+      const result = await message({ type: 'OFFLINE_REPAIR', url }) as { ok?: boolean } | null;
+      if (result?.ok !== true) throw new Error(`Offline resource repair failed: ${url}`);
+    };
     const cache = await caches.open(info.cacheName);
     const assets = new Set(REQUIRED_FILES.map(path => new URL(path, window.location.origin).href));
     for (const route of OFFLINE_ROUTES) {
       const url = new URL(route, window.location.origin);
-      const response = await ensureCached(url.href, cache, info.keys);
+      const response = await ensureCached(url.href, cache, info.keys, repair);
       if (!response?.ok || !response.headers.get('content-type')?.includes('text/html')) {
         throw new Error(`Offline page unavailable: ${route}`);
       }
@@ -61,7 +67,7 @@ export async function prepareOffline(): Promise<void> {
       }
     }
     for (const asset of assets) {
-      const response = await ensureCached(asset, cache, info.keys);
+      const response = await ensureCached(asset, cache, info.keys, repair);
       if (!response?.ok) throw new Error(`Offline asset unavailable: ${asset}`);
     }
     try {

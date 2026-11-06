@@ -19,7 +19,7 @@ function online(value: boolean) {
 }
 beforeEach(() => {
   Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'production' });
-  Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: {} });
+  Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: Object.assign(new EventTarget(), { getRegistration: jest.fn().mockResolvedValue(undefined) }) });
   Object.defineProperty(window, 'caches', { configurable: true, value: {} });
   Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
   online(true);
@@ -104,8 +104,31 @@ it.each(['resolve', 'reject'] as const)('ignores stale attempt %s after a newer 
 it.each(['resolve', 'reject'] as const)('ignores unmounted completion %s and removes listeners', async outcome => {
   const pending = deferred(); prepare.mockReturnValue(pending.promise);
   const view = render(<PWARegister />); view.unmount();
-  fireEvent(window, new Event('online')); fireEvent(window, new Event('offline')); fireEvent(document, new Event('visibilitychange'));
+  fireEvent(window, new Event('online')); fireEvent(window, new Event('offline')); fireEvent(document, new Event('visibilitychange')); fireEvent(navigator.serviceWorker, new Event('controllerchange'));
   await act(async () => { if (outcome === 'resolve') pending.resolve(); else pending.reject(new Error('late')); });
   expect(prepare).toHaveBeenCalledTimes(1);
   expect(view.container).toBeEmptyDOMElement();
+});
+
+it('rechecks a replacement worker without reloading or letting a stale failure restore the warning', async () => {
+  const old = deferred(); prepare.mockReturnValueOnce(old.promise);
+  render(<PWARegister />);
+  await act(async () => fireEvent(navigator.serviceWorker, new Event('controllerchange')));
+  expect(prepare).toHaveBeenCalledTimes(2);
+  await act(async () => old.reject(new Error('old worker')));
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
+});
+
+it.each(['available', 'failed'])('discovers updates without blocking cache readiness (%s)', async state => {
+  const update = jest.fn().mockImplementation(() => state === 'available' ? new Promise(() => {}) : Promise.reject(new Error('offline update')));
+  jest.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue({ update } as unknown as ServiceWorkerRegistration);
+  await act(async () => { render(<PWARegister />); });
+  expect(update).toHaveBeenCalledTimes(1);
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
+});
+it('does not discover worker updates while offline', async () => {
+  online(false);
+  await act(async () => { render(<PWARegister />); });
+  expect(navigator.serviceWorker.getRegistration).not.toHaveBeenCalled();
 });

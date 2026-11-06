@@ -1,4 +1,4 @@
-import { type BrowserContext, chromium, expect, type Page, test } from '@playwright/test';
+import { type BrowserContext, chromium, expect, firefox, type Page, test } from '@playwright/test';
 
 type SavedSession = {
   game: { cards: { cardNumber: number; numbers: (number | null)[] }[] };
@@ -56,15 +56,16 @@ async function draw(page: Page, total: number) {
   await expect(page.getByText(`Call ${total} of 90`, { exact: true })).toBeVisible();
 }
 
-async function persistent(profile: string, offline = false): Promise<BrowserContext> {
-  const context = await chromium.launchPersistentContext(profile, { headless: true, offline, viewport: { width: 1440, height: 1000 } });
+async function persistent(profile: string, offline = false, browserName = 'chromium'): Promise<BrowserContext> {
+  const engine = browserName === 'firefox' ? firefox : chromium;
+  const context = await engine.launchPersistentContext(profile, { headless: true, offline, viewport: { width: 1440, height: 1000 } });
   context.setDefaultTimeout(15_000);
   return context;
 }
 
 test('first visit supports offline calls, refresh, tab replacement and browser restart', async ({}, testInfo) => {
   const profile = testInfo.outputPath('profile');
-  let context = await persistent(profile);
+  let context = await persistent(profile, false, testInfo.project.name);
   try {
     let page = await context.newPage();
     await prepare(page);
@@ -94,7 +95,7 @@ test('first visit supports offline calls, refresh, tab replacement and browser r
     await expect(page.getByRole('button', { name: 'Resume', exact: true })).toBeVisible();
     await expect.poll(() => saved(page)).toEqual(expected);
     await context.close();
-    context = await persistent(profile, true);
+    context = await persistent(profile, true, testInfo.project.name);
     page = await context.newPage();
     await page.goto(`${origin}/en`);
     await expect(page.getByRole('button', { name: 'Resume', exact: true })).toBeVisible();
@@ -107,7 +108,7 @@ test('first visit supports offline calls, refresh, tab replacement and browser r
 });
 
 test('root and every unvisited locale route open offline with the saved deck and calls', async ({}, testInfo) => {
-  const context = await persistent(testInfo.outputPath('profile'));
+  const context = await persistent(testInfo.outputPath('profile'), false, testInfo.project.name);
   try {
     const page = await context.newPage();
     await prepare(page);
@@ -129,7 +130,7 @@ test('root and every unvisited locale route open offline with the saved deck and
 });
 
 test('evicted caches lose readiness offline and are repaired after reconnecting', async ({}, testInfo) => {
-  const context = await persistent(testInfo.outputPath('profile'));
+  const context = await persistent(testInfo.outputPath('profile'), false, testInfo.project.name);
   try {
     const page = await context.newPage();
     await prepare(page);
