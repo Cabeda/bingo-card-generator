@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Game } from '../../utils/bingo.interface';
-import { encodeGameLink, sharedGameKey } from '../../utils/shareGame';
+import { encodeGameLink } from '../../utils/shareGame';
 
-export function ShareGame({ game, onShared }: { game: Game; onShared: (key: string) => void }): React.JSX.Element {
+export function ShareGame({ game }: { game: Game }): React.JSX.Element {
   const t = useTranslations('sharing');
   const locale = useLocale();
   const [url, setUrl] = useState('');
@@ -18,7 +18,6 @@ export function ShareGame({ game, onShared }: { game: Game; onShared: (key: stri
     try {
       const hash = await encodeGameLink(game);
       const next = `${window.location.origin}/${locale}/game${hash}`;
-      onShared(await sharedGameKey(game));
       setUrl(next);
       try { await navigator.clipboard.writeText(next); setStatus('copied'); }
       catch { setStatus('copyHelp'); }

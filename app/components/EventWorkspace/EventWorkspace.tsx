@@ -100,12 +100,12 @@ export function EventWorkspace({
           const shared = await decodeGameLink(window.location.hash);
           const shareKey = await sharedGameKey(shared);
           if (!current || version !== request) return;
-          let restored: EventSession = { ...emptySession, game: shared, shareKey, libraryId: shareKey, stage: "print" };
+          let restored: EventSession = { ...emptySession, game: shared, shareKey, libraryId: crypto.randomUUID(), stage: "print" };
           try {
-            const saved = localStorage.getItem(shareKey);
+            const saved = localStorage.getItem(shareKey) ?? localStorage.getItem(SESSION_KEY);
             if (saved) {
               const candidate = restoreSession(JSON.parse(saved));
-              if (await sharedGameKey(candidate.game!) === shareKey) restored = { ...candidate, game: shared, shareKey, libraryId: shareKey };
+              if (await sharedGameKey(candidate.game!) === shareKey) restored = { ...candidate, game: shared, shareKey, libraryId: candidate.libraryId === undefined ? crypto.randomUUID() : candidate.libraryId };
             }
           } catch { /* A bad local copy must not prevent opening a valid link. */ }
           if (!current || version !== request) return;
@@ -214,12 +214,15 @@ export function EventWorkspace({
     setClaim(null);
     setError("");
   };
-  const replaceGame = (next: Game, nextStage: EventStage): void => {
+  const replaceGame = async (next: Game, nextStage: EventStage): Promise<void> => {
+    const shareKey = await sharedGameKey(next);
+    if (!libraryMounted.current) return;
     const libraryId = crypto.randomUUID();
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
     setSession((previous) => ({
       ...emptySession,
       libraryId,
+      shareKey,
       printOptions: previous.printOptions,
       cardsPerPage: previous.cardsPerPage,
       game: next,
@@ -232,7 +235,6 @@ export function EventWorkspace({
     setClaim(null);
     setError("");
   };
-  const onShared = (shareKey: string): void => { setSession(previous => ({ ...previous, shareKey })); };
   const showLibrary = (): void => { navigate("generate"); setEntryMode("library"); };
   const openSavedGame = async (id: string, mode: "resume" | "print"): Promise<void> => {
     setLibraryLoading(true);
@@ -244,8 +246,10 @@ export function EventWorkspace({
       const knownTheme = PRESET_THEMES[saved.themeKey] ?? customThemes[saved.themeKey];
       if (knownTheme && JSON.stringify(knownTheme) === JSON.stringify(saved.theme)) setTheme(saved.themeKey);
       else setCustomTheme(saved.theme);
+      const shareKey = await sharedGameKey(saved.session.game!);
+      if (!libraryMounted.current) return;
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      setSession({ ...saved.session, libraryId: saved.id, stage: mode === "print" ? "print" : saved.session.started ? "host" : "print" });
+      setSession({ ...saved.session, shareKey, libraryId: saved.id, stage: mode === "print" ? "print" : saved.session.started ? "host" : "print" });
       setName(saved.session.game!.filename);
       setCount(saved.session.game!.cards.length);
       setAudience(false);
@@ -283,7 +287,7 @@ export function EventWorkspace({
     generationTimer.current = setTimeout(async () => {
       try {
         const generated = await createSharedGame(name.trim(), count);
-        if (libraryMounted.current) replaceGame(generated, "print");
+        if (libraryMounted.current) await replaceGame(generated, "print");
       } catch {
         setError("generateError");
       } finally {
@@ -299,7 +303,7 @@ export function EventWorkspace({
       if (file.size > 10 * 1024 * 1024) throw new Error("File too large");
       const loaded = loadGameFile(file.name, await file.text());
       if (game && !window.confirm(t("replaceConfirm"))) return;
-      replaceGame(loaded, "host");
+      await replaceGame(loaded, "host");
     } catch {
       setError("fileError");
     } finally {
@@ -668,7 +672,7 @@ export function EventWorkspace({
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
-              {game && <ShareGame key={session.libraryId} game={game} onShared={onShared} />}
+              {game && <ShareGame key={session.libraryId} game={game} />}
               <h2>{t("printHeading")}</h2>
               <p>{t("printHelp")}</p>
               <fieldset className="bingo-flow-layout">
@@ -799,7 +803,7 @@ export function EventWorkspace({
                         {t("voice")}
                       </label>
                       <button onClick={fullScreen}>{t("fullscreen")}</button>
-                      <ShareGame key={session.libraryId} game={game!} onShared={onShared} />
+                      <ShareGame key={session.libraryId} game={game!} />
                       <button onClick={download}>{t("downloadAction")}</button>
                       <button
                         onClick={() => {

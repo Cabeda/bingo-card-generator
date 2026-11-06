@@ -1163,3 +1163,55 @@ it('discards a pending local copy after unmount', async () => {
   keySpy.mockImplementation(original);
   expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
 });
+
+it.each([null, 'original-copy'])('preserves a shared local copy’s library identity %s', async libraryId => {
+  const game = await cardGeneration.createSharedGame('Existing copy', 1);
+  const hash = await cardGeneration.encodeGameLink(game);
+  const shareKey = await cardGeneration.sharedGameKey(game);
+  localStorage.setItem(shareKey, JSON.stringify({ ...emptySession, game, shareKey, libraryId, stage: 'print' }));
+  window.history.replaceState(null, '', '/' + hash);
+  await renderEvent();
+  await screen.findByRole('heading', { name: 'Your cards are ready.' });
+  await waitFor(() => expect(JSON.parse(localStorage.getItem('bingoEventSession.v1')!).libraryId).toBe(libraryId));
+});
+
+it('resumes an imported local game from an identical shared link without first sharing it', async () => {
+  await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Host a saved game' })); });
+  await act(async () => { selectFile('Imported.bingoCards', savedCard); });
+  await screen.findByRole('heading', { name: 'Imported' });
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Draw first number →' })); });
+  await screen.findByText('Call 1 of 90');
+  const saved = JSON.parse(localStorage.getItem('bingoEventSession.v1')!);
+  const hash = await cardGeneration.encodeGameLink(saved.game);
+  await act(async () => {
+    window.history.replaceState(null, '', '/' + hash);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  });
+  await screen.findByText('Call 1 of 90');
+});
+
+it('does not activate an imported game after leaving during identity calculation', async () => {
+  const pending = deferred<string>();
+  const hashing = jest.spyOn(cardGeneration, 'sharedGameKey').mockReturnValue(pending.promise);
+  const view = await renderEvent();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Host a saved game' })); });
+  await act(async () => { selectFile('Imported.bingoCards', savedCard); });
+  await waitFor(() => expect(hashing).toHaveBeenCalled());
+  view.unmount();
+  await act(async () => { pending.resolve('unused'); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
+
+it('does not activate a library game after leaving during identity calculation', async () => {
+  mockSavedRecords.set('stored', storedGame());
+  const view = await renderEvent();
+  await act(async () => { fireEvent.click(within(screen.getByRole('group', { name: messages.event.choosePath })).getByRole('button', { name: 'Saved games', exact: true })); });
+  const pending = deferred<string>();
+  const hashing = jest.spyOn(cardGeneration, 'sharedGameKey').mockReturnValue(pending.promise);
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Resume game' })); });
+  await waitFor(() => expect(hashing).toHaveBeenCalled());
+  view.unmount();
+  await act(async () => { pending.resolve('unused'); });
+  expect(localStorage.getItem('bingoEventSession.v1')).toBeNull();
+});
