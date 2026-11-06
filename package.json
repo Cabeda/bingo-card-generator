@@ -21,7 +21,8 @@
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#playwright-report' '#test-results'",
     "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules' '#playwright-report' '#test-results'",
     "prepare": "husky",
-    "lint:workflows": "actionlint"
+    "lint:workflows": "actionlint",
+    "prototype:host": "next dev --port 3101"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
