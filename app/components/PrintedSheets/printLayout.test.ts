@@ -4,9 +4,7 @@ import {
   layoutFor,
   normalizeCardsPerPage,
   PRINT_LAYOUTS,
-  SHEET_GAP_MM,
-  SHEET_HEIGHT_MM,
-  SHEET_WIDTH_MM,
+  PRINT_PAGE,
   sheetCount,
   sheetsOf,
 } from "./printLayout";
@@ -22,10 +20,10 @@ describe("print layouts", () => {
     (layout) => {
       const height =
         layout.rows * layout.cardHeightMm +
-        (layout.rows - 1) * SHEET_GAP_MM;
-      expect(height).toBeLessThanOrEqual(SHEET_HEIGHT_MM);
+        (layout.rows - 1) * PRINT_PAGE.gapMm;
+      expect(height).toBeLessThanOrEqual((PRINT_PAGE.heightMm - 2 * PRINT_PAGE.marginMm));
       const cardWidth =
-        (SHEET_WIDTH_MM - (layout.columns - 1) * SHEET_GAP_MM) /
+        ((PRINT_PAGE.widthMm - 2 * PRINT_PAGE.marginMm) - (layout.columns - 1) * PRINT_PAGE.gapMm) /
         layout.columns;
       expect(cardWidth).toBeGreaterThan(40);
       expect(layout.columns * layout.rows).toBe(layout.cardsPerPage);

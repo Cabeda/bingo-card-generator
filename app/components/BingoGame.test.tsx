@@ -3,6 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import BingoGame from './BingoGame';
 import { Game } from '../utils/bingo.interface';
 
+let mockLocale = 'en';
+
 // Mock next-intl with actual translations
 const translations: Record<string, string> = {
   'startGame': 'Start Game',
@@ -33,7 +35,7 @@ const translations: Record<string, string> = {
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => translations[key] || key,
-  useLocale: () => 'en',
+  useLocale: () => mockLocale,
 }));
 
 // Mock motion/react
@@ -692,7 +694,7 @@ describe('BingoGame', () => {
       fireEvent.click(nextBallButton);
       
       // Give time for audio to play (setTimeout delay in component)
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 150)); });
       
       expect(mockAudioContext.createOscillator).toHaveBeenCalled();
     });
@@ -730,7 +732,7 @@ describe('BingoGame', () => {
       fireEvent.click(nextBallButton);
       
       // Give time for TTS (setTimeout delay in component)
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 150)); });
       
       expect(mockSpeak).toHaveBeenCalled();
     });
@@ -754,7 +756,7 @@ describe('BingoGame', () => {
       fireEvent.keyDown(window, { key: ' ', code: 'Space' });
       
       // Wait for setTimeout to execute
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 150)); });
       
       // Should draw a number
       const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
@@ -785,7 +787,7 @@ describe('BingoGame', () => {
       fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
       
       // Wait for setTimeout to execute
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 150)); });
       
       // Should draw a number
       const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
@@ -822,7 +824,7 @@ describe('BingoGame', () => {
       expect(recentNumbers.length).toBeGreaterThan(0);
     });
 
-    it('should prevent overlapping animations when drawing numbers', () => {
+    it('should prevent overlapping animations when drawing numbers', async () => {
       const mockGame: Game = {
         filename: 'test-game',
         cards: [
@@ -844,26 +846,141 @@ describe('BingoGame', () => {
       fireEvent.click(nextBallButton);
       fireEvent.click(nextBallButton);
       
-      // Should only draw one number due to isAnimating check
-      return new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
-          const drawnNumbersString = localStorageMock.getItem('drawnNumbers');
-          if (drawnNumbersString) {
-            const drawnNumbers = JSON.parse(drawnNumbersString);
-            // Should only have 1 number, not 3
-            try {
-              expect(drawnNumbers.length).toBeLessThanOrEqual(1);
-              resolve();
-            } catch (error) {
-              reject(error);
-            }
-          } else {
-            // If no drawnNumbers, fail the test
-            reject(new Error('No drawnNumbers found in localStorageMock'));
-          }
-        }, 100);
-      });
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 150)); });
+      expect(JSON.parse(localStorageMock.getItem('drawnNumbers')!)).toHaveLength(1);
+
     });
   });
 });
 
+
+describe('BingoGame file picker and modal behavior', () => {
+  const game = { filename: 'existing', cards: [{ cardTitle: '1', cardNumber: 1, numbers: [1, null, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, null] }] };
+  beforeEach(() => { localStorageMock.clear(); mockLocale = 'en'; });
+  afterEach(() => { jest.restoreAllMocks(); jest.useRealTimers(); });
+
+  const capturePicker = () => {
+    let picker: HTMLInputElement;
+    jest.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function () { picker = this; });
+    return () => picker!;
+  };
+
+  it('opens the file picker, rejects invalid files, and imports a valid game', async () => {
+    const picker = capturePicker();
+    render(<BingoGame />);
+    fireEvent.click(screen.getByText('Start Game'));
+    expect(picker()).toHaveAttribute('accept', '.bingoCards');
+    act(() => picker().onchange!({ target: null } as unknown as Event));
+    act(() => picker().onchange!({ target: { files: null } } as unknown as Event));
+    act(() => picker().onchange!({ target: { files: [] } } as unknown as Event));
+    expect(screen.getByText('Please upload a valid .bingoCards file.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('alertdialog'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    act(() => picker().onchange!({ target: { files: [new File(['bad'], 'bad.txt')] } } as unknown as Event));
+    fireEvent.click(screen.getByRole('button', { name: 'Close message' }));
+    act(() => picker().onchange!({ target: { files: [new File(['|CardNo.1;1;2;3;4;5'], 'import.bingoCards')] } } as unknown as Event));
+    await waitFor(() => expect(screen.getByText('Restart')).toBeEnabled());
+    expect(JSON.parse(localStorageMock.getItem('bingoGame')!).filename).toBe('import');
+    expect(localStorageMock.getItem('drawnNumbers')).toBeNull();
+  });
+
+  it('requires explicit replacement confirmation and preserves the game on cancel', () => {
+    localStorageMock.setItem('bingoGame', JSON.stringify(game));
+    const picker = capturePicker();
+    render(<BingoGame />);
+    fireEvent.click(screen.getByText('Start Game'));
+    fireEvent.click(screen.getByRole('alertdialog'));
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('There is already a game in progress. Do you want to start a new one?'));
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel action' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(picker()).toBeUndefined();
+    fireEvent.click(screen.getByText('Start Game'));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm action' }));
+    expect(picker()).toHaveAttribute('type', 'file');
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps card details open for inner clicks and closes on backdrop', () => {
+    localStorageMock.setItem('bingoGame', JSON.stringify(game));
+    localStorageMock.setItem('drawnNumbers', JSON.stringify([1, 3, 4, 5]));
+    render(<BingoGame />);
+    const input = screen.getByPlaceholderText('cardNumberPlaceholder');
+    fireEvent.keyPress(input, { key: 'Enter', charCode: 13 });
+    fireEvent.change(input, { target: { value: '1' } });
+    fireEvent.keyPress(input, { key: 'x', charCode: 120 });
+    fireEvent.click(screen.getByText('validateLine'));
+    expect(screen.getByRole('gridcell', { name: 'Number 1, marked' })).toBeInTheDocument();
+    expect(screen.getByRole('gridcell', { name: 'Number 6, not marked' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('grid'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('dialog'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.change(input, { target: { value: '999' } });
+    fireEvent.click(screen.getByText('validateBingo'));
+    expect(screen.getByText('Card not found.')).toBeInTheDocument();
+  });
+
+  it.each(['pt', 'es', 'fr', 'en'])('announces numbers using locale %s and unlocks the next draw', (locale) => {
+    jest.useFakeTimers(); mockLocale = locale;
+    localStorageMock.setItem('bingoGame', JSON.stringify(game));
+    const speak = jest.fn();
+    Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: { speak } });
+    global.SpeechSynthesisUtterance = jest.fn(() => ({})) as unknown as typeof SpeechSynthesisUtterance;
+    jest.spyOn(Math, 'random').mockReturnValue(0);
+    render(<BingoGame />);
+    fireEvent.click(screen.getByLabelText('Enable audio feedback when drawing numbers'));
+    fireEvent.click(screen.getByLabelText('Enable text-to-speech announcements for drawn numbers'));
+    fireEvent.click(screen.getByText('Next Ball 🎱'));
+    expect(screen.getByText('Next Ball 🎱')).toBeDisabled();
+    fireEvent.keyDown(window, { key: 'Enter' });
+    act(() => jest.advanceTimersByTime(1000));
+    expect(speak).toHaveBeenCalledWith(expect.objectContaining({ lang: { pt: 'pt-PT', es: 'es-ES', fr: 'fr-FR', en: 'en-US' }[locale] }));
+    expect(screen.getByText('Next Ball 🎱')).toBeEnabled();
+    expect(localStorageMock.getItem('drawnNumbers')).toBe('[1]');
+  });
+});
+
+describe('BingoGame unavailable services', () => {
+  afterEach(() => { jest.restoreAllMocks(); jest.useRealTimers(); });
+  it('asks for a game when attempting card validation before import', () => {
+    localStorageMock.clear();
+    render(<BingoGame />);
+    fireEvent.change(screen.getByPlaceholderText('cardNumberPlaceholder'), { target: { value: '1' } });
+    fireEvent.click(screen.getByText('validateLine'));
+    expect(screen.getByText('Please enter the card number.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close message' }));
+    fireEvent.click(screen.getByText('validateBingo'));
+    expect(screen.getByText('Please enter the card number.')).toBeInTheDocument();
+  });
+
+  it.each([true, false])('draws with legacy audio support or without browser audio (%s)', (legacyAudio) => {
+    jest.useFakeTimers();
+    localStorageMock.clear();
+    localStorageMock.setItem('bingoGame', JSON.stringify({ filename: 'test', cards: [] }));
+    const audioDescriptor = Object.getOwnPropertyDescriptor(window, 'Audio');
+    const contextDescriptor = Object.getOwnPropertyDescriptor(window, 'AudioContext');
+    const speechDescriptor = Object.getOwnPropertyDescriptor(window, 'speechSynthesis');
+    const legacyDescriptor = Object.getOwnPropertyDescriptor(window, 'webkitAudioContext');
+    const oscillator = { connect: jest.fn(), frequency: { value: 0 }, type: '', start: jest.fn(), stop: jest.fn() };
+    const context = jest.fn(() => ({ createOscillator: () => oscillator, createGain: () => ({ connect: jest.fn(), gain: { setValueAtTime: jest.fn(), exponentialRampToValueAtTime: jest.fn() } }), destination: {}, currentTime: 0 }));
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: undefined });
+    Object.defineProperty(window, 'webkitAudioContext', { configurable: true, value: context });
+    if (!legacyAudio) Object.defineProperty(window, 'Audio', { configurable: true, value: undefined });
+    delete (window as any).speechSynthesis;
+    try {
+      render(<BingoGame />);
+      fireEvent.click(screen.getByLabelText('Enable text-to-speech announcements for drawn numbers'));
+      fireEvent.click(screen.getByText('Next Ball 🎱'));
+      act(() => jest.advanceTimersByTime(1000));
+      expect(JSON.parse(localStorageMock.getItem('drawnNumbers')!)).toHaveLength(1);
+      expect(screen.getByText('Next Ball 🎱')).toBeEnabled();
+      expect(context).toHaveBeenCalledTimes(legacyAudio ? 1 : 0);
+    } finally {
+      for (const [name, descriptor] of [['Audio', audioDescriptor], ['AudioContext', contextDescriptor], ['speechSynthesis', speechDescriptor], ['webkitAudioContext', legacyDescriptor]] as const) {
+        if (descriptor) Object.defineProperty(window, name, descriptor); else delete (window as any)[name];
+      }
+    }
+  });
+});

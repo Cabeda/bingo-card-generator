@@ -13,17 +13,25 @@ module.exports = {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: './tsconfig.jest.json',
       diagnostics: false,
+      astTransformers: { before: ['./scripts/jest-import-meta.cjs'] },
     }],
   },
   collectCoverage: true,
+  collectCoverageFrom: [
+    'app/**/*.{ts,tsx}',
+    'proxy.ts',
+    'next.config.ts',
+    '!**/*.test.{ts,tsx}',
+    '!**/*.d.ts',
+  ],
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
   coverageThreshold: {
     global: {
-      branches: 40,
-      functions: 40,
-      lines: 40,
-      statements: 40
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100
     }
   }
 };

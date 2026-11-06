@@ -1,7 +1,7 @@
 'use client';
 
 import React from "react";
-import { CardsPerPage, isValidCardsPerPage } from "../utils/types";
+import { CardsPerPage } from "../utils/types";
 
 type QualityMode = 'fast' | 'balanced' | 'high';
 
@@ -46,9 +46,7 @@ export function ExportConfiguration({
           value={bingoPercard}
           onChange={(e) => {
             const value = parseInt(e.target.value, 10);
-            if (isValidCardsPerPage(value)) {
-              setBingoPercard(value);
-            }
+            setBingoPercard(value as CardsPerPage);
           }}
           min={1}
           max={3}

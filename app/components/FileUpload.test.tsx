@@ -529,3 +529,40 @@ describe('FileUpload', () => {
     });
   });
 });
+
+describe('FileUpload export and confirmation behavior', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('reports the imported file and permits cancelling or confirming removal', async () => {
+    mockParseBingoCards.mockReturnValue({ filename: 'import', cards: [{ cardNumber: 1, cardTitle: 'import-1', numbers: [1, null] }] });
+    renderWithToast(<FileUpload />);
+    fireEvent.change(screen.getByLabelText('Upload .bingoCards File:'), { target: { files: [new File(['cards'], 'import.bingoCards')] } });
+    expect(await screen.findByText('1 cards generated successfully!')).toBeInTheDocument();
+    expect(screen.getByText('Selected file: import.bingoCards')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear all generated bingo cards' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel and close dialog' }));
+    expect(screen.getByRole('region', { name: 'Generated bingo cards' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear all generated bingo cards' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm: Clear all cards?' }));
+    expect(screen.queryByRole('region', { name: 'Generated bingo cards' })).not.toBeInTheDocument();
+  });
+
+  it('exports the selected event and reports PDF outcomes from the generation service', async () => {
+    const pdf = jest.spyOn(require('../hooks/usePdfGeneration'), 'usePdfGeneration');
+    const generatePDF = jest.fn(async (_cards, _header, _footer, _perPage, error, cancel, success) => { error('errorGeneratingPdf'); cancel('pdfCancelled'); success(); });
+    const cancelPdfGeneration = jest.fn();
+    pdf.mockReturnValue({ isGeneratingPDF: false, progress: 33, estimatedTimeRemaining: 4, batchInfo: '', qualityMode: 'balanced', setQualityMode: jest.fn(), setCardRef: () => jest.fn(), generatePDF, cancelPdfGeneration });
+    jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    mockParseBingoCards.mockReturnValue({ filename: 'import', cards: [{ cardNumber: 1, cardTitle: 'import-1', numbers: [1, null] }] });
+    renderWithToast(<FileUpload />);
+    fireEvent.change(screen.getByLabelText('Upload .bingoCards File:'), { target: { files: [new File(['cards'], 'import.bingoCards')] } });
+    await screen.findByText('1 cards generated successfully!');
+    fireEvent.click(screen.getByText('Generate .bingoCards'));
+    expect(screen.getByText('Bingo cards exported successfully!')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Generate PDF'));
+    expect(await screen.findByText('PDF generated successfully!')).toBeInTheDocument();
+    expect(screen.getByText('Error generating PDF. Please try again.')).toBeInTheDocument();
+    expect(screen.getByText('PDF generation cancelled.')).toBeInTheDocument();
+    expect(generatePDF).toHaveBeenCalledWith(expect.objectContaining({ filename: 'import' }), expect.stringContaining('Magusto'), 'Paróquia Nossa Senhora da Areosa', 2, expect.any(Function), expect.any(Function), expect.any(Function));
+  });
+});

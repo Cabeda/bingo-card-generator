@@ -19,7 +19,7 @@ Tests are configured in `jest.config.js` with the following key settings:
 - **Test Environment**: jsdom (simulates browser environment)
 - **TypeScript Support**: ts-jest with React JSX transformation
 - **CSS Modules**: Mocked with identity-obj-proxy
-- **Coverage Thresholds**: Configured to ensure minimum test coverage
+- **Coverage Thresholds**: 100% statements, branches, functions and lines
 
 ## Running Tests
 
@@ -33,12 +33,34 @@ bun run test
 bun run test:watch
 
 # Run tests with coverage report
-bun run test:coverage
+bun run test:coverage --runInBand
+
+# Run the dedicated critical game suite
+bun run test:game
+
+# Check production TypeScript
+bun run typecheck
 ```
 
 **Note:** The project uses Jest through Bun. The `bun run test` command is configured in
 `package.json` to run `NODE_OPTIONS='--experimental-vm-modules' bunx jest`, which ensures
-Jest runs correctly with Bun's runtime.
+Jest can load the project's ES module dependencies.
+
+### Native WebKit print pagination (macOS)
+
+Start the app with `bun run dev`, then run `bun run test:print:webkit` in another
+terminal. This check needs macOS and the Xcode command-line tools. Set
+`PRINT_TEST_URL` if the server uses a different URL or port.
+
+The check loads the real page in an isolated native WebKit view at a mobile
+viewport size and prints A4 PDFs. It verifies page counts, card order, card
+footers and preview/paper heading alignment for every layout, partial sheets
+and a 200-card deck. This exercises
+WebKit pagination, but does not replace a check in iOS Safari's print dialog.
+
+For a minimal reproduction, run `bun run test:print:webkit 4 4` (four cards,
+four per sheet). The previous fixed sheet height made WebKit spill the final
+footer onto an extra page. Jest/jsdom cannot detect this print-engine bug.
 
 ### Coverage Reports
 
@@ -47,12 +69,18 @@ Coverage reports are generated in the `coverage/` directory and include:
 - HTML report: `coverage/lcov-report/index.html`
 - Terminal summary when running with `--coverage`
 
-Current coverage thresholds:
+Every coverage metric must reach **100%**: statements, branches, functions and
+lines. A failed test or a lower percentage makes Jest exit unsuccessfully.
 
-- Statements: 47%
-- Branches: 40%
-- Functions: 42%
-- Lines: 46%
+`collectCoverageFrom` includes all production TypeScript and TSX under `app/`,
+plus `proxy.ts` and `next.config.ts`, including files that no test imports.
+Only test files and TypeScript declaration files are excluded. New untested
+production files therefore count against the gate.
+
+CSS is not instrumented by Jest, and jsdom does not perform browser print
+pagination. The separate native WebKit check verifies physical A4 page counts,
+card order, footers and preview/paper alignment. Neither code coverage nor a mocked DOM proves that
+printed content fits.
 
 ## Test Structure
 
@@ -150,41 +178,15 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 ```
 
-## Test Coverage by Component
+## Reviewing Coverage
 
-### Fully Tested (100%)
+Use the generated report for current per-file results rather than a manually
+maintained percentage list. Run the full suite to measure repository-wide
+coverage; running a single test still includes every configured production file
+and can fail the global gate even when that test passes.
 
-- ✅ Navbar component
-- ✅ ViewTransition component
-- ✅ utils.ts (98%)
-
-### Partially Tested
-
-- ⚠️ Ball component (56%)
-- ⚠️ FileUpload component (39%)
-- ⚠️ BingoGame component (23%)
-
-### Areas for Improvement
-
-**BingoGame Component:**
-
-- Draw number functionality
-- Card validation logic
-- Win condition checking
-- TTS and audio features
-- Modal interactions
-
-**FileUpload Component:**
-
-- PDF generation flow
-- File upload and parsing
-- Progress tracking
-- Error handling
-
-**Ball Component:**
-
-- Animation state management
-- User interaction with drawn balls
+The dedicated game configuration also enforces complete coverage for its
+explicit production scope. It complements the full suite rather than replacing it.
 
 ## Internationalization Testing
 
@@ -295,11 +297,23 @@ npm test -- app/components/I18nVisualTest.test.tsx
 
 ## Continuous Integration
 
-Tests are run automatically on:
+`.github/workflows/test.yml` runs on pushes to `main` and pull requests targeting
+`main` (opened, synchronized or reopened).
 
-- Every pull request
-- Every commit to main branch
-- Before production deployments
+- The Ubuntu test job installs the frozen lockfile, runs lint, typechecking,
+  the full suite with the 100% production coverage gate, the critical game suite
+  and a production build. Coverage reports are uploaded even when tests fail.
+- The `macos-15` native print job installs the frozen lockfile, builds the app,
+  starts the production server and waits for `/en` with a bounded readiness
+  check. It then runs `bun run test:print:webkit`; any failure fails the job.
+  Server and print-check logs are uploaded on failure.
+- The final `checks` job depends on both jobs succeeding. No test or coverage
+  failure is allowed to continue as a success.
+
+Native macOS WebKit exercises Apple's print pagination at a mobile viewport.
+It does not reproduce the iOS Safari print dialog or replace a physical-device
+check. Repository branch protection must require the workflow checks if merges
+must be blocked; workflow configuration alone does not change branch protection.
 
 ## Troubleshooting
 

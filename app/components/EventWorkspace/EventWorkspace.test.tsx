@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -9,10 +10,12 @@ import {
 import messages from "../../../messages/en.json";
 import { ThemeProvider } from "../ThemeProvider";
 import { loadGameFile } from "../../utils/gameFiles";
+import * as cardGeneration from "../../utils/utils";
 import { EventWorkspace } from "./EventWorkspace";
 
+let mockLocale = "en";
 jest.mock("next-intl", () => ({
-  useLocale: () => "en",
+  useLocale: () => mockLocale,
   useTranslations:
     () => (key: string, values?: Record<string, string | number>) => {
       let text =
@@ -38,10 +41,31 @@ function renderEvent() {
   );
 }
 beforeEach(() => {
+  mockLocale = "en";
   localStorage.clear();
   sessionStorage.clear();
 });
-afterEach(() => jest.restoreAllMocks());
+const nativeProperties = [
+  [window, "AudioContext"],
+  [window, "speechSynthesis"],
+  [window, "SpeechSynthesisUtterance"],
+  [document, "fullscreenElement"],
+  [document, "exitFullscreen"],
+  [document.documentElement, "requestFullscreen"],
+  [URL, "createObjectURL"],
+  [URL, "revokeObjectURL"],
+].map(([owner, key]) => ({
+  owner: owner as object,
+  key: key as string,
+  descriptor: Object.getOwnPropertyDescriptor(owner, key as string),
+}));
+afterEach(() => {
+  jest.restoreAllMocks();
+  for (const { owner, key, descriptor } of nativeProperties) {
+    if (descriptor) Object.defineProperty(owner, key, descriptor);
+    else Reflect.deleteProperty(owner, key);
+  }
+});
 // jsdom lacks native dialog methods; emulate the browser boundary, not game logic.
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function () {
@@ -543,4 +567,198 @@ it("keeps rapid draws distinct under React Strict Mode", async () => {
   expect(await screen.findByText("Call 5 of 90")).toBeInTheDocument();
   expect(screen.getAllByLabelText(/^\d+, Called$/)).toHaveLength(4);
   expect(screen.getAllByLabelText(/^\d+, LATEST NUMBER$/)).toHaveLength(1);
+});
+
+it.each(["host", "print"] as const)("opens the %s route with a migrated session", async (entry) => {
+  sessionStorage.setItem("bingoGame", JSON.stringify(loadGameFile("Session.bingoCards", savedCard)));
+  render(<ThemeProvider><EventWorkspace entry={entry} /></ThemeProvider>);
+  if (entry === "host") expect(await screen.findByText("Ready for the first call")).toBeInTheDocument();
+  else expect(await screen.findByRole("heading", { name: "Your cards are ready." })).toBeInTheDocument();
+});
+
+it.each([false, true])("confirms replacement before generating a new deck (%s)", async (confirmed) => {
+  seedHost([1]);
+  renderEvent();
+  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
+  fireEvent.change(screen.getByLabelText("Event name"), { target: { value: "New deck" } });
+  fireEvent.submit(screen.getByLabelText("Event name").closest("form")!);
+  expect(confirm).toHaveBeenCalledTimes(1);
+  if (confirmed) await screen.findByRole("heading", { name: "Your cards are ready." });
+  else {
+    fireEvent.click(screen.getByRole("button", { name: /3.*Host game/ }));
+    expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
+  }
+});
+
+it("opens the native file chooser and prints the prepared cards", async () => {
+  seedHost();
+  renderEvent();
+  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
+  const choose = jest.spyOn(HTMLInputElement.prototype, "click");
+  fireEvent.click(screen.getByRole("button", { name: "Open game file → Host" }));
+  expect(choose).toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  const print = jest.spyOn(window, "print").mockImplementation(() => {});
+  fireEvent.click(screen.getByRole("button", { name: /Print.*PDF/i }));
+  expect(print).toHaveBeenCalledTimes(1);
+});
+
+it.each(["enter", "exit", "unavailable", "rejected"])("handles fullscreen %s", async (mode) => {
+  seedHost();
+  const request = jest.fn().mockImplementation(() => mode === "rejected" ? Promise.reject(new Error("Denied")) : Promise.resolve());
+  const exit = jest.fn().mockResolvedValue(undefined);
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, value: mode === "exit" ? document.documentElement : null });
+  Object.defineProperty(document.documentElement, "requestFullscreen", { configurable: true, value: mode === "unavailable" ? undefined : request });
+  Object.defineProperty(document, "exitFullscreen", { configurable: true, value: exit });
+  renderEvent();
+  fireEvent.click(await screen.findByText("Settings"));
+  fireEvent.click(screen.getByRole("button", { name: /Full screen/i }));
+  if (mode === "unavailable" || mode === "rejected") expect(await screen.findByRole("alert")).toHaveTextContent(/full/i);
+  else await waitFor(() => expect(mode === "exit" ? exit : request).toHaveBeenCalledTimes(1));
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, value: null });
+});
+
+it.each(["en", "nl"])("announces new calls in %s with sound and voice, releases audio, and never repeats restored calls", async (locale) => {
+  mockLocale = locale;
+  seedHost([1]);
+  const oscillator = { connect: jest.fn(), disconnect: jest.fn(), frequency: { value: 0 }, start: jest.fn(), stop: jest.fn(), onended: null as (() => void) | null };
+  const gain = { connect: jest.fn(), disconnect: jest.fn(), gain: { setValueAtTime: jest.fn(), exponentialRampToValueAtTime: jest.fn() } };
+  const audio = { resume: jest.fn(), close: jest.fn(), createOscillator: jest.fn(() => oscillator), createGain: jest.fn(() => gain), destination: {}, currentTime: 10 };
+  const constructor = jest.fn(function () { return audio; });
+  Object.defineProperty(window, "AudioContext", { configurable: true, value: constructor });
+  const speech = { cancel: jest.fn(), speak: jest.fn() };
+  Object.defineProperty(window, "speechSynthesis", { configurable: true, value: speech });
+  Object.defineProperty(window, "SpeechSynthesisUtterance", { configurable: true, value: class { text: string; constructor(text: string) { this.text = text; } } });
+  const view = renderEvent();
+  fireEvent.click(await screen.findByText("Settings"));
+  fireEvent.click(screen.getByLabelText("Sound effects"));
+  fireEvent.click(screen.getByLabelText("Announce numbers"));
+  expect(speech.speak).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Draw next number →" }));
+  expect(speech.speak).toHaveBeenCalledWith(expect.objectContaining({ lang: locale === "en" ? "en-GB" : "nl", rate: 0.9 }));
+  expect(oscillator.start).toHaveBeenCalledTimes(1);
+  oscillator.onended!();
+  expect(oscillator.disconnect).toHaveBeenCalledTimes(1);
+  expect(gain.disconnect).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole("button", { name: "Draw next number →" }));
+  expect(constructor).toHaveBeenCalledTimes(1);
+  view.unmount();
+  expect(audio.close).toHaveBeenCalledTimes(1);
+  expect(speech.cancel).toHaveBeenCalled();
+  Object.defineProperty(window, "AudioContext", { configurable: true, value: undefined });
+  delete (window as unknown as Record<string, unknown>).speechSynthesis;
+  delete (window as unknown as Record<string, unknown>).SpeechSynthesisUtterance;
+});
+
+it("keeps drawing if the browser cannot initialize audio", async () => {
+  seedHost();
+  Object.defineProperty(window, "AudioContext", { configurable: true, value: jest.fn(() => { throw new Error("Audio denied"); }) });
+  renderEvent();
+  fireEvent.click(await screen.findByText("Settings"));
+  fireEvent.click(screen.getByLabelText("Sound effects"));
+  fireEvent.click(screen.getByRole("button", { name: "Draw first number →" }));
+  expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
+  Object.defineProperty(window, "AudioContext", { configurable: true, value: undefined });
+});
+
+it.each(["Family", ""])("downloads a compatible game backup with a safe filename (%s)", async (name) => {
+  seedHost();
+  const saved = JSON.parse(localStorage.getItem("bingoEventSession.v1")!);
+  saved.game = loadGameFile(`${name}.bingoCards`, savedCard);
+  localStorage.setItem("bingoEventSession.v1", JSON.stringify(saved));
+  Object.defineProperty(URL, "createObjectURL", { configurable: true, value: jest.fn(() => "blob:backup") });
+  Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: jest.fn() });
+  let downloadedFilename = "";
+  const click = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) { downloadedFilename = this.download; });
+  renderEvent();
+  fireEvent.click(await screen.findByText("Settings"));
+  fireEvent.click(screen.getByRole("button", { name: /Download.*game/i }));
+  expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+  expect(click).toHaveBeenCalledTimes(1);
+  expect(downloadedFilename).toBe(`${name || "bingo"}.bingoCards`);
+  await waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:backup"), { timeout: 1500 });
+});
+
+it("returns from cards and hosting to prepare a fresh event", async () => {
+  seedHost();
+  renderEvent();
+  fireEvent.click(await screen.findByRole("button", { name: "Back to cards" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit game" }));
+  fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
+  fireEvent.click(screen.getByRole("button", { name: "Prepare a new game" }));
+  expect(screen.getByLabelText("Event name")).toHaveValue("Family");
+  fireEvent.click(screen.getByRole("button", { name: /bingo\./ }));
+  expect(screen.getByLabelText("Event name")).toBeInTheDocument();
+});
+
+it("dismisses claim verification using the browser's cancel event", async () => {
+  seedHost([1]);
+  renderEvent();
+  fireEvent.change(await screen.findByLabelText("Check a player’s claim"), { target: { value: "7" } });
+  fireEvent.click(screen.getByRole("button", { name: "Check card" }));
+  fireEvent(screen.getByRole("dialog"), new Event("cancel", { bubbles: true }));
+  fireEvent.keyDown(document.body, { key: "Enter" });
+  expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
+});
+
+
+it("keeps setup usable after card generation fails", async () => {
+  jest.spyOn(cardGeneration, "generateRandomBingoCards").mockImplementation(() => { throw new Error("Generation failed"); });
+  renderEvent();
+  fireEvent.change(await screen.findByLabelText("Event name"), { target: { value: "Family" } });
+  fireEvent.submit(screen.getByLabelText("Event name").closest("form")!);
+  expect(await screen.findByRole("alert")).toHaveTextContent(/generate/i);
+  expect(screen.getByRole("button", { name: "Generate game →" })).toBeEnabled();
+});
+
+it("changes the card theme and restores the line target after selecting full house", async () => {
+  seedHost();
+  renderEvent();
+  fireEvent.change(await screen.findByLabelText("Playing for"), { target: { value: "full" } });
+  fireEvent.change(screen.getByLabelText("Playing for"), { target: { value: "line" } });
+  expect(screen.getByRole("heading", { name: "One line" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  const theme = screen.getByLabelText("Card theme") as HTMLSelectElement;
+  fireEvent.change(theme, { target: { value: theme.options[1].value } });
+  expect(theme.value).toBe(theme.options[1].value);
+});
+
+it("starts hosting an existing prepared game when opened via the host route", async () => {
+  seedHost();
+  const session = JSON.parse(localStorage.getItem("bingoEventSession.v1")!);
+  session.started = false;
+  session.stage = "print";
+  localStorage.setItem("bingoEventSession.v1", JSON.stringify(session));
+  render(<ThemeProvider><EventWorkspace entry="host" /></ThemeProvider>);
+  expect(await screen.findByText("Ready for the first call")).toBeInTheDocument();
+});
+
+it("still speaks calls when sound effects are enabled but Web Audio is unavailable", async () => {
+  seedHost();
+  Object.defineProperty(window, "AudioContext", { configurable: true, value: undefined });
+  const speak = jest.fn();
+  Object.defineProperty(window, "speechSynthesis", { configurable: true, value: { speak, cancel: jest.fn() } });
+  Object.defineProperty(window, "SpeechSynthesisUtterance", { configurable: true, value: class { text: string; constructor(text: string) { this.text = text; } } });
+  renderEvent();
+  fireEvent.click(await screen.findByText("Settings"));
+  fireEvent.click(screen.getByLabelText("Sound effects"));
+  fireEvent.click(screen.getByLabelText("Announce numbers"));
+  fireEvent.click(screen.getByRole("button", { name: "Draw first number →" }));
+  expect(speak).toHaveBeenCalledWith(expect.objectContaining({ lang: "en-GB" }));
+  expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
+});
+
+
+it("does not draw a queued keyboard call after play is paused in the same interaction", async () => {
+  seedHost();
+  renderEvent();
+  const pause = await screen.findByRole("button", { name: "Pause" });
+  act(() => {
+    pause.click();
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  });
+  expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Draw first number →" })).toBeDisabled();
 });

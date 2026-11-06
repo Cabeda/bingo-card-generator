@@ -60,8 +60,8 @@ function parseLength(input: string): number {
   const unit = m[2] || "px";
   if (unit === "px") return v * 0.75;
   if (unit === "pt") return v;
-  if (unit === "rem" || unit === "em") return v * 12;
-  return v;
+  // The accepted units are exhausted above except for rem and em.
+  return v * 12;
 }
 
 function colorOp(c: [number, number, number]): string {
