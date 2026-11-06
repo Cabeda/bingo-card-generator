@@ -7,12 +7,16 @@ on:
       - 'messages/**'
       - 'app/**/*.test.ts*'
       - 'scripts/validate-translations.js'
+      - 'app/utils/offlineRoutes.ts'
+      - '.github/workflows/i18n-validation.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'messages/**'
       - 'app/**/*.test.ts*'
       - 'scripts/validate-translations.js'
+      - 'app/utils/offlineRoutes.ts'
+      - '.github/workflows/i18n-validation.yml'
 
 jobs:
   validate-translations:
@@ -20,55 +24,24 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-
-      - name: Validate translation files
-        run: node scripts/validate-translations.js
-        continue-on-error: true
-        id: quick-validation
-
       - name: Setup Bun
-        if: steps.quick-validation.outcome == 'failure'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
+      - name: Validate translation files
+        run: bun run validate:i18n
+
       - name: Install dependencies
-        if: steps.quick-validation.outcome == 'failure'
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Run detailed i18n tests
-        if: steps.quick-validation.outcome == 'failure'
-        run: NODE_OPTIONS='--experimental-vm-modules' bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx
-        continue-on-error: false
-
-      - name: Comment on PR (if failed)
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: |
-                ⚠️ **Translation Validation Failed**
-                
-                Some translation keys are missing or inconsistent across locales.
-                
-                Please run `npm run validate:i18n` locally to see detailed errors and ensure all translation keys are present in all locale files (en, es, fr, pt).
-                
-                For more information, see [I18N.md](../docs/I18N.md).
-            })
+        run: bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx --coverage=false --runInBand
 
       - name: Success message
         if: success()
