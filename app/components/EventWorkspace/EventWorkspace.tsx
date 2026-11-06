@@ -51,8 +51,8 @@ export function EventWorkspace({
   const [entryMode, setEntryMode] = useState<"prepare" | "open" | "library">(
     entry === "host" ? "open" : "prepare",
   );
-  const [name, setName] = useState("");
-  const [count, setCount] = useState(200);
+  const [name, setName] = useState(t("defaultName"));
+  const [count, setCount] = useState(20);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [storageWarning, setStorageWarning] = useState(false);
@@ -531,6 +531,9 @@ export function EventWorkspace({
             >
               {t("prepareNew")}
             </button>
+            <button aria-pressed={entryMode === "library"} onClick={showLibrary}>
+              {libraryText("nav")} <span aria-hidden="true">({savedGames.length})</span>
+            </button>
             <button
               aria-pressed={entryMode === "open"}
               onClick={() => {
@@ -539,9 +542,6 @@ export function EventWorkspace({
               }}
             >
               {t("hostSaved")}
-            </button>
-            <button aria-pressed={entryMode === "library"} onClick={showLibrary}>
-              {libraryText("nav")} <span aria-hidden="true">({savedGames.length})</span>
             </button>
           </div>
           {entryMode === "library" ? <div className="bingo-local-library">
@@ -552,9 +552,6 @@ export function EventWorkspace({
           </div> : (
           <div className="bingo-flow-setup">
             <section>
-              <span className="bingo-eyebrow">
-                {t(entryMode === "prepare" ? "prepareEyebrow" : "hostEyebrow")}
-              </span>
               <h1>{t(entryMode === "prepare" ? "setupTitle" : "openTitle")}</h1>
               <p>{t(entryMode === "prepare" ? "setupIntro" : "openIntro")}</p>
               <ol>
@@ -643,7 +640,6 @@ export function EventWorkspace({
         <main className="bingo-flow">
           <div className="bingo-flow-print-heading">
             <div>
-              <span className="bingo-eyebrow">{t("printEyebrow")}</span>
               <h1>{t("printTitle")}</h1>
               <p>
                 {eventName} · {t("cardsCount", { count: cards.length })} ·{" "}
@@ -715,18 +711,10 @@ export function EventWorkspace({
               <button className="bingo-primary" onClick={() => window.print()}>
                 {t("printAction")}
               </button>
-              <small>{t("printSettings")}</small>
-              <button onClick={download}>{t("downloadAction")}</button>
-              <small>{t("backupHelp")}</small>
-              <details className="bingo-print-preferences">
-                <summary>{printText("title")}</summary>
-                <PrintPreferences value={printOptions} onChange={setPrintOptions} />
-                <details>
-                  <summary>{t("customizeTheme")}</summary>
-                  <ThemeSelector />
-                </details>
+              <details className="bingo-extra-options">
+                <summary>{t("printSettingsTitle")}</summary>
+                <p>{t("printSettings")}</p>
               </details>
-              <hr />
               <h2>{t("readyHeading")}</h2>
               <p>{t(started ? "resumeHelp" : "startHelp")}</p>
               <button
@@ -735,6 +723,20 @@ export function EventWorkspace({
               >
                 {t(started ? "resumeAction" : "hostAction")}
               </button>
+              <hr />
+              <details className="bingo-extra-options">
+                <summary>{t("backupTitle")}</summary>
+                <p>{t("backupHelp")}</p>
+                <button onClick={download}>{t("downloadAction")}</button>
+              </details>
+              <details className="bingo-print-preferences">
+                <summary>{printText("title")}</summary>
+                <PrintPreferences value={printOptions} onChange={setPrintOptions} />
+                <details>
+                  <summary>{t("customizeTheme")}</summary>
+                  <ThemeSelector />
+                </details>
+              </details>
             </aside>
           </div>
         </main>
