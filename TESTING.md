@@ -44,7 +44,8 @@ must remove the ready claim; reconnecting must repair the cache without losing g
 
 Upgrade fixtures also install an old worker with a retired CSS file or an unsupported
 message protocol, then verify that a new worker takes over without reloading or
-resetting the running game. Healthy old caches keep the normal waiting lifecycle.
+resetting the running game. Completed updates activate even when the previous cache is healthy, without
+automatically reloading an open game. Ordinary refreshes then retain the new build.
 
 The saved-game browser workflow creates two same-name decks, changes every print option,
 resumes the original calls, refreshes offline, removes a saved copy and saves it again.
@@ -344,7 +345,7 @@ npm test -- app/components/I18nVisualTest.test.tsx
   check. It then runs `bun run test:print:webkit`; any failure fails the job.
   Server and print-check logs are uploaded on failure.
 - The offline job checks recovery in real Chromium and Firefox browsers. Browser installation
-  has a five-minute step timeout within the job's twenty-minute limit.
+  has a fifteen-minute step timeout within the job's twenty-minute limit.
 - The workflows job installs pinned actionlint and runs `bun run lint:workflows`.
   To run it locally, install actionlint v1.7.12 and ShellCheck and place both
   on `PATH`; actionlint otherwise skips shell diagnostics when ShellCheck is absent.

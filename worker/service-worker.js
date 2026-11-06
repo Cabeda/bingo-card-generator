@@ -8,8 +8,6 @@ const { registerRoute } = require('workbox-routing');
 const { NetworkFirst } = require('workbox-strategies');
 const { ExpirationPlugin } = require('workbox-expiration');
 
-const { activeCacheIsComplete } = require('./cacheIntegrity');
-
 const manifest = self.__WB_MANIFEST;
 precacheAndRoute(manifest, {
   ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/],
@@ -26,12 +24,10 @@ registerRoute(
   'GET',
 );
 
+// Workbox finishes the complete new precache before activation can occur.
+// Adopt it without reloading open games; their next navigation uses the new build.
 self.addEventListener('install', event => {
-  const active = self.registration.active;
-  if (!active) return;
-  event.waitUntil(activeCacheIsComplete(active).then(complete => {
-    if (!complete) return self.skipWaiting();
-  }));
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('message', event => {

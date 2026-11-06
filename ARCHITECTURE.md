@@ -41,10 +41,11 @@ page breaks separate the ordered sheets.
 
 Offline installation precaches the root and all localised home, cards and game pages alongside
 the build's scripts, styles and public assets. Locales are shared between routing and the precache
-manifest. The worker waits to activate updates while the previous cache remains complete. An
-invalid or unsupported previous cache allows the replacement to activate without
-reloading clients or clearing saved event state, and reconnecting
-does not automatically reload a running game.
+manifest. Workbox completes the new precache before the replacement worker activates.
+Completed updates claim open clients without reloading them or clearing saved event
+state. The next ordinary navigation or refresh uses the new build; reconnecting
+does not automatically reload a running game. Build revisions keep cached page HTML
+and its scripts aligned across deployments.
 
 The offline readiness module asks the active worker for its exact precache and revision keys,
 then verifies cached HTML and every referenced script and stylesheet.
