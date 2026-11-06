@@ -41,7 +41,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run detailed i18n tests
-        run: bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx --coverage=false --runInBand
+        run: bun run test:i18n --runInBand
 
       - name: Success message
         if: success()

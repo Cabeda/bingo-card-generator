@@ -358,10 +358,25 @@ export function EventWorkspace({
             ✳ bingo.
           </button>
           <span>{t("yourEvent")}</span>
-          {themeTools}
+          <details className="bingo-header-settings">
+            <summary>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                <path d="M4 7h16M4 17h16" />
+                <circle cx="9" cy="7" r="3" fill="var(--background)" />
+                <circle cx="15" cy="17" r="3" fill="var(--background)" />
+              </svg>
+              {t("settings")}
+              <span className="bingo-settings-chevron" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="bingo-preferences-panel">
+              <h2>{t("preferences")}</h2>
+              <p>{t("preferencesHelp")}</p>
+              {themeTools}
+            </div>
+          </details>
         </header>
       )}
-      {!audience && steps}
+      {stage !== "host" && steps}
       {error && (
         <p className="bingo-error" role="alert">
           {t(error)}
@@ -585,12 +600,16 @@ export function EventWorkspace({
         <main className="bingo-c-game">
           <header className="bingo-c-heading">
             <div className="bingo-c-identity">
-              <button
-                onClick={() => navigate("print")}
-                aria-label={t("backToCards")}
-              >
-                ✳
-              </button>
+              {audience ? (
+                <span className="bingo-c-brand-mark" aria-hidden="true">✳</span>
+              ) : (
+                <button
+                  onClick={() => navigate("print")}
+                  aria-label={t("backToCards")}
+                >
+                  ✳
+                </button>
+              )}
               <div>
                 <span className="bingo-eyebrow">
                   {t("hostMeta", { count: cards.length })}
@@ -613,6 +632,52 @@ export function EventWorkspace({
                       : "live",
               )}
             </div>
+            {!audience && (
+              <div className="bingo-host-utilities">
+                  <button onClick={() => setAudience(true)}>
+                    {t("audienceAction")}
+                  </button>
+                  <details className="bingo-host-settings">
+                    <summary>{t("settings")}</summary>
+                    <div className="bingo-host-settings-panel">
+                      <h2>{t("preferences")}</h2>
+                      {themeTools}
+                      <label className="bingo-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={sound}
+                          onChange={(e) => setSound(e.target.checked)}
+                        />
+                        {t("sound")}
+                      </label>
+                      <label className="bingo-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={voice}
+                          onChange={(e) => setVoice(e.target.checked)}
+                        />
+                        {t("voice")}
+                      </label>
+                      <button onClick={fullScreen}>{t("fullscreen")}</button>
+                      <button onClick={download}>{t("downloadAction")}</button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(t("restartConfirm"))) {
+                            setSession((previous) => ({
+                              ...previous,
+                              drawn: [],
+                              paused: false,
+                            }));
+                            announcement.current = null;
+                          }
+                        }}
+                      >
+                        {t("restart")}
+                      </button>
+                    </div>
+                  </details>
+              </div>
+            )}
           </header>
           <div className="bingo-c-arena">
             <section className="bingo-c-focus" aria-label={t("callRegion")}>
@@ -624,18 +689,40 @@ export function EventWorkspace({
                 <span className="bingo-eyebrow">
                   {t(drawn.length ? "latest" : "letsPlay")}
                 </span>
-                <strong
-                  key={drawn.length}
-                  className={drawn.length ? "bingo-reveal" : ""}
-                >
-                  {drawn.at(-1) ?? "—"}
-                </strong>
-                <span>
-                  {drawn.length
-                    ? t("callCount", { count: drawn.length })
-                    : t("firstCallHelp")}
-                </span>
+                {drawn.length ? (
+                  <>
+                    <strong key={drawn.length} className="bingo-reveal">
+                      {drawn.at(-1)}
+                    </strong>
+                    <span>{t("callCount", { count: drawn.length })}</span>
+                  </>
+                ) : (
+                  <p className="bingo-c-empty">{t("firstCallHelp")}</p>
+                )}
               </div>
+              {!audience && (
+                <div className="bingo-c-actions" role="group" aria-label={t("hostControls")}>
+                  <button
+                    className="bingo-primary"
+                    onClick={draw}
+                    disabled={paused || drawn.length === 90}
+                    aria-keyshortcuts="Space Enter"
+                  >
+                    {t(drawn.length ? "drawNext" : "drawFirst")}
+                  </button>
+                  <button
+                    onClick={() =>
+                      setSession((previous) => ({
+                        ...previous,
+                        paused: !previous.paused,
+                      }))
+                    }
+                  >
+                    {t(paused ? "resume" : "pause")}
+                  </button>
+                  <span className="bingo-keyboard-hint">{t("keyboardHelp")}</span>
+                </div>
+              )}
               <div className="bingo-c-history">
                 <div>
                   <span className="bingo-eyebrow">{t("previous")}</span>
@@ -735,27 +822,7 @@ export function EventWorkspace({
           </div>
           {!audience ? (
             <>
-              <footer className="bingo-c-desk" aria-label={t("hostControls")}>
-                <div className="bingo-c-actions">
-                  <button
-                    className="bingo-primary"
-                    onClick={draw}
-                    disabled={paused || drawn.length === 90}
-                    aria-keyshortcuts="Space Enter"
-                  >
-                    {t(drawn.length ? "drawNext" : "drawFirst")}
-                  </button>
-                  <button
-                    onClick={() =>
-                      setSession((previous) => ({
-                        ...previous,
-                        paused: !previous.paused,
-                      }))
-                    }
-                  >
-                    {t(paused ? "resume" : "pause")}
-                  </button>
-                </div>
+              <footer className="bingo-c-desk">
                 <div className="bingo-c-options">
                   <label>
                     {t("playingFor")}
@@ -772,47 +839,7 @@ export function EventWorkspace({
                       <option value="full">{t("full")}</option>
                     </select>
                   </label>
-                  <button onClick={() => setAudience(true)}>
-                    {t("audienceAction")}
-                  </button>
-                  <details>
-                    <summary>{t("settings")}</summary>
-                    <div>
-                      {themeTools}
-                      <label className="bingo-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={sound}
-                          onChange={(e) => setSound(e.target.checked)}
-                        />
-                        {t("sound")}
-                      </label>
-                      <label className="bingo-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={voice}
-                          onChange={(e) => setVoice(e.target.checked)}
-                        />
-                        {t("voice")}
-                      </label>
-                      <button onClick={fullScreen}>{t("fullscreen")}</button>
-                      <button onClick={download}>{t("downloadAction")}</button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(t("restartConfirm"))) {
-                            setSession((previous) => ({
-                              ...previous,
-                              drawn: [],
-                              paused: false,
-                            }));
-                            announcement.current = null;
-                          }
-                        }}
-                      >
-                        {t("restart")}
-                      </button>
-                    </div>
-                  </details>
+
                 </div>
               </footer>
               <form
@@ -831,6 +858,7 @@ export function EventWorkspace({
                     value={claimNumber}
                     onChange={(e) => setClaimNumber(e.target.value)}
                     placeholder={t("cardNumber")}
+                    inputMode="numeric"
                   />
                 </label>
                 <button disabled={!claimNumber}>{t("checkClaim")}</button>

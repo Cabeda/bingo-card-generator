@@ -6,7 +6,10 @@ interface OfflineCacheInfo {
 }
 
 async function ensureCached(url: string, cache: Cache, keys: Record<string, string>): Promise<Response | undefined> {
-  const key = keys[url];
+  // Vercel tags HTML asset URLs with a deployment id; the worker caches canonical URLs.
+  const canonical = new URL(url);
+  canonical.searchParams.delete('dpl');
+  const key = keys[canonical.href];
   if (!key) throw new Error(`Resource is not in the active offline manifest: ${url}`);
   const cached = await cache.match(key);
   if (cached || !navigator.onLine) return cached;

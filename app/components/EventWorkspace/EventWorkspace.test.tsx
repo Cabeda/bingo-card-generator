@@ -76,6 +76,10 @@ beforeAll(() => {
     this.dispatchEvent(new Event("close"));
   };
 });
+async function returnToSetup() {
+  fireEvent.click(await screen.findByRole("button", { name: "Back to cards" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit game" }));
+}
 it("generates, previews and hosts the same cards, preserving calls when returning to print", async () => {
   renderEvent();
   fireEvent.change(await screen.findByLabelText("Event name"), {
@@ -97,7 +101,7 @@ it("generates, previews and hosts the same cards, preserving calls when returnin
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Draw first number →" }));
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Back to cards" }));
   fireEvent.click(
     screen.getByRole("button", { name: "Return to your game →" }),
   );
@@ -164,7 +168,7 @@ it("opens a legacy backup straight into hosting without generation or printing",
   expect(
     await screen.findByRole("heading", { name: "Family night" }),
   ).toBeInTheDocument();
-  expect(screen.getByText("90-BALL BINGO · 200 CARDS")).toBeInTheDocument();
+  expect(screen.getByText("90-ball bingo · 200 cards")).toBeInTheDocument();
   expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: "Draw first number →" }),
@@ -188,7 +192,7 @@ it("restores the game and calls after refresh and keeps them when an invalid fil
   view.unmount();
   renderEvent();
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   const invalid = new File(["bad"], "broken.bingoCards");
   Object.defineProperty(invalid, "text", { value: async () => "not a game" });
@@ -301,6 +305,8 @@ it("removes host actions and keyboard draws from audience view", async () => {
   expect(
     screen.queryByLabelText("Check a player’s claim"),
   ).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Back to cards" })).not.toBeInTheDocument();
+  expect(screen.getAllByLabelText(/^\d+, /)).toHaveLength(90);
   fireEvent.keyDown(document.body, { key: " " });
   expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Return to host" }));
@@ -353,7 +359,7 @@ it.each([false, true])(
     expect(
       screen.getByText(confirmed ? "Ready for the first call" : "Call 2 of 90"),
     ).toBeInTheDocument();
-    expect(screen.getByText("90-BALL BINGO · 1 CARDS")).toBeInTheDocument();
+    expect(screen.getByText("90-ball bingo · 1 cards")).toBeInTheDocument();
   },
 );
 it.each([false, true])(
@@ -361,9 +367,7 @@ it.each([false, true])(
   async (confirmed) => {
     seedHost([1, 90]);
     renderEvent();
-    fireEvent.click(
-      await screen.findByRole("button", { name: /1.*Generate game/ }),
-    );
+    await returnToSetup();
     fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
     const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
     selectFile("Replacement.bingoCards", savedCard);
@@ -454,9 +458,7 @@ it("handles read failures without leaving the file button disabled", async () =>
 it("does not clear or replace a game when the file chooser is cancelled", async () => {
   seedHost([1]);
   renderEvent();
-  fireEvent.click(
-    await screen.findByRole("button", { name: /1.*Generate game/ }),
-  );
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   fireEvent.change(screen.getByLabelText("Open saved bingo game"), {
     target: { files: [] },
@@ -566,7 +568,7 @@ it("keeps rapid draws distinct under React Strict Mode", async () => {
   for (let i = 0; i < 5; i++) fireEvent.click(draw);
   expect(await screen.findByText("Call 5 of 90")).toBeInTheDocument();
   expect(screen.getAllByLabelText(/^\d+, Called$/)).toHaveLength(4);
-  expect(screen.getAllByLabelText(/^\d+, LATEST NUMBER$/)).toHaveLength(1);
+  expect(screen.getAllByLabelText(/^\d+, Latest number$/)).toHaveLength(1);
 });
 
 it.each(["host", "print"] as const)("opens the %s route with a migrated session", async (entry) => {
@@ -579,7 +581,7 @@ it.each(["host", "print"] as const)("opens the %s route with a migrated session"
 it.each([false, true])("confirms replacement before generating a new deck (%s)", async (confirmed) => {
   seedHost([1]);
   renderEvent();
-  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
   fireEvent.change(screen.getByLabelText("Event name"), { target: { value: "New deck" } });
   fireEvent.submit(screen.getByLabelText("Event name").closest("form")!);
@@ -594,7 +596,7 @@ it.each([false, true])("confirms replacement before generating a new deck (%s)",
 it("opens the native file chooser and prints the prepared cards", async () => {
   seedHost();
   renderEvent();
-  fireEvent.click(await screen.findByRole("button", { name: /1.*Generate game/ }));
+  await returnToSetup();
   fireEvent.click(screen.getByRole("button", { name: "Host a saved game" }));
   const choose = jest.spyOn(HTMLInputElement.prototype, "click");
   fireEvent.click(screen.getByRole("button", { name: "Open game file → Host" }));
@@ -719,7 +721,7 @@ it("changes the card theme and restores the line target after selecting full hou
   fireEvent.change(await screen.findByLabelText("Playing for"), { target: { value: "full" } });
   fireEvent.change(screen.getByLabelText("Playing for"), { target: { value: "line" } });
   expect(screen.getByRole("heading", { name: "One line" })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Back to cards" }));
   const theme = screen.getByLabelText("Card theme") as HTMLSelectElement;
   fireEvent.change(theme, { target: { value: theme.options[1].value } });
   expect(theme.value).toBe(theme.options[1].value);
@@ -761,4 +763,37 @@ it("does not draw a queued keyboard call after play is paused in the same intera
   });
   expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Draw first number →" })).toBeDisabled();
+});
+
+it("keeps appearance controls in a labelled, initially closed header disclosure", async () => {
+  const { container } = renderEvent();
+  await screen.findByLabelText("Event name");
+  const settings = container.querySelector(".bingo-header-settings") as HTMLDetailsElement;
+  expect(settings.open).toBe(false);
+  expect(within(settings).getByText("Settings")).toBeInTheDocument();
+  expect(within(settings).getByRole("heading", { name: "Preferences", hidden: true })).toBeInTheDocument();
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(settings.open).toBe(true);
+  expect(within(settings).getByLabelText("Card theme")).toBeInTheDocument();
+  expect(within(settings).getByText("Language")).toBeInTheDocument();
+  expect(within(settings).getByRole("button", { name: /Switch to/ })).toBeInTheDocument();
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(settings.open).toBe(false);
+});
+
+it("groups display preferences beside event identity and keeps drawing in host controls", async () => {
+  seedHost([1, 2]);
+  renderEvent();
+  const heading = await screen.findByRole("heading", { name: "Family" });
+  const header = heading.closest("header")!;
+  expect(within(header).getByRole("button", { name: "Audience view ↗" })).toBeInTheDocument();
+  const settings = within(header).getByText("Settings").closest("details") as HTMLDetailsElement;
+  expect(settings.open).toBe(false);
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(within(settings).getByRole("heading", { name: "Preferences" })).toBeInTheDocument();
+  expect(within(settings).getByLabelText("Card theme")).toBeInTheDocument();
+  const controls = screen.getByLabelText("Host controls");
+  expect(within(controls).getByRole("button", { name: "Draw next number →" })).toBeInTheDocument();
+  expect(within(controls).getByText("Space or Enter to draw")).toBeInTheDocument();
+  expect(within(controls).queryByText("Settings")).not.toBeInTheDocument();
 });

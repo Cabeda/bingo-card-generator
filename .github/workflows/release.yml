@@ -34,7 +34,7 @@ jobs:
         id: get_tag
         run: |
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
           echo "Latest tag: $LATEST_TAG"
 
       - name: Get commits since last tag
@@ -44,7 +44,7 @@ jobs:
           if [ "$LATEST_TAG" = "v0.0.0" ]; then
             COMMITS=$(git log --pretty=format:"%s" HEAD)
           else
-            COMMITS=$(git log --pretty=format:"%s" ${LATEST_TAG}..HEAD)
+            COMMITS=$(git log --pretty=format:"%s" "${LATEST_TAG}..HEAD")
           fi
           
           echo "Commits since $LATEST_TAG:"
@@ -60,18 +60,18 @@ jobs:
           
           # Check for breaking changes (BREAKING CHANGE: or ! in commit type)
           if echo "$COMMITS" | grep -qE "(BREAKING CHANGE:|^[a-z]+!:)"; then
-            echo "bump_type=major" >> $GITHUB_OUTPUT
+            echo "bump_type=major" >> "$GITHUB_OUTPUT"
             echo "Version bump: MAJOR (breaking changes detected)"
           # Check for new features (feat:)
           elif echo "$COMMITS" | grep -qE "^feat(\(.*\))?:"; then
-            echo "bump_type=minor" >> $GITHUB_OUTPUT
+            echo "bump_type=minor" >> "$GITHUB_OUTPUT"
             echo "Version bump: MINOR (new features detected)"
           # Check for any conventional commits (fix:, docs:, etc.)
           elif echo "$COMMITS" | grep -qE "^(fix|perf|refactor|style|test|build|ci|chore|docs)(\(.*\))?:"; then
-            echo "bump_type=patch" >> $GITHUB_OUTPUT
+            echo "bump_type=patch" >> "$GITHUB_OUTPUT"
             echo "Version bump: PATCH (fixes or other changes detected)"
           else
-            echo "bump_type=none" >> $GITHUB_OUTPUT
+            echo "bump_type=none" >> "$GITHUB_OUTPUT"
             echo "Version bump: NONE (no conventional commits detected)"
           fi
 
@@ -84,11 +84,11 @@ jobs:
           
           # Run bun pm version which will update package.json, create commit and tag
           # According to Bun CLI: https://bun.sh/docs/cli/pm#version
-          bun pm version $BUMP_TYPE
+          bun pm version "$BUMP_TYPE"
           
           # Get the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "New version: $NEW_VERSION"
 
       - name: Push changes and tags
@@ -108,9 +108,9 @@ jobs:
           
           # Get commits and format them
           if [ "$LATEST_TAG" = "v0.0.0" ]; then
-            COMMITS=$(git log --pretty=format:"- %s (%h)" v$NEW_VERSION)
+            COMMITS=$(git log --pretty=format:"- %s (%h)" "v$NEW_VERSION")
           else
-            COMMITS=$(git log --pretty=format:"- %s (%h)" ${LATEST_TAG}..v$NEW_VERSION)
+            COMMITS=$(git log --pretty=format:"- %s (%h)" "${LATEST_TAG}..v$NEW_VERSION")
           fi
           
           # Create changelog content
