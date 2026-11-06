@@ -57,7 +57,7 @@ returns a failing exit code.
 
 Jest cannot establish physical pagination because it does not lay out CSS.
 `bun run test:print:webkit` uses native WebKit printing on macOS to verify A4
-page counts, card order, footer presence and preview/paper heading alignment.
+page counts, card order, footer presence and preview/paper card alignment.
 It covers all four layouts, partial sheets and a 200-card deck. This is not a
 substitute for an iOS Safari print-dialog check.
 

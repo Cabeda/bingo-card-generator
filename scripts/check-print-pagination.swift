@@ -12,7 +12,7 @@ import WebKit
     var view: WKWebView!
     var window: NSWindow!
     var printing = false
-    var previewHeaderTopMm: Double = 0
+    var previewCardTopMm: Double = 0
 
     func start() throws {
         let fixture = try String(contentsOfFile: CommandLine.arguments[5], encoding: .utf8)
@@ -59,20 +59,27 @@ import WebKit
     }
 
     func printPDF() {
-        // Compare a real text position in preview with its position on paper.
-        // Text extraction/page counts alone cannot catch preview-only drift.
+        // Measure the card origin, not font selection bounds: DOM ranges and
+        // PDFKit report different glyph extents across macOS/font versions.
+        // A tiny, out-of-flow label exposes the printed origin without changing
+        // card sizing. Its font metrics are negligible at the 1 mm tolerance.
         view.evaluateJavaScript("""
             (() => {
                 const sheet = document.querySelector('.bingo-flow-sheet-page');
-                const label = sheet.querySelector('article header b');
-                const range = document.createRange();
-                range.selectNodeContents(label);
+                const card = sheet.querySelector('article');
+                for (const firstCard of [card, document.querySelector('.bingo-flow-print-only article')]) {
+                    firstCard.style.position = 'relative';
+                    const marker = document.createElement('span');
+                    marker.textContent = 'BINGO_PRINT_ORIGIN';
+                    marker.style.cssText = 'position:absolute;top:0;left:0;font:1px/1px monospace;';
+                    firstCard.append(marker);
+                }
                 const page = sheet.getBoundingClientRect();
-                return (range.getBoundingClientRect().top - page.top) / (page.width / 210);
+                return (card.getBoundingClientRect().top - page.top) / (page.width / 210);
             })()
             """) { value, _ in
                 guard let position = value as? Double else { self.fail("Could not measure print preview") }
-                self.previewHeaderTopMm = position
+                self.previewCardTopMm = position
                 self.startPrintOperation()
             }
     }
@@ -102,11 +109,12 @@ import WebKit
         }
         let pattern = try! NSRegularExpression(pattern: "Card (\\d+)")
         let firstPage = pdf.page(at: 0)!
-        let labelRange = ((firstPage.string ?? "") as NSString).range(of: "Print regression")
-        guard let label = firstPage.selection(for: labelRange) else { fail("Missing event heading on paper") }
+        let labelRange = ((firstPage.string ?? "") as NSString).range(of: "BINGO_PRINT_ORIGIN")
+        guard labelRange.location != NSNotFound,
+              let label = firstPage.selection(for: labelRange) else { fail("Missing card-origin marker on paper") }
         let paperTopMm = (firstPage.bounds(for: .mediaBox).height - label.bounds(for: firstPage).maxY) * 25.4 / 72
-        guard abs(paperTopMm - previewHeaderTopMm) < 1 else {
-            fail("Preview heading at \(previewHeaderTopMm)mm differs from paper at \(paperTopMm)mm")
+        guard abs(paperTopMm - previewCardTopMm) < 1 else {
+            fail("Preview card at \(previewCardTopMm)mm differs from paper at \(paperTopMm)mm")
         }
         for index in 0..<pdf.pageCount {
             let text = pdf.page(at: index)!.string ?? ""

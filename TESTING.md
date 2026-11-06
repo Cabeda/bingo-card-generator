@@ -54,7 +54,7 @@ terminal. This check needs macOS and the Xcode command-line tools. Set
 
 The check loads the real page in an isolated native WebKit view at a mobile
 viewport size and prints A4 PDFs. It verifies page counts, card order, card
-footers and preview/paper heading alignment for every layout, partial sheets
+footers and preview/paper card alignment for every layout, partial sheets
 and a 200-card deck. This exercises
 WebKit pagination, but does not replace a check in iOS Safari's print dialog.
 
