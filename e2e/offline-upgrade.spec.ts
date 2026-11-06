@@ -63,7 +63,7 @@ for (const kind of ['incomplete cache', 'legacy protocol']) {
       let navigations = 0;
       page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });
       legacy = false;
-      await page.evaluate(async () => (await navigator.serviceWorker.getRegistration('/'))!.update());
+      await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
       await expect(page.locator('[data-offline-state="ready"]')).toBeAttached();
       expect(navigations).toBe(0);
       expect(await page.evaluate(() => localStorage.getItem('bingoEventSession.v1'))).toBe(before);

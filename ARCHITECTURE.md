@@ -51,7 +51,8 @@ Missing entries can be repaired online. The status module remains silent when re
 checks again on reconnect, controller replacement or returning to the page. Storage persistence is requested without
 blocking readiness; the browser can deny it. Missing resources are repaired by the
 active worker through a bounded message exchange, avoiding page fetches through a
-missing precache route. Controller changes trigger a fresh readiness check. Saved game state remains in localStorage.
+missing precache route. Online checks discover worker updates without blocking cache verification. Controller
+changes trigger a fresh readiness check. Saved game state remains in localStorage.
 
 A separately packaged desktop release is not required for these offline behaviours. The existing
 installable web app remains the primary distribution; local file ownership or managed kiosk

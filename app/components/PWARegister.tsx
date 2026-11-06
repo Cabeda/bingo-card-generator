@@ -24,6 +24,10 @@ export function PWARegister() {
     const check = async () => {
       const current = ++request;
       setPhase('preparing');
+      // Discover updates without delaying verification of an already usable offline cache.
+      if (navigator.onLine) {
+        void navigator.serviceWorker.getRegistration('/').then(registration => registration?.update()).catch(() => {});
+      }
       try {
         await prepareOffline();
         if (current === request) setPhase('ready');
