@@ -25,13 +25,17 @@ Tests are configured in `jest.config.js` with the following key settings:
 
 ### Offline recovery in a real browser
 
-Run `bunx playwright install chromium`, `bun run build`, then `bun run test:offline`.
+Run `bunx playwright install chromium firefox`, `bun run build`, then `bun run test:offline`.
 Playwright starts the production server; a development server does not exercise offline caching.
 
-The suite uses fresh persistent Chromium profiles and real service workers. It checks the first
+The suite uses fresh persistent Chromium and Firefox profiles and real service workers. It checks the first
 online visit followed by offline play, refresh, closing and reopening a tab, restarting the browser
 with the same profile, and loading all 13 entry routes without first visiting them. Cache eviction
 must remove the ready claim; reconnecting must repair the cache without losing game state.
+
+Upgrade fixtures also install an old worker with a retired CSS file or an unsupported
+message protocol, then verify that a new worker takes over without reloading or
+resetting the running game. Healthy old caches keep the normal waiting lifecycle.
 
 The `offline` CI job runs this suite and is required by the final `checks` job.
 Failure traces are saved in `test-results/` and `playwright-report/`. These generated files are
@@ -322,7 +326,7 @@ npm test -- app/components/I18nVisualTest.test.tsx
   starts the production server and waits for `/en` with a bounded readiness
   check. It then runs `bun run test:print:webkit`; any failure fails the job.
   Server and print-check logs are uploaded on failure.
-- The offline job checks recovery in a real Chromium browser. Browser installation
+- The offline job checks recovery in real Chromium and Firefox browsers. Browser installation
   has a five-minute step timeout within the job's twenty-minute limit.
 - The workflows job installs pinned actionlint and runs `bun run lint:workflows`.
   To run it locally, install actionlint v1.7.12 and ShellCheck and place both

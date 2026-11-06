@@ -1,3 +1,6 @@
+const mockIntegrity = jest.fn();
+jest.mock('./cacheIntegrity', () => ({ activeCacheIsComplete: mockIntegrity }));
+const mockCopyResponse = jest.fn(async response => response);
 const mockClientsClaim = jest.fn();
 const mockPrecacheAndRoute = jest.fn();
 const mockCleanupOutdatedCaches = jest.fn();
@@ -9,6 +12,7 @@ const mockExpirationPlugin = jest.fn();
 jest.mock('workbox-core', () => ({
   cacheNames: { precache: 'workbox-precache-current' },
   clientsClaim: mockClientsClaim,
+  copyResponse: mockCopyResponse,
 }));
 jest.mock('workbox-precaching', () => ({
   precacheAndRoute: mockPrecacheAndRoute,
@@ -21,19 +25,22 @@ jest.mock('workbox-expiration', () => ({ ExpirationPlugin: mockExpirationPlugin 
 
 describe('production service worker', () => {
   const manifest = [{ url: '/en', revision: 'page-v1' }, { url: 'app.js', revision: 'asset-v1' }];
-  let listener: (event: { data: unknown; ports: unknown[] }) => void;
+  let listener: (event: { data: unknown; ports: unknown[]; waitUntil?: (promise: Promise<unknown>) => void }) => void;
+  let install: (event: { waitUntil: (promise: Promise<unknown>) => void }) => void;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    Object.assign(self, { __WB_MANIFEST: manifest });
+    Object.assign(self, { __WB_MANIFEST: manifest, registration: { active: null }, skipWaiting: jest.fn().mockResolvedValue(undefined) });
     const addListener = jest.spyOn(self, 'addEventListener');
     jest.isolateModules(() => require('./service-worker.js'));
     listener = addListener.mock.calls.find(([type]) => type === 'message')![1] as typeof listener;
+    install = addListener.mock.calls.find(([type]) => type === 'install')![1] as typeof install;
     addListener.mockRestore();
   });
 
   afterEach(() => {
     self.removeEventListener('message', listener as EventListener);
+    self.removeEventListener('install', install as EventListener);
     delete (self as unknown as { __WB_MANIFEST?: unknown }).__WB_MANIFEST;
   });
 
@@ -79,4 +86,37 @@ describe('production service worker', () => {
     listener({ data: { type: 'OFFLINE_CACHE_INFO' }, ports: [] });
     expect(mockGetCacheKeyForURL).not.toHaveBeenCalled();
   });
+
+  it('does not force activation for the first installation', () => {
+    const waitUntil = jest.fn(); install({ waitUntil });
+    expect(waitUntil).not.toHaveBeenCalled();
+  });
+  it.each([true, false])('forces replacement only when the old cache is broken (complete=%s)', async complete => {
+    const active = {};
+    Object.assign(self, { registration: { active } });
+    mockIntegrity.mockResolvedValue(complete);
+    const waitUntil = jest.fn(); install({ waitUntil });
+    await waitUntil.mock.calls[0][0];
+    expect(mockIntegrity).toHaveBeenCalledWith(active);
+    expect(self.skipWaiting).toHaveBeenCalledTimes(complete ? 0 : 1);
+  });
+  it.each(['ok', 'redirected', 'failed', 'missing key', 'network error'])('repairs precached resources: %s', async state => {
+    const put = jest.fn().mockResolvedValue(undefined);
+    const response = { ok: state !== 'failed', redirected: state === 'redirected' };
+    Object.defineProperty(globalThis, 'fetch', { configurable: true, value: jest.fn().mockResolvedValue(response) });
+    Object.defineProperty(globalThis, 'caches', { configurable: true, value: { open: jest.fn().mockResolvedValue({ put }) } });
+    if (state === 'missing key') mockGetCacheKeyForURL.mockReturnValueOnce(undefined as unknown as string);
+    if (state === 'network error') jest.mocked(fetch).mockRejectedValueOnce(new Error('network'));
+    const postMessage = jest.fn(); const waitUntil = jest.fn();
+    listener({ data: { type: 'OFFLINE_REPAIR', url: '/en?dpl=deployment' }, ports: [{ postMessage }], waitUntil });
+    await waitUntil.mock.calls[0][0];
+    expect(postMessage).toHaveBeenCalledWith({ ok: state === 'ok' || state === 'redirected' });
+    if (state === 'ok' || state === 'redirected') expect(put).toHaveBeenCalledTimes(1);
+    expect(mockCopyResponse).toHaveBeenCalledTimes(state === 'redirected' ? 1 : 0);
+  });
+  it('ignores repair requests without a response port', () => {
+    listener({ data: { type: 'OFFLINE_REPAIR', url: '/en' }, ports: [] });
+    expect(mockGetCacheKeyForURL).not.toHaveBeenCalled();
+  });
+
 });

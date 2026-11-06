@@ -182,16 +182,16 @@ jobs:
     - name: Install dependencies
       run: bun install --frozen-lockfile
 
-    - name: Install Chromium
+    - name: Install browser engines
       timeout-minutes: 5
-      run: bunx playwright install --with-deps chromium
+      run: bunx playwright install --with-deps chromium firefox
 
     - name: Build application
       env:
         NEXT_DEPLOYMENT_ID: offline-ci-deployment
       run: bun run build
 
-    - name: Check offline recovery in Chromium
+    - name: Check offline recovery and upgrades in Chromium and Firefox
       run: bun run test:offline
 
     - name: Upload offline failure diagnostics

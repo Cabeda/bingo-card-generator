@@ -31,6 +31,7 @@ export function PWARegister() {
         if (current === request) setPhase('unavailable');
       }
     };
+    const controller = () => { void check(); };
     retry.current = check;
     const connection = () => {
       setOnline(navigator.onLine);
@@ -41,11 +42,13 @@ export function PWARegister() {
     };
     setOnline(navigator.onLine);
     void check();
+    navigator.serviceWorker.addEventListener('controllerchange', controller);
     window.addEventListener('online', connection);
     window.addEventListener('offline', connection);
     document.addEventListener('visibilitychange', visibility);
     return () => {
       ++request;
+      navigator.serviceWorker.removeEventListener('controllerchange', controller);
       window.removeEventListener('online', connection);
       window.removeEventListener('offline', connection);
       document.removeEventListener('visibilitychange', visibility);
