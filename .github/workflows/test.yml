@@ -12,6 +12,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  workflows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Setup Go
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.26.x'
+        cache: false
+
+    - name: Install actionlint
+      run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+
+    - name: Validate workflows
+      run: bun run lint:workflows
+
   test:
     runs-on: ubuntu-latest
     permissions:
@@ -154,6 +180,7 @@ jobs:
       run: bun install --frozen-lockfile
 
     - name: Install Chromium
+      timeout-minutes: 5
       run: bunx playwright install --with-deps chromium
 
     - name: Build application
@@ -174,17 +201,19 @@ jobs:
 
   checks:
     if: always()
-    needs: [test, native-print, offline]
+    needs: [workflows, test, native-print, offline]
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
     - name: Confirm all required checks passed
       env:
+        WORKFLOWS_RESULT: ${{ needs.workflows.result }}
         TEST_RESULT: ${{ needs.test.result }}
         PRINT_RESULT: ${{ needs.native-print.result }}
         OFFLINE_RESULT: ${{ needs.offline.result }}
       run: |
+        test "$WORKFLOWS_RESULT" = success
         test "$TEST_RESULT" = success
         test "$PRINT_RESULT" = success
         test "$OFFLINE_RESULT" = success

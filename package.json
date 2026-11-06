@@ -16,11 +16,12 @@
     "test:offline": "playwright test",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage",
-    "test:i18n": "NODE_OPTIONS='--experimental-vm-modules' bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx",
+    "test:i18n": "NODE_OPTIONS='--experimental-vm-modules' bunx jest app/utils/i18n.test.ts app/components/I18nVisualTest.test.tsx --coverage=false",
     "validate:i18n": "bun scripts/validate-translations.js",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#playwright-report' '#test-results'",
     "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules' '#playwright-report' '#test-results'",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:workflows": "actionlint"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

@@ -197,7 +197,8 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 Use the generated report for current per-file results rather than a manually
 maintained percentage list. Run the full suite to measure repository-wide
 coverage; running a single test still includes every configured production file
-and can fail the global gate even when that test passes.
+and can fail the global gate even when that test passes. The focused
+`bun run test:i18n` command disables coverage; the full suite retains the 100% gate.
 
 The dedicated game configuration also enforces complete coverage for its
 explicit production scope. It complements the full suite rather than replacing it.
@@ -321,13 +322,18 @@ npm test -- app/components/I18nVisualTest.test.tsx
   starts the production server and waits for `/en` with a bounded readiness
   check. It then runs `bun run test:print:webkit`; any failure fails the job.
   Server and print-check logs are uploaded on failure.
-- The final `checks` job depends on both jobs succeeding. No test or coverage
-  failure is allowed to continue as a success.
+- The offline job checks recovery in a real Chromium browser. Browser installation
+  has a five-minute step timeout within the job's twenty-minute limit.
+- The workflows job installs pinned actionlint and runs `bun run lint:workflows`.
+  To run it locally, install actionlint v1.7.12 and place it on `PATH`.
+- The final `checks` job requires workflow validation, tests, native print and
+  offline recovery to succeed. No test or coverage failure may continue as success.
 
 Native macOS WebKit exercises Apple's print pagination at a mobile viewport.
 It does not reproduce the iOS Safari print dialog or replace a physical-device
-check. Repository branch protection must require the workflow checks if merges
-must be blocked; workflow configuration alone does not change branch protection.
+check. The active default-branch ruleset requires pull requests and a successful
+GitHub Actions `checks` status against an up-to-date branch, with no bypass actors.
+Repository rules are managed in GitHub separately from workflow configuration.
 
 ## Troubleshooting
 
