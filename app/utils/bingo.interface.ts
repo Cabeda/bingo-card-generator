@@ -55,6 +55,7 @@ export interface Card {
  * @see {@link generateRandomBingoCards} for creating new games
  */
 export interface Game {
+  generation?: { version: 1; seed: string };
   filename: GameId;
   cards: Card[];
 }

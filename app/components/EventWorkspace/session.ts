@@ -20,6 +20,7 @@ export interface EventSession {
   stage: EventStage;
   started: boolean;
   cardsPerPage: number;
+  shareKey?: string;
   libraryId?: string | null;
   printOptions?: PrintOptions;
 }
@@ -55,7 +56,8 @@ export function restoreSession(value: unknown): EventSession {
   )
     throw new Error("Invalid calls");
   return {
-    game,
+    game: { ...game, ...(candidate.game.generation?.version === 1 && /^[\w-]{22}$/.test(candidate.game.generation.seed) ? { generation: candidate.game.generation } : {}) },
+    ...(typeof candidate.shareKey === "string" && /^bingoShared\.v1\.[\w-]{22}$/.test(candidate.shareKey) ? { shareKey: candidate.shareKey } : {}),
     drawn: candidate.drawn,
     paused: candidate.paused === true,
     target: candidate.target === "full" ? "full" : "line",

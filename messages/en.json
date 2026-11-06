@@ -215,7 +215,8 @@
     "fileError": "Unable to open this file. Choose a valid .bingoCards backup. Your current game has been kept.",
     "restoreError": "The saved session could not be restored. Open your game backup to continue.",
     "storageError": "Your browser cannot save this session. Download the game file before leaving; it preserves cards, not calls.",
-    "fullscreenError": "Full screen is unavailable here. Use your browser’s full-screen command."
+    "fullscreenError": "Full screen is unavailable here. Use your browser’s full-screen command.",
+    "shareError": "This game link is invalid or unsupported. Your saved game has been kept."
   },
   "offline": {
     "preparing": "Preparing offline access…",
@@ -275,5 +276,14 @@
     "removeLogo": "Remove image",
     "imageError": "Choose a PNG, JPEG or WebP image up to 1 MB.",
     "title": "Print preferences"
+  },
+  "sharing": {
+    "action": "Share game link",
+    "preparing": "Preparing link…",
+    "help": "Shares the cards only. Calls and progress stay on each device.",
+    "link": "Game link",
+    "copied": "Link copied.",
+    "copyHelp": "Select and copy the link above.",
+    "error": "Unable to create a link. For large games, download and share the game file instead."
   }
 }

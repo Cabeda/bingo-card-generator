@@ -215,7 +215,8 @@
     "fileError": "No se pudo abrir el archivo. Elige una copia .bingoCards válida. Se ha conservado el juego actual.",
     "restoreError": "No se pudo recuperar la sesión. Abre la copia del juego para continuar.",
     "storageError": "El navegador no puede guardar la sesión. Descarga el archivo antes de salir; conserva cartones, no sorteos.",
-    "fullscreenError": "La pantalla completa no está disponible aquí. Usa la opción del navegador."
+    "fullscreenError": "La pantalla completa no está disponible aquí. Usa la opción del navegador.",
+    "shareError": "Este enlace no es válido o no es compatible. Tu juego guardado se ha conservado."
   },
   "offline": {
     "preparing": "Preparando el acceso sin conexión…",
@@ -275,5 +276,14 @@
     "removeLogo": "Quitar imagen",
     "imageError": "Elige una imagen PNG, JPEG o WebP de hasta 1 MB.",
     "title": "Preferencias de impresión"
+  },
+  "sharing": {
+    "action": "Compartir enlace del juego",
+    "preparing": "Preparando enlace…",
+    "help": "Solo comparte los cartones. Los números extraídos y el progreso permanecen en cada dispositivo.",
+    "link": "Enlace del juego",
+    "copied": "Enlace copiado.",
+    "copyHelp": "Selecciona y copia el enlace de arriba.",
+    "error": "No se pudo crear el enlace. Para juegos grandes, descarga y comparte el archivo del juego."
   }
 }
