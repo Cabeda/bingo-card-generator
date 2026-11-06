@@ -101,28 +101,28 @@ async function returnToSetup() {
 }
 it("generates, previews and hosts the same cards, preserving calls when returning to print", async () => {
   await renderEvent();
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Event name"), {
+  await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), {
     target: { value: "Family night" },
   }); });
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Number of cards"), {
+  await act(async () => { fireEvent.change(await screen.findByLabelText("How many cards?"), {
     target: { value: "4" },
   }); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Generate game →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Make cards" })); });
   expect(
     await screen.findByRole("heading", { name: "Your cards are ready." }),
   ).toBeInTheDocument();
   expect(
     within(screen.getByRole("main")).getByText("#001"),
   ).toBeInTheDocument();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host this game →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Play bingo" })); });
   expect(
-    await screen.findByText("Ready for the first call"),
+    await screen.findByText("Choose “Pick first number” to begin."),
   ).toBeInTheDocument();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Back to cards" })); });
   await act(async () => { fireEvent.click(
-    screen.getByRole("button", { name: "Return to your game →" }),
+    screen.getByRole("button", { name: "Keep playing" }),
   ); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   await waitFor(() =>
@@ -134,13 +134,13 @@ it("generates, previews and hosts the same cards, preserving calls when returnin
 
 it("changes how many cards share a sheet without splitting card content", async () => {
   await renderEvent();
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Event name"), {
+  await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), {
     target: { value: "Office party" },
   }); });
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Number of cards"), {
+  await act(async () => { fireEvent.change(await screen.findByLabelText("How many cards?"), {
     target: { value: "9" },
   }); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Generate game →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Make cards" })); });
   await screen.findByRole("heading", { name: "Your cards are ready." });
 
   const printed = (): Element =>
@@ -170,10 +170,10 @@ it("opens a legacy backup straight into hosting without generation or printing",
   const { readFileSync } = await import("fs");
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Host a saved game" }),
+    await screen.findByRole("button", { name: "Open a file" }),
   ); });
   expect(
-    screen.queryByRole("button", { name: "Generate game →" }),
+    screen.queryByRole("button", { name: "Make cards" }),
   ).not.toBeInTheDocument();
   const file = new File(["legacy backup"], "Family night.BINGOCARDS", {
     type: "text/plain",
@@ -188,32 +188,32 @@ it("opens a legacy backup straight into hosting without generation or printing",
     await screen.findByRole("heading", { name: "Family night" }),
   ).toBeInTheDocument();
   expect(screen.getByText("90-ball bingo · 200 cards")).toBeInTheDocument();
-  expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
+  expect(screen.getByText("Choose “Pick first number” to begin.")).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Draw first number →" }),
+    screen.getByRole("button", { name: "Pick first number" }),
   ).toBeEnabled();
 });
 
 it("restores the game and calls after refresh and keeps them when an invalid file is selected", async () => {
   const view = await renderEvent();
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Event name"), {
+  await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), {
     target: { value: "Sunday bingo" },
   }); });
-  await act(async () => { fireEvent.change(screen.getByLabelText("Number of cards"), {
+  await act(async () => { fireEvent.change(screen.getByLabelText("How many cards?"), {
     target: { value: "2" },
   }); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Generate game →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Make cards" })); });
   await screen.findByRole("heading", { name: "Your cards are ready." });
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Host this game →" }),
+    await screen.findByRole("button", { name: "Play bingo" }),
   ); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   await screen.findByText("Call 1 of 90");
   view.unmount();
   await renderEvent();
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   await returnToSetup();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host a saved game" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open a file" })); });
   const invalid = new File(["bad"], "broken.bingoCards");
   Object.defineProperty(invalid, "text", { value: async () => "not a game" });
   await act(async () => { fireEvent.change(screen.getByLabelText("Open saved bingo game"), {
@@ -222,7 +222,7 @@ it("restores the game and calls after refresh and keeps them when an invalid fil
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "Your current game has been kept",
   );
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Host game/ })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Play bingo/ })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   expect(
     screen.getByRole("heading", { name: "Sunday bingo" }),
@@ -258,7 +258,7 @@ it("cannot draw while paused, and resumes without dropping the last call", async
   seedHost([1]);
   await renderEvent();
   await act(async () => { fireEvent.click(await screen.findByRole("button", { name: "Pause" })); });
-  const draw = screen.getByRole("button", { name: "Draw next number →" });
+  const draw = screen.getByRole("button", { name: "Pick next number" });
   expect(draw).toBeDisabled();
   await act(async () => { fireEvent.click(draw); });
   await act(async () => { fireEvent.keyDown(document.body, { key: " " }); });
@@ -270,12 +270,12 @@ it("cannot draw while paused, and resumes without dropping the last call", async
 it("draws exactly once per keyboard action and ignores form input, repeats and unrelated keys", async () => {
   seedHost();
   await renderEvent();
-  await screen.findByText("Ready for the first call");
+  await screen.findByText("Choose “Pick first number” to begin.");
   await act(async () => { fireEvent.keyDown(document.body, { key: " " }); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   await act(async () => { fireEvent.keyDown(document.body, { key: " ", repeat: true }); });
   await act(async () => { fireEvent.keyDown(document.body, { key: "a" }); });
-  await act(async () => { fireEvent.keyDown(screen.getByLabelText("Check a player’s claim"), {
+  await act(async () => { fireEvent.keyDown(screen.getByLabelText("Did someone win?"), {
     key: "Enter",
   }); });
   expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
@@ -284,7 +284,7 @@ it("draws exactly once per keyboard action and ignores form input, repeats and u
 });
 it("does not intercept Space or Enter before hosting", async () => {
   await renderEvent();
-  await screen.findByLabelText("Event name");
+  await screen.findByLabelText("Game name");
   expect(
     fireEvent.keyDown(document.body, { key: "Enter", cancelable: true }),
   ).toBe(true);
@@ -295,7 +295,7 @@ it("does not intercept Space or Enter before hosting", async () => {
 it("handles window-targeted keyboard events without throwing", async () => {
   seedHost();
   await renderEvent();
-  await screen.findByText("Ready for the first call");
+  await screen.findByText("Choose “Pick first number” to begin.");
   await act(async () => { fireEvent.keyDown(window, { key: "Enter" }); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
 });
@@ -303,12 +303,12 @@ it("stops at the final ball, including 90, and cannot draw a 91st call", async (
   seedHost(Array.from({ length: 89 }, (_, i) => i + 1));
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Draw next number →" }),
+    await screen.findByRole("button", { name: "Pick next number" }),
   ); });
   expect(await screen.findByText("Call 90 of 90")).toBeInTheDocument();
   expect(screen.getByText("All numbers called")).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Draw next number →" }),
+    screen.getByRole("button", { name: "Pick next number" }),
   ).toBeDisabled();
   await act(async () => { fireEvent.keyDown(document.body, { key: "Enter" }); });
   expect(screen.getByText("Call 90 of 90")).toBeInTheDocument();
@@ -317,21 +317,21 @@ it("removes host actions and keyboard draws from audience view", async () => {
   seedHost([1]);
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Audience view ↗" }),
+    await screen.findByRole("button", { name: "Show players" }),
   ); });
   expect(
-    screen.queryByRole("button", { name: "Draw next number →" }),
+    screen.queryByRole("button", { name: "Pick next number" }),
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByLabelText("Check a player’s claim"),
+    screen.queryByLabelText("Did someone win?"),
   ).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Back to cards" })).not.toBeInTheDocument();
   expect(screen.getAllByLabelText(/^\d+, /)).toHaveLength(90);
   await act(async () => { fireEvent.keyDown(document.body, { key: " " }); });
   expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Return to host" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Back to controls" })); });
   expect(
-    screen.getByRole("button", { name: "Draw next number →" }),
+    screen.getByRole("button", { name: "Pick next number" }),
   ).toBeEnabled();
 });
 it.each([
@@ -350,7 +350,7 @@ it.each([
   async (target, drawn, card, expected) => {
     seedHost([...drawn], target);
     await renderEvent();
-    await act(async () => { fireEvent.change(await screen.findByLabelText("Check a player’s claim"), {
+    await act(async () => { fireEvent.change(await screen.findByLabelText("Did someone win?"), {
       target: { value: card },
     }); });
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Check card" })); });
@@ -362,7 +362,7 @@ it.each([
     expect(screen.getByText(`Call ${drawn.length} of 90`)).toBeInTheDocument();
     await act(async () => { fireEvent.click(within(dialog).getByRole("button", { name: "Close" })); });
     expect(
-      screen.getByRole("button", { name: "Draw next number →" }),
+      screen.getByRole("button", { name: "Pick next number" }),
     ).toBeDisabled();
     expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
   },
@@ -377,7 +377,7 @@ it.each([false, true])(
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Restart draws" })); });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(
-      screen.getByText(confirmed ? "Ready for the first call" : "Call 2 of 90"),
+      screen.getByText(confirmed ? "Choose “Pick first number” to begin." : "Call 2 of 90"),
     ).toBeInTheDocument();
     expect(screen.getByText("90-ball bingo · 1 cards")).toBeInTheDocument();
   },
@@ -388,7 +388,7 @@ it.each([false, true])(
     seedHost([1, 90]);
     await renderEvent();
     await returnToSetup();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host a saved game" })); });
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open a file" })); });
     const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
     await act(async () => { selectFile("Replacement.bingoCards", savedCard); });
     await waitFor(() => expect(confirm).toHaveBeenCalledTimes(1));
@@ -396,9 +396,9 @@ it.each([false, true])(
       expect(
         await screen.findByRole("heading", { name: "Replacement" }),
       ).toBeInTheDocument();
-      expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
+      expect(screen.getByText("Choose “Pick first number” to begin.")).toBeInTheDocument();
     } else {
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Host game/ })); });
+      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Play bingo/ })); });
       expect(
         await screen.findByRole("heading", { name: "Family" }),
       ).toBeInTheDocument();
@@ -415,7 +415,7 @@ it.each(["broken JSON", "null", "{}", '{"game":null}'])(
       "could not be restored",
     );
     expect(
-      screen.getByRole("button", { name: "Host a saved game" }),
+      screen.getByRole("button", { name: "Open a file" }),
     ).toBeEnabled();
   },
 );
@@ -432,14 +432,14 @@ it("keeps gameplay usable when browser storage is full", async () => {
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "cannot save this session",
   );
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   expect(set).toHaveBeenCalled();
 });
 it("rejects an oversized backup before reading it", async () => {
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Host a saved game" }),
+    await screen.findByRole("button", { name: "Open a file" }),
   ); });
   const file = new File(["x"], "huge.bingoCards");
   const read = jest.fn().mockResolvedValue(savedCard);
@@ -456,7 +456,7 @@ it("rejects an oversized backup before reading it", async () => {
 it("handles read failures without leaving the file button disabled", async () => {
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Host a saved game" }),
+    await screen.findByRole("button", { name: "Open a file" }),
   ); });
   const file = new File(["x"], "unreadable.bingoCards");
   Object.defineProperty(file, "text", {
@@ -471,7 +471,7 @@ it("handles read failures without leaving the file button disabled", async () =>
     "Unable to open this file",
   );
   expect(
-    screen.getByRole("button", { name: "Open game file → Host" }),
+    screen.getByRole("button", { name: "Open file and play" }),
   ).toBeEnabled();
 });
 
@@ -479,41 +479,41 @@ it("does not clear or replace a game when the file chooser is cancelled", async 
   seedHost([1]);
   await renderEvent();
   await returnToSetup();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host a saved game" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open a file" })); });
   await act(async () => { fireEvent.change(screen.getByLabelText("Open saved bingo game"), {
     target: { files: [] },
   }); });
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Host game/ })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Play bingo/ })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
 });
 it.each([0, -1, 1.5, 1001])(
   "rejects a generation request with %s cards",
   async (count) => {
     await renderEvent();
-    await act(async () => { fireEvent.change(await screen.findByLabelText("Event name"), {
+    await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), {
       target: { value: "Family" },
     }); });
-    await act(async () => { fireEvent.change(screen.getByLabelText("Number of cards"), {
+    await act(async () => { fireEvent.change(screen.getByLabelText("How many cards?"), {
       target: { value: String(count) },
     }); });
-    await act(async () => { fireEvent.submit(screen.getByLabelText("Event name").closest("form")!); });
+    await act(async () => { fireEvent.submit(screen.getByLabelText("Game name").closest("form")!); });
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "between 1 and 1,000 cards",
     );
-    expect(screen.getByRole("button", { name: /3.*Host game/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /3.*Play bingo/ })).toBeDisabled();
   },
 );
 it("rejects a blank event name and generates a valid one-card game", async () => {
   await renderEvent();
-  const name = await screen.findByLabelText("Event name");
+  const name = await screen.findByLabelText("Game name");
   await act(async () => { fireEvent.change(name, { target: { value: "   " } }); });
   await act(async () => { fireEvent.submit(name.closest("form")!); });
   expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Enter an event name",
+    "Enter a game name",
   );
   await act(async () => { fireEvent.change(name, { target: { value: " One player " } }); });
-  await act(async () => { fireEvent.change(screen.getByLabelText("Number of cards"), {
+  await act(async () => { fireEvent.change(screen.getByLabelText("How many cards?"), {
     target: { value: "1" },
   }); });
   await act(async () => { fireEvent.submit(name.closest("form")!); });
@@ -526,7 +526,7 @@ it("rejects a blank event name and generates a valid one-card game", async () =>
   expect(
     within(screen.getByRole("main")).queryByText("#002"),
   ).not.toBeInTheDocument();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host this game →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Play bingo" })); });
   expect(
     await screen.findByRole("heading", { name: "One player" }),
   ).toBeInTheDocument();
@@ -541,7 +541,7 @@ it("changes the winning target without altering the current draw history", async
     screen.getByRole("heading", { name: "Full house" }),
   ).toBeInTheDocument();
   expect(screen.getByText("Call 5 of 90")).toBeInTheDocument();
-  await act(async () => { fireEvent.change(screen.getByLabelText("Check a player’s claim"), {
+  await act(async () => { fireEvent.change(screen.getByLabelText("Did someone win?"), {
     target: { value: "7" },
   }); });
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Check card" })); });
@@ -557,7 +557,7 @@ it("retains migrated cards and calls from the previous game host", async () => {
   localStorage.setItem("drawnNumbers", "[1,90]");
   await renderEvent();
   await act(async () => { fireEvent.click(
-    await screen.findByRole("button", { name: "Return to your game →" }),
+    await screen.findByRole("button", { name: "Keep playing" }),
   ); });
   expect(
     await screen.findByRole("heading", { name: "Legacy" }),
@@ -569,7 +569,7 @@ it("continues drawing when optional sound is enabled but Web Audio is unavailabl
   await renderEvent();
   await act(async () => { fireEvent.click(await screen.findByText("Settings")); });
   await act(async () => { fireEvent.click(screen.getByLabelText("Sound effects")); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
 });
 
@@ -583,7 +583,7 @@ it("keeps rapid draws distinct under React Strict Mode", async () => {
     </React.StrictMode>,
   ); });
   const draw = await screen.findByRole("button", {
-    name: "Draw first number →",
+    name: "Pick first number",
   });
   for (let i = 0; i < 5; i++) await act(async () => { fireEvent.click(draw); });
   expect(await screen.findByText("Call 5 of 90")).toBeInTheDocument();
@@ -594,7 +594,7 @@ it("keeps rapid draws distinct under React Strict Mode", async () => {
 it.each(["host", "print"] as const)("opens the %s route with a migrated session", async (entry) => {
   sessionStorage.setItem("bingoGame", JSON.stringify(loadGameFile("Session.bingoCards", savedCard)));
   await act(async () => { render(<ThemeProvider><EventWorkspace entry={entry} /></ThemeProvider>); });
-  if (entry === "host") expect(await screen.findByText("Ready for the first call")).toBeInTheDocument();
+  if (entry === "host") expect(await screen.findByText("Choose “Pick first number” to begin.")).toBeInTheDocument();
   else expect(await screen.findByRole("heading", { name: "Your cards are ready." })).toBeInTheDocument();
 });
 
@@ -603,12 +603,12 @@ it.each([false, true])("confirms replacement before generating a new deck (%s)",
   await renderEvent();
   await returnToSetup();
   const confirm = jest.spyOn(window, "confirm").mockReturnValue(confirmed);
-  await act(async () => { fireEvent.change(screen.getByLabelText("Event name"), { target: { value: "New deck" } }); });
-  await act(async () => { fireEvent.submit(screen.getByLabelText("Event name").closest("form")!); });
+  await act(async () => { fireEvent.change(screen.getByLabelText("Game name"), { target: { value: "New deck" } }); });
+  await act(async () => { fireEvent.submit(screen.getByLabelText("Game name").closest("form")!); });
   expect(confirm).toHaveBeenCalledTimes(1);
   if (confirmed) await screen.findByRole("heading", { name: "Your cards are ready." });
   else {
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Host game/ })); });
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /3.*Play bingo/ })); });
     expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   }
 });
@@ -617,13 +617,13 @@ it("opens the native file chooser and prints the prepared cards", async () => {
   seedHost();
   await renderEvent();
   await returnToSetup();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host a saved game" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open a file" })); });
   const choose = jest.spyOn(HTMLInputElement.prototype, "click");
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open game file → Host" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open file and play" })); });
   expect(choose).toHaveBeenCalled();
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: /2.*Print cards/ })); });
   const print = jest.spyOn(window, "print").mockImplementation(() => {});
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Print.*PDF/i })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Print cards" })); });
   expect(print).toHaveBeenCalledTimes(1);
 });
 
@@ -658,13 +658,13 @@ it.each(["en", "nl"])("announces new calls in %s with sound and voice, releases 
   await act(async () => { fireEvent.click(screen.getByLabelText("Sound effects")); });
   await act(async () => { fireEvent.click(screen.getByLabelText("Announce numbers")); });
   expect(speech.speak).not.toHaveBeenCalled();
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw next number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick next number" })); });
   expect(speech.speak).toHaveBeenCalledWith(expect.objectContaining({ lang: locale === "en" ? "en-GB" : "nl", rate: 0.9 }));
   expect(oscillator.start).toHaveBeenCalledTimes(1);
   oscillator.onended!();
   expect(oscillator.disconnect).toHaveBeenCalledTimes(1);
   expect(gain.disconnect).toHaveBeenCalledTimes(1);
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw next number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick next number" })); });
   expect(constructor).toHaveBeenCalledTimes(1);
   view.unmount();
   expect(audio.close).toHaveBeenCalledTimes(1);
@@ -680,7 +680,7 @@ it("keeps drawing if the browser cannot initialize audio", async () => {
   await renderEvent();
   await act(async () => { fireEvent.click(await screen.findByText("Settings")); });
   await act(async () => { fireEvent.click(screen.getByLabelText("Sound effects")); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   expect(await screen.findByText("Call 1 of 90")).toBeInTheDocument();
   Object.defineProperty(window, "AudioContext", { configurable: true, value: undefined });
 });
@@ -696,7 +696,7 @@ it.each(["Family", ""])("downloads a compatible game backup with a safe filename
   const click = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) { downloadedFilename = this.download; });
   await renderEvent();
   await act(async () => { fireEvent.click(await screen.findByText("Settings")); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Download.*game/i })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Download a backup" })); });
   expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
   expect(click).toHaveBeenCalledTimes(1);
   expect(downloadedFilename).toBe(`${name || "bingo"}.bingoCards`);
@@ -708,17 +708,17 @@ it("returns from cards and hosting to prepare a fresh event", async () => {
   await renderEvent();
   await act(async () => { fireEvent.click(await screen.findByRole("button", { name: "Back to cards" })); });
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Edit game" })); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Host a saved game" })); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Prepare a new game" })); });
-  expect(screen.getByLabelText("Event name")).toHaveValue("Family");
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Open a file" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "New game" })); });
+  expect(screen.getByLabelText("Game name")).toHaveValue("Family");
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: /bingo\./ })); });
-  expect(screen.getByLabelText("Event name")).toBeInTheDocument();
+  expect(screen.getByLabelText("Game name")).toBeInTheDocument();
 });
 
 it("dismisses claim verification using the browser's cancel event", async () => {
   seedHost([1]);
   await renderEvent();
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Check a player’s claim"), { target: { value: "7" } }); });
+  await act(async () => { fireEvent.change(await screen.findByLabelText("Did someone win?"), { target: { value: "7" } }); });
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Check card" })); });
   fireEvent(screen.getByRole("dialog"), new Event("cancel", { bubbles: true }));
   await act(async () => { fireEvent.keyDown(document.body, { key: "Enter" }); });
@@ -729,10 +729,10 @@ it("dismisses claim verification using the browser's cancel event", async () => 
 it("keeps setup usable after card generation fails", async () => {
   jest.spyOn(cardGeneration, "generateRandomBingoCards").mockImplementation(() => { throw new Error("Generation failed"); });
   await renderEvent();
-  await act(async () => { fireEvent.change(await screen.findByLabelText("Event name"), { target: { value: "Family" } }); });
-  await act(async () => { fireEvent.submit(screen.getByLabelText("Event name").closest("form")!); });
+  await act(async () => { fireEvent.change(await screen.findByLabelText("Game name"), { target: { value: "Family" } }); });
+  await act(async () => { fireEvent.submit(screen.getByLabelText("Game name").closest("form")!); });
   expect(await screen.findByRole("alert")).toHaveTextContent(/generate/i);
-  expect(screen.getByRole("button", { name: "Generate game →" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Make cards" })).toBeEnabled();
 });
 
 it("changes the card theme and restores the line target after selecting full house", async () => {
@@ -754,7 +754,7 @@ it("starts hosting an existing prepared game when opened via the host route", as
   session.stage = "print";
   localStorage.setItem("bingoEventSession.v1", JSON.stringify(session));
   await act(async () => { render(<ThemeProvider><EventWorkspace entry="host" /></ThemeProvider>); });
-  expect(await screen.findByText("Ready for the first call")).toBeInTheDocument();
+  expect(await screen.findByText("Choose “Pick first number” to begin.")).toBeInTheDocument();
 });
 
 it("still speaks calls when sound effects are enabled but Web Audio is unavailable", async () => {
@@ -767,7 +767,7 @@ it("still speaks calls when sound effects are enabled but Web Audio is unavailab
   await act(async () => { fireEvent.click(await screen.findByText("Settings")); });
   await act(async () => { fireEvent.click(screen.getByLabelText("Sound effects")); });
   await act(async () => { fireEvent.click(screen.getByLabelText("Announce numbers")); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   expect(speak).toHaveBeenCalledWith(expect.objectContaining({ lang: "en-GB" }));
   expect(screen.getByText("Call 1 of 90")).toBeInTheDocument();
 });
@@ -781,13 +781,13 @@ it("does not draw a queued keyboard call after play is paused in the same intera
     pause.click();
     document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   });
-  expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Draw first number →" })).toBeDisabled();
+  expect(screen.getByText("Choose “Pick first number” to begin.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Pick first number" })).toBeDisabled();
 });
 
 it("keeps appearance controls in a labelled, initially closed header disclosure", async () => {
   const { container } = await renderEvent();
-  await screen.findByLabelText("Event name");
+  await screen.findByLabelText("Game name");
   const settings = container.querySelector(".bingo-header-settings") as HTMLDetailsElement;
   expect(settings.open).toBe(false);
   expect(within(settings).getByText("Settings")).toBeInTheDocument();
@@ -806,15 +806,15 @@ it("groups display preferences beside event identity and keeps drawing in host c
   await renderEvent();
   const heading = await screen.findByRole("heading", { name: "Family" });
   const header = heading.closest("header")!;
-  expect(within(header).getByRole("button", { name: "Audience view ↗" })).toBeInTheDocument();
+  expect(within(header).getByRole("button", { name: "Show players" })).toBeInTheDocument();
   const settings = within(header).getByText("Settings").closest("details") as HTMLDetailsElement;
   expect(settings.open).toBe(false);
   await act(async () => { fireEvent.click(settings.querySelector("summary")!); });
   expect(within(settings).getByRole("heading", { name: "Preferences" })).toBeInTheDocument();
   expect(within(settings).getByLabelText("Card theme")).toBeInTheDocument();
   const controls = screen.getByLabelText("Host controls");
-  expect(within(controls).getByRole("button", { name: "Draw next number →" })).toBeInTheDocument();
-  expect(within(controls).getByText("Space or Enter to draw")).toBeInTheDocument();
+  expect(within(controls).getByRole("button", { name: "Pick next number" })).toBeInTheDocument();
+  expect(within(controls).getByText("Or press Space or Enter")).toBeInTheDocument();
   expect(within(controls).queryByText("Settings")).not.toBeInTheDocument();
 });
 
@@ -832,7 +832,7 @@ it("adopts the current session into the library and keeps autosaving call progre
   seedHost([1]); await renderEvent();
   await waitFor(() => expect(mockSavedRecords.size).toBe(1));
   const id = [...mockSavedRecords.keys()][0];
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw next number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick next number" })); });
   await waitFor(() => expect(mockSavedRecords.get(id)!.session.drawn).toHaveLength(2));
   expect(JSON.parse(localStorage.getItem("bingoEventSession.v1")!).libraryId).toBe(id);
   await libraryFromHost();
@@ -889,13 +889,13 @@ it("reports an unavailable library while keeping game generation usable", async 
   jest.mocked(library.listLocalGames).mockRejectedValue(new Error("storage blocked"));
   await renderEvent();
   expect(await screen.findByRole("alert")).toHaveTextContent(messages.library.unavailable);
-  expect(screen.getByRole("button", { name: "Generate game →" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Make cards" })).toBeEnabled();
 });
 it("reports a library write failure and recovers on the next saved update", async () => {
   jest.mocked(library.saveLocalGame).mockRejectedValueOnce(new Error("quota"));
   seedHost(); await renderEvent();
   expect(await screen.findByRole("alert")).toHaveTextContent(messages.library.saveError);
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Draw first number →" })); });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Pick first number" })); });
   await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
 });
 it("keeps the current game when opening a stored record fails", async () => {
@@ -996,4 +996,15 @@ it("keeps a newly saved identity if removing the previous saved copy later fails
   expect(newId).not.toBe(oldId);
   await act(async () => { pending.reject(new Error("blocked")); });
   expect(JSON.parse(localStorage.getItem("bingoEventSession.v1")!).libraryId).toBe(newId);
+});
+
+it("offers a ready-to-use small game and keeps printing help out of the main path", async () => {
+  await renderEvent();
+  expect(screen.getByLabelText("Game name")).toHaveValue("My bingo game");
+  expect(screen.getByLabelText("How many cards?")).toHaveValue(20);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Make cards", exact: true })); });
+  await screen.findByRole("heading", { name: "Your cards are ready." });
+  expect(screen.getByText("Need help printing?").closest("details")).not.toHaveAttribute("open");
+  expect(screen.getByText("Save a backup file").closest("details")).not.toHaveAttribute("open");
+  expect(screen.getByRole("button", { name: "Play bingo", exact: true })).toBeEnabled();
 });
