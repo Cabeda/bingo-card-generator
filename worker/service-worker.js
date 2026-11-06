@@ -2,6 +2,7 @@ const { cacheNames, clientsClaim, copyResponse } = require('workbox-core');
 const {
   precacheAndRoute,
   getCacheKeyForURL,
+  matchPrecache,
   cleanupOutdatedCaches,
 } = require('workbox-precaching');
 const { registerRoute } = require('workbox-routing');
@@ -9,6 +10,29 @@ const { NetworkFirst } = require('workbox-strategies');
 const { ExpirationPlugin } = require('workbox-expiration');
 
 const manifest = self.__WB_MANIFEST;
+// Navigation must reach the server before the precache route can return older HTML.
+// Keep the most recently visited pages, falling back to the installed deck offline.
+const navigationCachePrefix = 'bingo-navigation-v1-';
+// The build injects a revision for every localized entry point, including /en.
+const navigationCacheName = navigationCachePrefix + manifest.find(({ url }) => url === '/en').revision;
+const navigation = new NetworkFirst({
+  cacheName: navigationCacheName,
+  plugins: [new ExpirationPlugin({ maxEntries: 20 })],
+});
+registerRoute(
+  ({ request, url }) => request.mode === 'navigate' && url.origin === self.location.origin,
+  async ({ event, request }) => {
+    try {
+      return await navigation.handle({ event, request });
+    } catch (error) {
+      const cached = await matchPrecache(new URL(request.url).pathname);
+      if (cached) return cached;
+      throw error;
+    }
+  },
+  'GET',
+);
+
 precacheAndRoute(manifest, {
   ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/],
 });
@@ -26,6 +50,13 @@ registerRoute(
 
 // Workbox finishes the complete new precache before activation can occur.
 // Adopt it without reloading open games; their next navigation uses the new build.
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(names => Promise.all(
+    names.filter(name => (name.startsWith(navigationCachePrefix) && name !== navigationCacheName) || name === 'bingo-navigation-v1')
+      .map(name => caches.delete(name)),
+  )));
+});
+
 self.addEventListener('install', event => {
   event.waitUntil(self.skipWaiting());
 });
