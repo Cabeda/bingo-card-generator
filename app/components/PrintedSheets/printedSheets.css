@@ -51,6 +51,7 @@
 .bingo-flow-card header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 2em;
   font-size: 3.2em;
   line-height: 1.15;
@@ -58,6 +59,8 @@
   color: #171717;
 }
 .bingo-flow-card header b {
+  flex: 1;
+  min-width: 0;
   max-width: 70%;
   overflow: hidden;
   white-space: nowrap;
@@ -81,7 +84,7 @@
   color: var(--bingo-accent-text);
   border: var(--bingo-card-border-width, 1px) solid var(--bingo-card-border);
   border-radius: var(--bingo-card-radius);
-  font-size: 6.5em;
+  font-size: var(--bingo-number-size, 6.5em);
   line-height: 1;
   font-weight: bold;
 }
@@ -175,16 +178,32 @@
 .bingo-flow-card header {
   background: var(--bingo-accent);
   color: var(--bingo-accent-text);
-  padding: 5px 8px;
+  padding: 0.4em 0.65em;
   border-radius: 3px;
 }
 .bingo-flow-card footer {
   background: #fff;
   color: #333;
   border-radius: 3px;
-  padding: 3px;
+  padding: 0.35em;
 }
 
 .bingo-flow-card > div > span {
   padding: var(--bingo-card-padding);
+}
+
+.bingo-flow-card header img {
+  width: 2em;
+  height: 2em;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.bingo-flow-card.is-ink-saving header img {
+  filter: grayscale(1);
+}
+.bingo-flow-card footer {
+  flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

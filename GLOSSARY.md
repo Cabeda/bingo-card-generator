@@ -16,3 +16,8 @@ A scaled view of the first printed sheet, showing the same cards, layout and the
 **Offline readiness**:
 Confirmation that this device has cached every application entry page and its required files.
 It does not guarantee that the browser will retain those files permanently.
+
+**Saved game**:
+A local copy of a deck with its calls, host state, theme and print preferences.
+Copies are identified separately even when their event names match.
+Removing a saved copy keeps the currently open game intact.

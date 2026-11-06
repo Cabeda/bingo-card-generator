@@ -25,4 +25,6 @@ else
     check "$per_page" 9
   done
   check 4 200
+  # Maximum-density sheets with every new print option enabled.
+  PRINT_CUSTOM_OPTIONS=1 check 4 9
 fi

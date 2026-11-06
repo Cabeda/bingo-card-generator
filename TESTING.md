@@ -37,6 +37,11 @@ Upgrade fixtures also install an old worker with a retired CSS file or an unsupp
 message protocol, then verify that a new worker takes over without reloading or
 resetting the running game. Healthy old caches keep the normal waiting lifecycle.
 
+The saved-game browser workflow creates two same-name decks, changes every print option,
+resumes the original calls, refreshes offline, removes a saved copy and saves it again.
+IndexedDB unit tests also cover transaction failures, corrupt records, late writes and
+persistent deletion markers that prevent another tab from recreating a removed game.
+
 The `offline` CI job runs this suite and is required by the final `checks` job.
 Failure traces are saved in `test-results/` and `playwright-report/`. These generated files are
 excluded from source linting. This suite does not replace physical iPhone Safari verification.
@@ -75,6 +80,9 @@ viewport size and prints A4 PDFs. It verifies page counts, card order, card
 footers and preview/paper card alignment for every layout, partial sheets
 and a 200-card deck. This exercises
 WebKit pagination, but does not replace a check in iOS Safari's print dialog.
+
+The native suite also prints a maximum-density sheet with ink saving, a logo,
+larger numbers, square borders and a long custom footer enabled together.
 
 For a minimal reproduction, run `bun run test:print:webkit 4 4` (four cards,
 four per sheet). The previous fixed sheet height made WebKit spill the final

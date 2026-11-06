@@ -11,6 +11,7 @@ and [the domain glossary](GLOSSARY.md) for the preserved behaviour and terms.
 Localized routes
   └─ Event workspace
        ├─ Event session: restoration and saved settings
+       ├─ Local game library: IndexedDB deck snapshots and deletion markers
        ├─ Game files and rules: import/export, draws and claims
        ├─ Card generation
        └─ Printed sheets
@@ -52,7 +53,8 @@ checks again on reconnect, controller replacement or returning to the page. Stor
 blocking readiness; the browser can deny it. Missing resources are repaired by the
 active worker through a bounded message exchange, avoiding page fetches through a
 missing precache route. Online checks discover worker updates without blocking cache verification. Controller
-changes trigger a fresh readiness check. Saved game state remains in localStorage.
+changes trigger a fresh readiness check. The current session remains in localStorage;
+the game library keeps separate snapshots in IndexedDB.
 
 A separately packaged desktop release is not required for these offline behaviours. The existing
 installable web app remains the primary distribution; local file ownership or managed kiosk
@@ -86,3 +88,23 @@ native print suite against a production build on macOS. The final `checks` job
 runs even after an upstream failure and fails unless both jobs succeeded.
 Repository branch-protection settings must require these checks to block merges.
 See [TESTING.md](TESTING.md) for commands and prerequisites.
+
+## Local game library and print preferences
+
+`EventWorkspace/gameLibrary.ts` owns the `bingoGameLibrary.v1` IndexedDB database.
+Each game has a stable UUID, validated session, theme snapshot and update timestamp.
+Writes resolve after transaction commit. Older queued writes cannot replace a newer
+snapshot. Removing a saved copy leaves a persistent deletion marker, preventing a
+second tab from recreating that ID. The current session uses a null library ID until
+explicitly saved again with a new ID; removing its copy preserves the open deck.
+
+The workspace serializes writes and waits for them before opening another saved
+game. Legacy current sessions are adopted on first load. Previously overwritten
+sessions cannot be recovered; importing a `.bingoCards` file creates a saved entry.
+The library is local to this browser profile and origin. Clearing site data or
+browser storage eviction can remove it; downloaded files remain the backup option.
+
+`PrintedSheets/printOptions.ts` validates persisted print preferences, including
+bounded raster data URLs. `PrintPreferences` validates image decoding before use.
+Logo images stay on the device. The same rendering options apply to preview and
+paper, with bounded header/footer dimensions and fixed number sizing.
