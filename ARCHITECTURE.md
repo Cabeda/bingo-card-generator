@@ -45,7 +45,12 @@ manifest. Workbox completes the new precache before the replacement worker activ
 Completed updates claim open clients without reloading them or clearing saved event
 state. The next ordinary navigation or refresh uses the new build; reconnecting
 does not automatically reload a running game. Build revisions keep cached page HTML
-and its scripts aligned across deployments.
+and its scripts aligned across deployments. Navigation uses a network-first route
+before the precache route, so online refreshes can fetch current HTML even while
+a worker update is delayed. Navigation cache names include the installed build
+revision; activation removes older navigation caches so HTML cannot outlive its
+retired scripts. Offline navigation uses the current build’s most recent visited-page
+copy, then falls back to the installed precache for unvisited entry points.
 
 The offline readiness module asks the active worker for its exact precache and revision keys,
 then verifies cached HTML and every referenced script and stylesheet.

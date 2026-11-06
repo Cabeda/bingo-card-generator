@@ -46,6 +46,10 @@ Upgrade fixtures also install an old worker with a retired CSS file or an unsupp
 message protocol, then verify that a new worker takes over without reloading or
 resetting the running game. Completed updates activate even when the previous cache is healthy, without
 automatically reloading an open game. Ordinary refreshes then retain the new build.
+The upgrade fixture retires the previous script URLs and refreshes offline before
+any post-upgrade online navigation. A second fixture leaves the worker unchanged
+while updating the server page; online
+refreshes must show the new HTML, preserve calls, and remain usable offline.
 
 The saved-game browser workflow creates two same-name decks, changes every print option,
 resumes the original calls, refreshes offline, removes a saved copy and saves it again.
