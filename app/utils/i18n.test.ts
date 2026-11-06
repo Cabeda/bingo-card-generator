@@ -6,6 +6,7 @@
  */
 
 import fs from 'fs';
+import { SUPPORTED_LOCALES } from './offlineRoutes';
 import path from 'path';
 import enMessages from '../../messages/en.json';
 import esMessages from '../../messages/es.json';
@@ -16,25 +17,10 @@ type MessageValue = string | { [key: string]: MessageValue };
 type MessageObject = Record<string, MessageValue>;
 
 /**
- * Read locales from routing.ts to maintain single source of truth
+ * Read the shared locale configuration
  */
 function getLocalesFromRouting(): string[] {
-  const routingPath = path.join(__dirname, '../routing.ts');
-  const routingContent = fs.readFileSync(routingPath, 'utf8');
-  const localesMatch = routingContent.match(/locales:\s*\[(.*?)\]/s);
-  
-  if (!localesMatch) {
-    throw new Error('Could not find locales array in routing.ts');
-  }
-  
-  // Extract locale strings from the array
-  const localesStr = localesMatch[1];
-  const locales = localesStr
-    .split(',')
-    .map(s => s.trim().replace(/['"]/g, ''))
-    .filter(s => s.length > 0);
-  
-  return locales;
+  return [...SUPPORTED_LOCALES];
 }
 
 /**

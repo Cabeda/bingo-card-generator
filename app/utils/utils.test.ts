@@ -1,4 +1,4 @@
-import { createSeededRandom, generateBingoCard, generateRandomBingoCards, parseBingoCards } from './utils';
+import { createSeededRandom, generateBingoCard, generateRandomBingoCards, getCurrentDate, parseBingoCards } from './utils';
 import { Card, Game } from './bingo.interface';
 
 describe('generateBingoCard', () => {
@@ -572,4 +572,40 @@ describe('generateBingoCard', () => {
             }
         });
     });
+});
+
+describe('generation collision limits', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('finishes the requested deck after repeated complete-card collisions reach the retry limit', () => {
+    const seeded = createSeededRandom(42);
+    const cycle: number[] = [];
+    const expected = generateBingoCard('1', () => { const value = seeded(); cycle.push(value); return value; });
+    let cursor = 0;
+    const random = jest.spyOn(Math, 'random').mockImplementation(() => cycle[cursor++ % cycle.length]);
+    const cards = generateRandomBingoCards(2);
+    expect(cards).toHaveLength(2);
+    expect(cards[0].numbers).toEqual(expected.numbers);
+    expect(cards[1].numbers).toEqual(expected.numbers);
+    expect(cards.map(card => card.cardNumber)).toEqual([1, 2]);
+    expect(random).toHaveBeenCalledTimes(cycle.length * 101);
+  });
+
+  it('bounds retries when a supplied random source keeps selecting already-used numbers for an empty row', () => {
+    let calls = 0;
+    const random = () => { const call = calls++; return call < 27 ? [0, 0.5, 0][call % 3] : 0; };
+    const card = generateBingoCard('1', random);
+    expect(card.numbers).toHaveLength(27);
+    expect(card.numbers.slice(0, 9)).toEqual(Array(9).fill(null));
+    expect(calls).toBeLessThan(1000);
+    const numbers = card.numbers.filter(number => number !== null);
+    expect(new Set(numbers).size).toBe(numbers.length);
+  });
+});
+
+
+it('formats the current local date with padded fields for exported filenames', () => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date(2026, 0, 2, 3, 4));
+  try { expect(getCurrentDate()).toBe('20260102-0304'); } finally { jest.useRealTimers(); }
 });

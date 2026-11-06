@@ -214,5 +214,12 @@
     "restoreError": "Não foi possível recuperar a sessão. Abra a cópia do jogo para continuar.",
     "storageError": "O navegador não consegue guardar a sessão. Descarregue o ficheiro antes de sair; guarda os cartões, não os sorteios.",
     "fullscreenError": "O ecrã inteiro não está disponível aqui. Use a opção do navegador."
+  },
+  "offline": {
+    "preparing": "A preparar o acesso offline…",
+    "ready": "Pronto para usar offline",
+    "offlineReady": "Offline — o jogo guardado está disponível neste dispositivo",
+    "unavailable": "O acesso offline ainda não está pronto. Ligue-se à Internet antes de fechar este separador.",
+    "retry": "Tentar preparar o acesso offline novamente"
   }
 }

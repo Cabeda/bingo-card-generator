@@ -25,10 +25,9 @@ import {
 } from "./session";
 import {
   CARDS_PER_PAGE_OPTIONS,
-  layoutFor,
   sheetCount,
-  sheetsOf,
-} from "./printLayout";
+} from "../PrintedSheets/printLayout";
+import { PrintedSheets } from "../PrintedSheets/PrintedSheets";
 import "./workspace.css";
 
 /** Generate, print and host one persistent bingo event. */
@@ -68,8 +67,7 @@ export function EventWorkspace({
     session;
   const cards = game?.cards ?? [];
   const eventName = game?.filename ?? name;
-  const printLayout = layoutFor(cardsPerPage);
-  const printSheets = sheetsOf(cards, cardsPerPage);
+  const totalSheets = sheetCount(cards.length, cardsPerPage);
   const setCardsPerPage = (value: number): void => {
     setSession((previous) => ({ ...previous, cardsPerPage: value }));
   };
@@ -125,7 +123,6 @@ export function EventWorkspace({
   }, [session, game, ready]);
 
   const navigate = (next: EventStage): void => {
-    if (next !== "generate" && !game) return;
     setSession((previous) => ({
       ...previous,
       stage: next,
@@ -188,13 +185,13 @@ export function EventWorkspace({
     }
   };
   const download = (): void => {
-    if (!game) return;
+    // Download controls are only rendered for a prepared game.
     const url = URL.createObjectURL(
-      new Blob([saveGameFile(game)], { type: "text/plain" }),
+      new Blob([saveGameFile(game!)], { type: "text/plain" }),
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${game.filename.replace(/[^\p{L}\p{N}_ -]/gu, "-").slice(0, 100) || "bingo"}.bingoCards`;
+    link.download = `${game!.filename.replace(/[^\p{L}\p{N}_ -]/gu, "-").slice(0, 100) || "bingo"}.bingoCards`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -217,9 +214,8 @@ export function EventWorkspace({
     const number = drawn.at(-1);
     if (!ready || !number || number === announcement.current) return;
     announcement.current = number;
-    if (sound) {
+    if (sound && window.AudioContext) {
       try {
-        if (!window.AudioContext) return;
         audioContext.current ??= new AudioContext();
         const context = audioContext.current;
         void context.resume();
@@ -280,7 +276,7 @@ export function EventWorkspace({
     return () => window.removeEventListener("keydown", keys);
   }, [draw, claim, audience, stage]);
   useEffect(() => {
-    if (claim) claimDialog.current?.showModal();
+    if (claim) claimDialog.current!.showModal();
   }, [claim]);
 
   const verifyClaim = (): void => {
@@ -339,24 +335,6 @@ export function EventWorkspace({
       ))}
     </nav>
   );
-  const previewCard = (card: Card): React.JSX.Element => (
-    <article className="bingo-flow-card" key={card.cardNumber}>
-      <header>
-        <b>{eventName}</b>
-        <span>
-          {t("cardId", { number: String(card.cardNumber).padStart(3, "0") })}
-        </span>
-      </header>
-      <div>
-        {card.numbers.map((n, i) => (
-          <span className={n === null ? "is-empty" : ""} key={i}>
-            {n}
-          </span>
-        ))}
-      </div>
-      <footer>{t("cardFooter")}</footer>
-    </article>
-  );
 
   if (!ready)
     return (
@@ -371,12 +349,6 @@ export function EventWorkspace({
         {
           "--bingo-accent": currentTheme.primaryColor,
           "--bingo-accent-text": currentTheme.textColor,
-          "--bingo-card-background": currentTheme.backgroundColor,
-          "--bingo-card-border": currentTheme.secondaryColor,
-          "--bingo-card-border-width": currentTheme.borderWidth,
-          "--bingo-card-padding": currentTheme.cellPadding,
-          "--bingo-card-radius": currentTheme.borderRadius,
-          "--bingo-card-font": currentTheme.fontFamily,
         } as React.CSSProperties
       }
     >
@@ -504,7 +476,7 @@ export function EventWorkspace({
                 <button
                   className="bingo-primary"
                   disabled={busy}
-                  onClick={() => fileInput.current?.click()}
+                  onClick={() => fileInput.current!.click()}
                 >
                   {t(busy ? "opening" : "openAction")}
                 </button>
@@ -537,25 +509,13 @@ export function EventWorkspace({
                 {t("cardPreview")}
                 <span>
                   {t("showingSheet", {
-                    count: printSheets.length ? 1 : 0,
-                    total: printSheets.length,
+                    count: 1,
+                    total: totalSheets,
                   })}
                 </span>
               </div>
-              <div
-                className="bingo-flow-sheet-frame"
-                style={
-                  {
-                    "--sheet-columns": printLayout.columns,
-                    "--sheet-rows": printLayout.rows,
-                    "--sheet-card-height": `${printLayout.cardHeightMm}em`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="bingo-flow-sheet-page">
-                  {printSheets[0]?.map(previewCard)}
-                </div>
-              </div>
+              <PrintedSheets cards={cards} eventName={eventName}
+                cardsPerPage={cardsPerPage} theme={currentTheme} preview />
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
@@ -565,7 +525,6 @@ export function EventWorkspace({
                 <legend>{t("cardsPerSheet")}</legend>
                 <div className="bingo-flow-layout-options">
                   {CARDS_PER_PAGE_OPTIONS.map((option) => {
-                    const preset = layoutFor(option);
                     return (
                       <label
                         key={option}
@@ -581,9 +540,6 @@ export function EventWorkspace({
                         <span
                           aria-hidden="true"
                           className="bingo-flow-layout-icon"
-                          style={{
-                            gridTemplateColumns: `repeat(${preset.columns}, 1fr)`,
-                          }}
                         >
                           {Array.from({ length: option }, (_, index) => (
                             <i key={index} />
@@ -597,7 +553,7 @@ export function EventWorkspace({
                 <small>
                   {t("layoutSummary", {
                     count: cardsPerPage,
-                    sheets: printSheets.length,
+                    sheets: totalSheets,
                   })}
                 </small>
                 <small>{t("layoutFit")}</small>
@@ -898,29 +854,13 @@ export function EventWorkspace({
         accept=".bingoCards"
         aria-label={t("fileInput")}
         onChange={(e) => {
-          void openFile(e.target.files?.[0]);
+          void openFile(e.target.files![0]);
           e.target.value = "";
         }}
       />
-      {!!cards.length && (
-        <div
-          className="bingo-flow-print-only"
-          aria-hidden="true"
-          style={
-            {
-              "--sheet-columns": printLayout.columns,
-              "--sheet-rows": printLayout.rows,
-              "--sheet-card-height": `${printLayout.cardHeightMm}em`,
-            } as React.CSSProperties
-          }
-        >
-          {printSheets.map((sheet, index) => (
-            <section className="bingo-flow-print-sheet" key={index}>
-              {sheet.map(previewCard)}
-            </section>
-          ))}
-        </div>
-      )}
+      <PrintedSheets cards={cards} eventName={eventName}
+        cardsPerPage={cardsPerPage} theme={currentTheme} />
+
       <dialog
         ref={claimDialog}
         className={`bingo-claim-dialog ${claim?.valid ? "is-winning" : ""}`}
@@ -968,7 +908,7 @@ export function EventWorkspace({
             <button
               autoFocus
               onClick={() => {
-                claimDialog.current?.close();
+                claimDialog.current!.close();
                 setClaim(null);
               }}
             >

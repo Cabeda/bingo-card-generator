@@ -6,6 +6,9 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "jest.setup.ts",
-    "jest.config.js"
+    "jest.config.js",
+    "e2e",
+    "playwright.config.ts",
+    "worker"
   ]
 }

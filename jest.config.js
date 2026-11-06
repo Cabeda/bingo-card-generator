@@ -5,7 +5,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.next/', '/e2e/'],
   transformIgnorePatterns: [
     'node_modules/(?!(next-intl)/)',
   ],
@@ -13,17 +13,26 @@ module.exports = {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: './tsconfig.jest.json',
       diagnostics: false,
+      astTransformers: { before: ['./scripts/jest-import-meta.cjs'] },
     }],
   },
   collectCoverage: true,
+  collectCoverageFrom: [
+    'app/**/*.{ts,tsx}',
+    'proxy.ts',
+    'next.config.ts',
+    'worker/**/*.js',
+    '!**/*.test.{ts,tsx}',
+    '!**/*.d.ts',
+  ],
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
   coverageThreshold: {
     global: {
-      branches: 40,
-      functions: 40,
-      lines: 40,
-      statements: 40
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100
     }
   }
 };

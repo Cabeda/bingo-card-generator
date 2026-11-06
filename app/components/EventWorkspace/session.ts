@@ -7,7 +7,7 @@ import {
 import {
   DEFAULT_CARDS_PER_PAGE,
   normalizeCardsPerPage,
-} from "./printLayout";
+} from "../PrintedSheets/printLayout";
 
 export type EventStage = "generate" | "print" | "host";
 export interface EventSession {

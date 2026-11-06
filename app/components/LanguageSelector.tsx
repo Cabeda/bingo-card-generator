@@ -19,9 +19,7 @@ export function LanguageSelector() {
 
   const handleLanguageChange = (newLocale: Locale) => {
     // Store language preference in localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred-locale', newLocale);
-    }
+    localStorage.setItem('preferred-locale', newLocale);
 
     // Use the router from next-intl which handles locale switching properly
     router.replace(pathname, { locale: newLocale });

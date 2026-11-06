@@ -14,6 +14,8 @@ export default defineConfig([
             '.next/**',
             '.next-build/**',
             'coverage/**',
+            'playwright-report/**',
+            'test-results/**',
             'node_modules/**',
             'out/**',
             'build/**',

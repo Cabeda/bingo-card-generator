@@ -120,7 +120,7 @@ export default function BingoGame(): React.JSX.Element {
         const reader = new FileReader();
         const filename = selectedFile.name.replace(".bingoCards", "");
         reader.onload = (e) => {
-          const content = e.target?.result as string;
+          const content = e.target!.result as string;
           const bingoGame = parseBingoCards(filename, content);
           setBingoGame(bingoGame);
           setDrawnNumbers([]);
@@ -142,16 +142,7 @@ export default function BingoGame(): React.JSX.Element {
   };
 
   const handleDrawNumber = useCallback(() => {
-    // Prevent overlapping animations
-    if (isAnimating) {
-      return;
-    }
-
-    if (!bingoGame) {
-      showModal(t('pleaseStartGame'));
-      return;
-    }
-
+    // The button and keyboard adapter gate draws while animating or without a game.
     const availableNumbers = Array.from({ length: 89 }, (_, i) => i + 1).filter(
       (num) => !drawnNumbers.includes(num)
     );
@@ -236,9 +227,8 @@ export default function BingoGame(): React.JSX.Element {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isAnimating, bingoGame, handleDrawNumber]);
 
-  const handleCheckLine = (cardNumberInput?: string): void => {
-    const cardNumber = cardNumberInput || cardToValidate;
-    if (!cardNumber || !bingoGame) {
+  const handleCheckLine = (cardNumber: string): void => {
+    if (!bingoGame) {
       showModal(t('pleaseEnterCardNumber'));
       return;
     }
@@ -262,9 +252,8 @@ export default function BingoGame(): React.JSX.Element {
     }
   };
 
-  const handleCheckBingo = (cardNumberInput?: string): void => {
-    const cardNumber = cardNumberInput || cardToValidate;
-    if (!cardNumber || !bingoGame) {
+  const handleCheckBingo = (cardNumber: string): void => {
+    if (!bingoGame) {
       showModal(t('pleaseEnterCardNumber'));
       return;
     }

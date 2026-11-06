@@ -1,0 +1,23 @@
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 16px;
+  padding: 8px 4vw;
+  font-size: 13px;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border-color);
+}
+.button {
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 4px 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+@media print {
+  .status { display: none !important; }
+}

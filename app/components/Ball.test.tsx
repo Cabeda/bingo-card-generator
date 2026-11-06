@@ -1,20 +1,18 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import Ball from './Ball';
 
-// Mock motion/react
- 
+const mockStart = jest.fn().mockResolvedValue(undefined);
+const mockControls = { start: mockStart };
 jest.mock('motion/react', () => ({
   motion: {
-    div: ({ children, className, ...props }: any) => (
+    div: ({ children, className, animate, initial, transition, ...props }: any) => (
       <div className={className} {...props}>{children}</div>
     ),
   },
-  useAnimation: () => ({
-    start: jest.fn().mockResolvedValue(undefined),
-  }),
+  useAnimation: () => mockControls,
 }));
- 
+afterEach(() => { jest.useRealTimers(); mockStart.mockClear(); });
 
 describe('Ball', () => {
   it('should render with the correct number', () => {
@@ -93,4 +91,19 @@ describe('Ball', () => {
       expect(container.querySelector('.drawn')).toBeInTheDocument();
     });
   });
+});
+
+it('zooms in, holds for 1500ms and returns to its normal size', async () => {
+  jest.useFakeTimers();
+  const { rerender } = render(<Ball number={42} animate />);
+  await act(async () => {});
+  expect(mockStart).toHaveBeenCalledTimes(1);
+  expect(mockStart).toHaveBeenNthCalledWith(1, expect.objectContaining({ scale: 6, zIndex: 9999 }));
+  // A caller clears the trigger while the current animation finishes.
+  rerender(<Ball number={42} animate={false} />);
+  await act(async () => { jest.advanceTimersByTime(1499); });
+  expect(mockStart).toHaveBeenCalledTimes(1);
+  await act(async () => { jest.advanceTimersByTime(1); });
+  expect(mockStart).toHaveBeenNthCalledWith(2, expect.objectContaining({ scale: 1, zIndex: 1 }));
+  expect(screen.getByRole('img', { name: 'Ball number 42, not drawn' })).toBeInTheDocument();
 });

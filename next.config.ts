@@ -1,26 +1,27 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import { NextConfig } from "next";
+import { OFFLINE_ROUTES } from "./app/utils/offlineRoutes";
 
 const withNextIntl = createNextIntlPlugin("./app/i18n.ts");
 
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-  // Cache strategy
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "offlineCache",
-        expiration: {
-          maxEntries: 200,
-        },
-      },
-    },
-  ],
+  // The UI owns registration and verifies the installed cache before reporting readiness.
+  register: false,
+  skipWaiting: false,
+  dynamicStartUrl: false,
+  reloadOnOnline: false,
+  manifestTransforms: [async (entries: { url: string; revision: string | null }[]) => ({
+    manifest: [
+      ...entries,
+      ...OFFLINE_ROUTES.filter(url => url !== "/").map(url => ({ url, revision: null })),
+    ],
+    warnings: [],
+  })],
+  swSrc: 'worker/service-worker.js',
+  customWorkerDir: 'pwa-custom',
+
 });
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")({

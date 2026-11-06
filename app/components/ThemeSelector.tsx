@@ -35,7 +35,7 @@ export function ThemeSelector(): React.JSX.Element {
   const { showSuccess, showError, showWarning } = useToast();
 
   const [showCustomBuilder, setShowCustomBuilder] = useState(false);
-  const [customThemeData, setCustomThemeData] = useState<Partial<CardTheme>>({
+  const [customThemeData, setCustomThemeData] = useState<CardTheme>({
     name: '',
     primaryColor: currentTheme.primaryColor,
     secondaryColor: currentTheme.secondaryColor,
@@ -64,7 +64,7 @@ export function ThemeSelector(): React.JSX.Element {
   };
 
   const handleSaveCustomTheme = (): void => {
-    if (!customThemeData.name?.trim()) {
+    if (!customThemeData.name.trim()) {
       showWarning('Please enter a theme name');
       return;
     }
@@ -78,7 +78,7 @@ export function ThemeSelector(): React.JSX.Element {
       fontFamily: customThemeData.fontFamily || currentTheme.fontFamily,
       borderRadius: customThemeData.borderRadius || currentTheme.borderRadius,
       borderWidth: customThemeData.borderWidth || currentTheme.borderWidth,
-      cellPadding: customThemeData.cellPadding || currentTheme.cellPadding,
+      cellPadding: customThemeData.cellPadding,
     };
 
     setCustomTheme(theme);
@@ -132,12 +132,11 @@ export function ThemeSelector(): React.JSX.Element {
   };
 
   const handleConfirmDelete = (): void => {
-    if (themeToDelete) {
-      deleteCustomTheme(themeToDelete.key);
-      showSuccess('Theme deleted successfully!');
-      setShowDeleteConfirm(false);
-      setThemeToDelete(null);
-    }
+    // This action is only mounted after a deletion target has been selected.
+    deleteCustomTheme(themeToDelete!.key);
+    showSuccess('Theme deleted successfully!');
+    setShowDeleteConfirm(false);
+    setThemeToDelete(null);
   };
 
   const handleCancelDelete = (): void => {

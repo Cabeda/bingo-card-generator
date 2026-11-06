@@ -72,10 +72,9 @@ export function FileUpload(): React.JSX.Element {
 
   // Handler functions
   const handleGenerateRandomCards = (): void => {
-    const game = generateCards(numCards, eventHeader);
-    if (game) {
+    generateCards(numCards, eventHeader, () => {
       showSuccess(t('cardsGeneratedSuccess', { count: numCards }));
-    }
+    });
   };
 
   const handleGeneratePDF = async (): Promise<void> => {

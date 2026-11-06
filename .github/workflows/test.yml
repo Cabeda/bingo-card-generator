@@ -35,7 +35,7 @@ jobs:
           ${{ runner.os }}-bun-
 
     - name: Install dependencies
-      run: bun install
+      run: bun install --frozen-lockfile
 
     - name: Cache Next.js build
       uses: actions/cache@v5
@@ -50,25 +50,142 @@ jobs:
     - name: Run lint
       run: bun run lint
 
-    - name: Run tests with coverage
-      run: NODE_OPTIONS='--experimental-vm-modules' bunx jest --coverage
+    - name: Run typecheck
+      run: bun run typecheck
 
-    - name: Cache coverage reports
-      uses: actions/cache@v5
+    - name: Run all tests with complete production coverage
+      run: bun run test:coverage --runInBand
+
+    - name: Run critical game tests
+      run: bun run test:game
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        path: coverage
-        key: ${{ runner.os }}-coverage-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-coverage-
+        name: coverage
+        path: coverage/
+        if-no-files-found: ignore
 
     - name: Build application
       run: bun run build
 
-    # Optional: Upload coverage to Codecov
-    # Uncomment the following lines and add CODECOV_TOKEN to repository secrets
-    # - name: Upload coverage to Codecov
-    #   uses: codecov/codecov-action@v4
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     files: ./coverage/coverage-final.json
-    #     fail_ci_if_error: false
+
+  native-print:
+    runs-on: macos-15
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Cache Bun dependencies
+      uses: actions/cache@v5
+      with:
+        path: ~/.bun/install/cache
+        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bun-
+
+    - name: Install dependencies
+      run: bun install --frozen-lockfile
+
+    - name: Build application
+      run: bun run build
+
+    - name: Check native WebKit print pagination
+      env:
+        PRINT_TEST_URL: http://localhost:3000/en
+      run: |
+        set -euo pipefail
+        mkdir -p print-diagnostics
+        bun run start > print-diagnostics/server.log 2>&1 &
+        server_pid=$!
+        trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+        ready=false
+        for attempt in {1..60}; do
+          if ! kill -0 "$server_pid" 2>/dev/null; then
+            echo 'Application server exited before becoming ready.' >&2
+            cat print-diagnostics/server.log
+            exit 1
+          fi
+          if curl --fail --silent --max-time 2 "$PRINT_TEST_URL" > /dev/null; then
+            ready=true
+            break
+          fi
+          sleep 1
+        done
+        if [[ "$ready" != true ]]; then
+          echo 'Application server did not become ready within the polling limit.' >&2
+          cat print-diagnostics/server.log
+          exit 1
+        fi
+        bun run test:print:webkit 2>&1 | tee print-diagnostics/webkit.log
+
+    - name: Upload print failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-print-diagnostics
+        path: print-diagnostics/
+        if-no-files-found: ignore
+
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      run: bun install --frozen-lockfile
+
+    - name: Install Chromium
+      run: bunx playwright install --with-deps chromium
+
+    - name: Build application
+      run: bun run build
+
+    - name: Check offline recovery in Chromium
+      run: bun run test:offline
+
+    - name: Upload offline failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: offline-diagnostics
+        path: |
+          playwright-report/
+          test-results/
+        if-no-files-found: ignore
+
+  checks:
+    if: always()
+    needs: [test, native-print, offline]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Confirm all required checks passed
+      env:
+        TEST_RESULT: ${{ needs.test.result }}
+        PRINT_RESULT: ${{ needs.native-print.result }}
+        OFFLINE_RESULT: ${{ needs.offline.result }}
+      run: |
+        test "$TEST_RESULT" = success
+        test "$PRINT_RESULT" = success
+        test "$OFFLINE_RESULT" = success
+        echo 'Tests, complete coverage, build, native print and offline checks passed.'

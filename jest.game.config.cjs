@@ -29,10 +29,10 @@ module.exports = {
       lines: 100,
     },
     "./app/components/EventWorkspace/EventWorkspace.tsx": {
-      statements: 75,
-      branches: 85,
-      functions: 75,
-      lines: 75,
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
     },
   },
 };

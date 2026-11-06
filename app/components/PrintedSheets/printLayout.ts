@@ -27,10 +27,8 @@ export const CARDS_PER_PAGE_OPTIONS = PRINT_LAYOUTS.map(
 
 export const DEFAULT_CARDS_PER_PAGE = 4;
 
-/** A4 with 12 mm margins, in millimetres. */
-export const SHEET_WIDTH_MM = 186;
-export const SHEET_HEIGHT_MM = 273;
-export const SHEET_GAP_MM = 4;
+/** Physical paper measurements shared by preview scaling and printed pages. */
+export const PRINT_PAGE = { widthMm: 210, heightMm: 297, marginMm: 12, gapMm: 4 } as const;
 
 export function normalizeCardsPerPage(value: unknown): number {
   return typeof value === "number" &&
@@ -43,7 +41,7 @@ export function layoutFor(cardsPerPage: number): PrintLayout {
   return (
     PRINT_LAYOUTS.find(
       (layout) => layout.cardsPerPage === normalizeCardsPerPage(cardsPerPage),
-    ) ?? PRINT_LAYOUTS[3]
+    )!
   );
 }
 

@@ -28,9 +28,9 @@ export function useBingoCards() {
    * 
    * @param numCards - Number of cards to generate
    * @param eventHeader - Event name for the game ID
-   * @returns The generated game object
+   * @param onGenerated - Called with the completed game after state is updated
    */
-  const generateCards = (numCards: number, eventHeader: string): Game | null => {
+  const generateCards = (numCards: number, eventHeader: string, onGenerated?: (game: Game) => void): void => {
     setIsGenerating(true);
     
     // Use setTimeout to allow UI to update before heavy operation
@@ -43,9 +43,9 @@ export function useBingoCards() {
       
       setBingoCards(game);
       setIsGenerating(false);
+      onGenerated?.(game);
     }, 50);
     
-    return null;
   };
 
   /**
