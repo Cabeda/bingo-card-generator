@@ -45,7 +45,8 @@ async function prepare(page: Page) {
       await new Promise<void>((resolve) => navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true }));
     }
   });
-  await expect(page.locator('[data-offline-state="ready"]')).toBeVisible();
+  await expect(page.locator('[data-offline-state="ready"]')).toBeAttached();
+  await expect(page.locator('[data-offline-state="ready"]')).toBeHidden();
 }
 
 async function draw(page: Page, total: number) {
@@ -143,7 +144,8 @@ test('evicted caches lose readiness offline and are repaired after reconnecting'
     let navigations = 0;
     page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });
     await context.setOffline(false);
-    await expect(page.locator('[data-offline-state="ready"]')).toBeVisible();
+    await expect(page.locator('[data-offline-state="ready"]')).toBeAttached();
+    await expect(page.locator('[data-offline-state="ready"]')).toBeHidden();
     expect(navigations).toBe(0);
     await expect.poll(() => saved(page)).toEqual(expected);
     await context.setOffline(true);
@@ -166,7 +168,8 @@ test('evicted caches lose readiness offline and are repaired after reconnecting'
     });
     await expect(page.locator('[data-offline-state="unavailable"]')).toBeVisible();
     await context.setOffline(false);
-    await expect(page.locator('[data-offline-state="ready"]')).toBeVisible();
+    await expect(page.locator('[data-offline-state="ready"]')).toBeAttached();
+    await expect(page.locator('[data-offline-state="ready"]')).toBeHidden();
     expect(navigations).toBe(0);
     await context.setOffline(true);
     await page.reload();

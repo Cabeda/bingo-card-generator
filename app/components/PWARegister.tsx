@@ -53,11 +53,11 @@ export function PWARegister() {
   }, []);
 
   if (phase === null) return null;
-  const message = phase === 'ready' && !online ? 'offlineReady' : phase;
+  if (phase !== 'unavailable') return <span hidden data-offline-state={phase} />;
   return (
     <div className={styles.status} role="status" aria-live="polite" data-offline-state={phase}>
-      <span>{t(message)}</span>
-      {phase === 'unavailable' && online && retry.current && (
+      <span>{t('unavailable')}</span>
+      {online && retry.current && (
         <button className={styles.button} type="button" onClick={retry.current}>{t('retry')}</button>
       )}
     </div>

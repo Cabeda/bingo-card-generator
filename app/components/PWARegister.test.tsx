@@ -44,13 +44,14 @@ it.each(['serviceWorker', 'caches'])('reports unsupported %s without preparing',
   expect(screen.queryByRole('button')).toBeNull();
 });
 
-it('reports preparation and verified readiness accessibly', async () => {
+it('prepares silently and shows no banner when ready', async () => {
   const pending = deferred(); prepare.mockReturnValue(pending.promise);
-  render(<PWARegister />);
-  expect(screen.getByRole('status')).toHaveAttribute('data-offline-state', 'preparing');
-  expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
+  const view = render(<PWARegister />);
+  expect(view.container.querySelector('[data-offline-state]')).toHaveAttribute('data-offline-state', 'preparing');
+  expect(screen.queryByRole('status')).toBeNull();
   await act(async () => pending.resolve());
-  expect(screen.getByRole('status')).toHaveTextContent('ready');
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
 });
 
 it('retries failures while online', async () => {
@@ -59,17 +60,19 @@ it('retries failures while online', async () => {
   expect(screen.getByRole('status')).toHaveTextContent('unavailable');
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'retry' })));
   expect(prepare).toHaveBeenCalledTimes(2);
-  expect(screen.getByRole('status')).toHaveTextContent('ready');
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
 });
 
 it('keeps verified readiness offline and rechecks on reconnect', async () => {
   await act(async () => { render(<PWARegister />); });
   online(false); fireEvent(window, new Event('offline'));
-  expect(screen.getByRole('status')).toHaveTextContent('offlineReady');
+  expect(screen.queryByRole('status')).toBeNull();
   expect(prepare).toHaveBeenCalledTimes(1);
   online(true); await act(async () => fireEvent(window, new Event('online')));
   expect(prepare).toHaveBeenCalledTimes(2);
-  expect(screen.getByRole('status')).toHaveTextContent('ready');
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
 });
 
 it('does not offer an offline retry when preparation failed', async () => {
@@ -94,7 +97,8 @@ it.each(['resolve', 'reject'] as const)('ignores stale attempt %s after a newer 
   render(<PWARegister />);
   await act(async () => fireEvent(window, new Event('online')));
   await act(async () => { if (outcome === 'resolve') old.resolve(); else old.reject(new Error('stale')); });
-  expect(screen.getByRole('status')).toHaveTextContent('ready');
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.querySelector('[data-offline-state=ready]')).toHaveAttribute('hidden');
 });
 
 it.each(['resolve', 'reject'] as const)('ignores unmounted completion %s and removes listeners', async outcome => {
