@@ -85,3 +85,12 @@ describe("stored bingo sessions", () => {
     }
   });
 });
+
+it.each([null, '', '   ', 4, 'x'.repeat(101)])('retains intentional library removal or ignores invalid library ids: %p', libraryId => {
+  expect(restoreSession({ ...valid, libraryId }).libraryId).toBeNull();
+});
+it('keeps saved game identity and normalizes stored print preferences', () => {
+  const restored = restoreSession({ ...valid, libraryId: 'saved-game', printOptions: { footer: '  Friday night  ', inkSaving: true, logo: 'https://external.test/logo.png', borders: 'none' } });
+  expect(restored.libraryId).toBe('saved-game');
+  expect(restored.printOptions).toEqual({ footer: 'Friday night', inkSaving: true, logo: '', largeNumbers: true, borders: 'none' });
+});

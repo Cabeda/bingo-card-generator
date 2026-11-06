@@ -1,0 +1,236 @@
+.panel {
+  max-width: 940px;
+  margin: 16px auto 48px;
+  padding: 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background: var(--card-bg);
+}
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+}
+.panel .title {
+  font-size: clamp(23px, 3vw, 30px);
+  letter-spacing: -0.7px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-align: left;
+}
+.panel .help {
+  max-width: 60ch;
+  margin-top: 10px;
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.65;
+  opacity: 0.75;
+}
+.deviceMark {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--foreground);
+}
+.panel .search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.panel .search input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font: inherit;
+  color: var(--foreground);
+}
+.panel .resultCount {
+  margin: 12px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+.list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.game {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border-color);
+}
+.game:last-child {
+  padding-bottom: 0;
+}
+.identity {
+  flex: 1;
+  min-width: 0;
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.panel .name {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.current {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.current::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--foreground);
+}
+.panel .metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 9px 0 0;
+  font-size: 13px;
+}
+.panel .updated {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.65;
+}
+.progress {
+  display: block;
+  width: min(100%, 280px);
+  height: 3px;
+  margin-top: 13px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  appearance: none;
+  background: var(--progress-bg);
+  color: var(--bingo-accent);
+}
+.progress::-webkit-progress-bar {
+  background: var(--progress-bg);
+}
+.progress::-webkit-progress-value {
+  background: var(--bingo-accent);
+}
+.progress::-moz-progress-bar {
+  background: var(--bingo-accent);
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex-shrink: 0;
+  gap: 6px 8px;
+}
+.panel .actions button {
+  min-height: 44px;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 13px;
+  border-radius: 9px;
+}
+.panel .actions .primary {
+  background: var(--bingo-accent);
+  border-color: var(--bingo-accent);
+  color: var(--bingo-accent-text);
+  font-weight: 700;
+}
+.panel .actions .primary:hover {
+  background: var(--bingo-accent);
+  filter: brightness(1.08);
+}
+.panel .actions .print {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+}
+.panel .actions .remove {
+  grid-column: 1 / -1;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  opacity: 0.7;
+  font-size: 12px;
+}
+.panel .actions .remove:hover {
+  opacity: 1;
+  text-decoration: underline;
+  background: transparent;
+}
+.empty {
+  padding: 36px 0;
+}
+.panel .empty h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: left;
+}
+.panel .empty p {
+  max-width: 55ch;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.65;
+  opacity: 0.75;
+}
+.panel :is(button, input):focus-visible {
+  outline: 3px solid var(--bingo-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .panel {
+    margin-top: 8px;
+    padding: 22px 18px;
+  }
+  .heading {
+    gap: 14px;
+    padding-bottom: 24px;
+  }
+  .deviceMark {
+    width: 36px;
+    height: 36px;
+  }
+  .game {
+    display: block;
+  }
+  .actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    margin-top: 18px;
+  }
+  .panel .actions .remove {
+    justify-self: start;
+    padding-inline: 0;
+  }
+  .progress {
+    width: 100%;
+  }
+}

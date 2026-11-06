@@ -20,6 +20,10 @@ and TailwindCSS.
 
 - **Generate Random Bingo Cards**: Create multiple bingo cards with configurable quantities
 - **Customizable Events**: Add custom headers/event names to your cards
+- **Print preferences**: Ink-saving mode, larger numbers, border styles, a local logo image and a custom footer
+  appear in both the sheet preview and the printed deck. Card identifiers use `#001` in every language.
+- **Saved games**: Generated and imported decks are saved automatically on this device. Search the library,
+  resume calls or reprint a previous deck with its saved theme and print preferences. Identical names stay separate.
 - **Export Options**:
   - Export cards to PDF format with customizable cards-per-page layout
   - Export to custom `.bingoCards` format for later use

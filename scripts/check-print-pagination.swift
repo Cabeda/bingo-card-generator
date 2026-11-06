@@ -23,11 +23,18 @@ import WebKit
                 "numbers": cells.dropFirst().prefix(27).map { Int($0).map { $0 as Any } ?? NSNull() },
             ]
         }
-        let session: [String: Any] = [
+        var session: [String: Any] = [
             "game": ["filename": "Print regression", "cards": cards],
             "drawn": [], "paused": false, "target": "line", "stage": "print",
             "started": false, "cardsPerPage": perPage,
         ]
+        if ProcessInfo.processInfo.environment["PRINT_CUSTOM_OPTIONS"] == "1" {
+            session["printOptions"] = [
+                "inkSaving": true, "largeNumbers": true, "borders": "square",
+                "footer": "90-ball bingo · Community evening · A long custom footer to check clipping and pagination",
+                "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQ0AAAAASUVORK5CYII=",
+            ]
+        }
         let json = String(data: try JSONSerialization.data(withJSONObject: session), encoding: .utf8)!
         let encoded = String(data: try JSONSerialization.data(withJSONObject: [json]), encoding: .utf8)!
         let config = WKWebViewConfiguration()

@@ -28,6 +28,10 @@ import {
   sheetCount,
 } from "../PrintedSheets/printLayout";
 import { PrintedSheets } from "../PrintedSheets/PrintedSheets";
+import { DEFAULT_PRINT_OPTIONS, PrintOptions } from "../PrintedSheets/printOptions";
+import { PrintPreferences } from "../PrintedSheets/PrintPreferences";
+import { listLocalGames, loadLocalGame, removeLocalGame, SavedGameSummary, saveLocalGame } from "./gameLibrary";
+import { SavedGames } from "./SavedGames";
 import "./workspace.css";
 
 /** Generate, print and host one persistent bingo event. */
@@ -37,12 +41,14 @@ export function EventWorkspace({
   entry?: EventStage;
 }): React.JSX.Element {
   const t = useTranslations("event");
+  const libraryText = useTranslations("library");
+  const printText = useTranslations("printPreferences");
   const locale = useLocale();
-  const { currentTheme, selectedThemeKey, customThemes, setTheme } =
+  const { currentTheme, selectedThemeKey, customThemes, setTheme, setCustomTheme } =
     useCardTheme();
   const [session, setSession] = useState<EventSession>(emptySession);
   const [ready, setReady] = useState(false);
-  const [entryMode, setEntryMode] = useState<"prepare" | "open">(
+  const [entryMode, setEntryMode] = useState<"prepare" | "open" | "library">(
     entry === "host" ? "open" : "prepare",
   );
   const [name, setName] = useState("");
@@ -50,6 +56,13 @@ export function EventWorkspace({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [storageWarning, setStorageWarning] = useState(false);
+  const [savedGames, setSavedGames] = useState<SavedGameSummary[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(true);
+  const [libraryError, setLibraryError] = useState("");
+  const [unreadableGames, setUnreadableGames] = useState(0);
+  const libraryMounted = useRef(false);
+  const libraryWrites = useRef<Promise<void>>(Promise.resolve());
+  const removedGames = useRef(new Set<string>());
   const [audience, setAudience] = useState(false);
   const [sound, setSound] = useState(false);
   const [voice, setVoice] = useState(false);
@@ -68,6 +81,10 @@ export function EventWorkspace({
   const cards = game?.cards ?? [];
   const eventName = game?.filename ?? name;
   const totalSheets = sheetCount(cards.length, cardsPerPage);
+  const printOptions = session.printOptions ?? DEFAULT_PRINT_OPTIONS;
+  const setPrintOptions = (value: PrintOptions): void => {
+    setSession(previous => ({ ...previous, printOptions: value }));
+  };
   const setCardsPerPage = (value: number): void => {
     setSession((previous) => ({ ...previous, cardsPerPage: value }));
   };
@@ -94,6 +111,7 @@ export function EventWorkspace({
       if (restored) {
         setSession({
           ...restored,
+          libraryId: restored.libraryId === undefined ? crypto.randomUUID() : restored.libraryId,
           stage: entry === "generate" ? restored.stage : entry,
           started: restored.started || entry === "host",
         });
@@ -111,6 +129,38 @@ export function EventWorkspace({
       window.speechSynthesis?.cancel();
     };
   }, [entry]);
+
+  useEffect(() => {
+    libraryMounted.current = true;
+    let current = true;
+    void listLocalGames().then(index => {
+      if (current) {
+        setSavedGames(index.games);
+        setUnreadableGames(index.unreadable);
+        setLibraryLoading(false);
+      }
+    }).catch(() => {
+      if (current) { setLibraryError("unavailable"); setLibraryLoading(false); }
+    });
+    return () => { current = false; libraryMounted.current = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!ready || libraryLoading || !session.game || !session.libraryId) return;
+    const id = session.libraryId;
+    const updatedAt = Date.now();
+    const write = libraryWrites.current.then(async () => {
+      if (removedGames.current.has(id)) return;
+      const saved = await saveLocalGame(id, session, selectedThemeKey, currentTheme, updatedAt);
+      if (libraryMounted.current && !removedGames.current.has(id)) {
+        setSavedGames(previous => [saved, ...previous.filter(item => item.id !== id)].sort((a, b) => b.updatedAt - a.updatedAt));
+        setLibraryError(previous => ["saveError", "unavailable"].includes(previous) ? "" : previous);
+      }
+    });
+    libraryWrites.current = write.catch(() => {
+      if (libraryMounted.current) setLibraryError("saveError");
+    });
+  }, [ready, libraryLoading, session, selectedThemeKey, currentTheme]);
 
   useEffect(() => {
     if (!ready || !game) return;
@@ -132,8 +182,11 @@ export function EventWorkspace({
     setError("");
   };
   const replaceGame = (next: Game, nextStage: EventStage): void => {
+    const libraryId = crypto.randomUUID();
     setSession((previous) => ({
       ...emptySession,
+      libraryId,
+      printOptions: previous.printOptions,
       cardsPerPage: previous.cardsPerPage,
       game: next,
       stage: nextStage,
@@ -144,6 +197,44 @@ export function EventWorkspace({
     setAudience(false);
     setClaim(null);
     setError("");
+  };
+  const showLibrary = (): void => { navigate("generate"); setEntryMode("library"); };
+  const openSavedGame = async (id: string, mode: "resume" | "print"): Promise<void> => {
+    setLibraryLoading(true);
+    setLibraryError("");
+    try {
+      await libraryWrites.current;
+      const saved = await loadLocalGame(id);
+      if (!libraryMounted.current) return;
+      const knownTheme = PRESET_THEMES[saved.themeKey] ?? customThemes[saved.themeKey];
+      if (knownTheme && JSON.stringify(knownTheme) === JSON.stringify(saved.theme)) setTheme(saved.themeKey);
+      else setCustomTheme(saved.theme);
+      setSession({ ...saved.session, libraryId: saved.id, stage: mode === "print" ? "print" : saved.session.started ? "host" : "print" });
+      setName(saved.session.game!.filename);
+      setCount(saved.session.game!.cards.length);
+      setAudience(false);
+      setClaim(null);
+      setError("");
+    } catch { if (libraryMounted.current) setLibraryError("openError"); }
+    finally { if (libraryMounted.current) setLibraryLoading(false); }
+  };
+  const removeSavedGame = async (id: string): Promise<void> => {
+    if (!window.confirm(libraryText("removeConfirm"))) return;
+    const wasActive = session.libraryId === id;
+    removedGames.current.add(id);
+    if (wasActive) setSession(previous => ({ ...previous, libraryId: null }));
+    setLibraryLoading(true);
+    const remove = libraryWrites.current.then(() => removeLocalGame(id));
+    libraryWrites.current = remove.catch(() => {});
+    try {
+      await remove;
+      setSavedGames(previous => previous.filter(item => item.id !== id));
+      setLibraryError("");
+    } catch {
+      removedGames.current.delete(id);
+      if (wasActive) setSession(previous => previous.libraryId === null ? { ...previous, libraryId: id } : previous);
+      setLibraryError("removeError");
+    } finally { setLibraryLoading(false); }
   };
   const generate = (): void => {
     if (!name.trim() || !Number.isInteger(count) || count < 1 || count > 1000) {
@@ -372,6 +463,7 @@ export function EventWorkspace({
               <h2>{t("preferences")}</h2>
               <p>{t("preferencesHelp")}</p>
               {themeTools}
+              <button type="button" onClick={showLibrary}>{libraryText("nav")}</button>
             </div>
           </details>
         </header>
@@ -382,6 +474,7 @@ export function EventWorkspace({
           {t(error)}
         </p>
       )}
+      {libraryError && <p className="bingo-error" role="alert">{libraryText(libraryError)}</p>}
       {storageWarning && (
         <p className="bingo-error" role="alert">
           {t("storageError")}
@@ -412,7 +505,16 @@ export function EventWorkspace({
             >
               {t("hostSaved")}
             </button>
+            <button aria-pressed={entryMode === "library"} onClick={showLibrary}>
+              {libraryText("nav")} <span aria-hidden="true">({savedGames.length})</span>
+            </button>
           </div>
+          {entryMode === "library" ? <div className="bingo-local-library">
+            {unreadableGames > 0 && <p role="status">{libraryText("unreadable")}</p>}
+            {game && session.libraryId === null && <button type="button" onClick={() => setSession(previous => ({ ...previous, libraryId: crypto.randomUUID() }))}>{libraryText("saveCurrent")}</button>}
+            <SavedGames games={savedGames} activeId={session.libraryId ?? null} loading={libraryLoading}
+              onOpen={(id, mode) => { void openSavedGame(id, mode); }} onRemove={id => { void removeSavedGame(id); }} />
+          </div> : (
           <div className="bingo-flow-setup">
             <section>
               <span className="bingo-eyebrow">
@@ -499,6 +601,7 @@ export function EventWorkspace({
               </section>
             )}
           </div>
+          )}
         </main>
       )}
       {stage === "print" && (
@@ -530,7 +633,7 @@ export function EventWorkspace({
                 </span>
               </div>
               <PrintedSheets cards={cards} eventName={eventName}
-                cardsPerPage={cardsPerPage} theme={currentTheme} preview />
+                cardsPerPage={cardsPerPage} theme={currentTheme} printOptions={printOptions} preview />
               <p>{t("sameCards")}</p>
             </section>
             <aside className="bingo-flow-print-actions">
@@ -579,9 +682,13 @@ export function EventWorkspace({
               <small>{t("printSettings")}</small>
               <button onClick={download}>{t("downloadAction")}</button>
               <small>{t("backupHelp")}</small>
-              <details>
-                <summary>{t("customizeTheme")}</summary>
-                <ThemeSelector />
+              <details className="bingo-print-preferences">
+                <summary>{printText("title")}</summary>
+                <PrintPreferences value={printOptions} onChange={setPrintOptions} />
+                <details>
+                  <summary>{t("customizeTheme")}</summary>
+                  <ThemeSelector />
+                </details>
               </details>
               <hr />
               <h2>{t("readyHeading")}</h2>
@@ -642,6 +749,7 @@ export function EventWorkspace({
                     <div className="bingo-host-settings-panel">
                       <h2>{t("preferences")}</h2>
                       {themeTools}
+                      <button type="button" onClick={showLibrary}>{libraryText("nav")}</button>
                       <label className="bingo-checkbox">
                         <input
                           type="checkbox"
@@ -887,7 +995,7 @@ export function EventWorkspace({
         }}
       />
       <PrintedSheets cards={cards} eventName={eventName}
-        cardsPerPage={cardsPerPage} theme={currentTheme} />
+        cardsPerPage={cardsPerPage} theme={currentTheme} printOptions={printOptions} />
 
       <dialog
         ref={claimDialog}

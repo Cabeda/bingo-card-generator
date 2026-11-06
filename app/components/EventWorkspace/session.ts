@@ -9,6 +9,8 @@ import {
   normalizeCardsPerPage,
 } from "../PrintedSheets/printLayout";
 
+import { normalizePrintOptions, PrintOptions } from "../PrintedSheets/printOptions";
+
 export type EventStage = "generate" | "print" | "host";
 export interface EventSession {
   game: Game | null;
@@ -18,6 +20,8 @@ export interface EventSession {
   stage: EventStage;
   started: boolean;
   cardsPerPage: number;
+  libraryId?: string | null;
+  printOptions?: PrintOptions;
 }
 export const emptySession: EventSession = {
   game: null,
@@ -60,5 +64,7 @@ export function restoreSession(value: unknown): EventSession {
       : "print",
     started: candidate.started === true,
     cardsPerPage: normalizeCardsPerPage(candidate.cardsPerPage),
+    ...(candidate.libraryId !== undefined ? { libraryId: typeof candidate.libraryId === "string" && candidate.libraryId.trim() && candidate.libraryId.length <= 100 ? candidate.libraryId : null } : {}),
+    ...(candidate.printOptions !== undefined ? { printOptions: normalizePrintOptions(candidate.printOptions) } : {}),
   };
 }

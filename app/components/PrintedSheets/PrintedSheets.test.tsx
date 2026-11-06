@@ -63,3 +63,32 @@ it.each(Object.values(PRESET_THEMES))("binds the $name theme in both rendering m
   rerender(<PrintedSheets {...props} theme={theme} preview />);
   expect(container.querySelector<HTMLElement>(".bingo-flow-sheet-frame")!.style.cssText).toBe(printStyle);
 });
+
+it('shares customized ink-saving, logo, readable numbers and footer between preview and paper', () => {
+  const printOptions = { inkSaving: true, largeNumbers: true, borders: 'square' as const, footer: '  Thank you for joining us.  ', logo: 'data:image/png;base64,aGVsbG8=' };
+  const { container, rerender } = render(<PrintedSheets {...props} printOptions={printOptions} preview />);
+  const preview = container.querySelector<HTMLElement>('.bingo-flow-sheet-frame')!;
+  expect(preview.style.getPropertyValue('--bingo-accent')).toBe('#fff');
+  expect(preview.style.getPropertyValue('--bingo-accent-text')).toBe('#171717');
+  expect(preview.style.getPropertyValue('--bingo-card-background')).toBe('#fff');
+  expect(preview.style.getPropertyValue('--bingo-card-border')).toBe('#777');
+  expect(preview.style.getPropertyValue('--bingo-card-border-width')).toBe('1px');
+  expect(preview.style.getPropertyValue('--bingo-card-radius')).toBe('0');
+  expect(preview.style.getPropertyValue('--bingo-number-size')).toBe('8em');
+  expect(preview.style.getPropertyValue('--bingo-card-padding')).toBe('0');
+  expect(container.querySelectorAll('img')).toHaveLength(4);
+  expect(container.querySelector('img')).toHaveAttribute('src', printOptions.logo);
+  expect(container.querySelector('footer')).toHaveTextContent('Thank you for joining us.');
+  expect(container.querySelectorAll('.is-ink-saving')).toHaveLength(4);
+  const expectedStyle = preview.style.cssText;
+  rerender(<PrintedSheets {...props} printOptions={printOptions} />);
+  expect(container.querySelector<HTMLElement>('.bingo-flow-print-only')!.style.cssText).toBe(expectedStyle);
+  expect(container.querySelectorAll('img')).toHaveLength(9);
+  expect(container.querySelector('header span')).toHaveTextContent('#001');
+});
+it('supports borderless cards without changing their numbers or numbering', () => {
+  const { container } = render(<PrintedSheets {...props} printOptions={{ inkSaving: true, largeNumbers: false, borders: 'none', footer: '', logo: '' }} preview />);
+  expect(container.querySelector<HTMLElement>('.bingo-flow-sheet-frame')!.style.getPropertyValue('--bingo-card-border-width')).toBe('0px');
+  expect(container.querySelector('header span')).toHaveTextContent('#001');
+  expect(container.querySelectorAll('.bingo-flow-card > div > span')).toHaveLength(108);
+});

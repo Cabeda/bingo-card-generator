@@ -1344,3 +1344,35 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
     min-height: 80px;
   }
 }
+
+.bingo-local-library {
+  margin: 28px auto;
+  max-width: 1100px;
+}
+.bingo-local-library > button,
+.bingo-local-library > p {
+  margin-bottom: 18px;
+}
+.bingo-print-preferences > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.bingo-print-preferences > details {
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid var(--border-color);
+}
+@media (max-width: 700px) {
+  .bingo-entry-choice {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bingo-entry-choice button {
+    min-width: 0;
+    min-height: 48px;
+    padding: 8px 5px;
+    font-size: 11px;
+  }
+}
