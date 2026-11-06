@@ -9,7 +9,9 @@ const { NetworkFirst } = require('workbox-strategies');
 const { ExpirationPlugin } = require('workbox-expiration');
 
 const manifest = self.__WB_MANIFEST;
-precacheAndRoute(manifest);
+precacheAndRoute(manifest, {
+  ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/],
+});
 cleanupOutdatedCaches();
 clientsClaim();
 

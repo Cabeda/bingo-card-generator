@@ -97,6 +97,8 @@
   "event": {
     "loading": "Chargement de votre partie…",
     "yourEvent": "VOTRE SOIRÉE BINGO",
+    "preferences": "Préférences",
+    "preferencesHelp": "Style des cartons, langue et apparence.",
     "cardTheme": "Thème des cartons",
     "steps": "Étapes de la partie",
     "generate": "Créer la partie",

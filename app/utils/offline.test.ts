@@ -199,3 +199,16 @@ it('does not create a channel or verify caches when readiness resolves after tim
   expect(open).not.toHaveBeenCalled();
   expect(persist).not.toHaveBeenCalled();
 });
+
+it('verifies deployment-tagged scripts and styles against their canonical manifest keys', async () => {
+  const script = new URL('/_next/static/chunks/app.js', location.origin).href;
+  const style = new URL('/_next/static/css/app.css', location.origin).href;
+  info.keys[script] = `${script}?__WB_REVISION__=script`;
+  info.keys[style] = `${style}?__WB_REVISION__=style`;
+  match.mockImplementation(async (url: string) => response(OFFLINE_ROUTES.includes(new URL(url).pathname)
+    ? '<script src="/_next/static/chunks/app.js?dpl=production"></script><link rel="stylesheet" href="/_next/static/css/app.css?dpl=production">'
+    : 'asset'));
+  await expect(prepareOffline()).resolves.toBeUndefined();
+  expect(match).toHaveBeenCalledWith(info.keys[script]);
+  expect(match).toHaveBeenCalledWith(info.keys[style]);
+});

@@ -97,6 +97,8 @@
   "event": {
     "loading": "A carregar o jogo…",
     "yourEvent": "O SEU EVENTO DE BINGO",
+    "preferences": "Preferências",
+    "preferencesHelp": "Estilo dos cartões, idioma e aparência.",
     "cardTheme": "Tema dos cartões",
     "steps": "Etapas do evento",
     "generate": "Gerar jogo",

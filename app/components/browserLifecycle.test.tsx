@@ -28,6 +28,21 @@ it.each(['light', 'dark', 'system', 'invalid', null])('restores the stored theme
   expect(document.documentElement.getAttribute('data-theme')).toBe(stored === 'light' || stored === 'dark' ? stored : null);
   expect(screen.getByRole('button')).toBeEnabled();
 });
+it.each([
+  ['system', 'Switch to light mode', '☀️', 'light'],
+  ['light', 'Switch to dark mode', '🌙', 'dark'],
+  ['dark', 'Switch to system mode', '🌓', 'system'],
+])('describes the next appearance action from %s', (stored, label, icon, next) => {
+  jest.useFakeTimers();
+  localStorage.setItem('theme', stored);
+  render(<ThemeToggle />);
+  const button = screen.getByRole('button', { name: label });
+  expect(button).toHaveAttribute('title', label);
+  expect(button).toHaveTextContent(icon);
+  fireEvent.click(button);
+  expect(localStorage.getItem('theme')).toBe(next);
+  act(() => jest.advanceTimersByTime(1000));
+});
 it('cycles themes, persists each selection and removes live announcements', () => {
   jest.useFakeTimers(); render(<ThemeToggle />);
   for (const theme of ['light', 'dark', 'system']) {

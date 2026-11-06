@@ -358,7 +358,22 @@ export function EventWorkspace({
             ✳ bingo.
           </button>
           <span>{t("yourEvent")}</span>
-          {themeTools}
+          <details className="bingo-header-settings">
+            <summary>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                <path d="M4 7h16M4 17h16" />
+                <circle cx="9" cy="7" r="3" fill="var(--background)" />
+                <circle cx="15" cy="17" r="3" fill="var(--background)" />
+              </svg>
+              {t("settings")}
+              <span className="bingo-settings-chevron" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="bingo-preferences-panel">
+              <h2>{t("preferences")}</h2>
+              <p>{t("preferencesHelp")}</p>
+              {themeTools}
+            </div>
+          </details>
         </header>
       )}
       {!audience && steps}

@@ -38,7 +38,7 @@ describe('production service worker', () => {
   });
 
   it('initializes the injected precache and bounded runtime cache', () => {
-    expect(mockPrecacheAndRoute).toHaveBeenCalledWith(manifest);
+    expect(mockPrecacheAndRoute).toHaveBeenCalledWith(manifest, { ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/] });
     expect(mockCleanupOutdatedCaches).toHaveBeenCalledTimes(1);
     expect(mockClientsClaim).toHaveBeenCalledTimes(1);
     expect(mockExpirationPlugin).toHaveBeenCalledWith({ maxEntries: 200 });

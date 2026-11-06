@@ -1247,3 +1247,107 @@ body:has(.bingo-workspace) nav[aria-label="Main navigation"] {
   font-size: clamp(90px, min(15vw, 20vh), 250px);
   margin: 12px 0;
 }
+
+/* Keep event navigation quiet; occasional preferences live behind one control. */
+.bingo-flow-header {
+  position: relative;
+  min-height: 88px;
+  flex-wrap: nowrap;
+  padding: 16px 0;
+}
+.bingo-flow-header .bingo-brand {
+  background: transparent;
+  min-height: 44px;
+}
+.bingo-header-settings {
+  position: relative;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.bingo-header-settings > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-bg);
+  font-size: 13px;
+  font-weight: 600;
+  list-style: none;
+}
+.bingo-header-settings > summary::-webkit-details-marker {
+  display: none;
+}
+.bingo-header-settings > summary:hover,
+.bingo-header-settings[open] > summary {
+  background: var(--progress-bg);
+}
+.bingo-settings-chevron {
+  display: inline-block;
+  transition: transform 160ms ease;
+}
+.bingo-header-settings[open] .bingo-settings-chevron {
+  transform: rotate(180deg);
+}
+.bingo-preferences-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(340px, 92vw);
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background: var(--background);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
+}
+.bingo-workspace .bingo-preferences-panel h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.bingo-workspace .bingo-preferences-panel p {
+  margin-top: 4px;
+  margin-bottom: 22px;
+  font-size: 12px;
+  color: var(--foreground);
+  opacity: 0.7;
+  line-height: 1.6;
+}
+.bingo-preferences-panel .bingo-theme-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 16px 12px;
+  align-items: end;
+}
+.bingo-preferences-panel .bingo-theme-tools > label {
+  grid-column: 1 / -1;
+  font-size: 12px;
+}
+.bingo-preferences-panel .bingo-theme-tools select,
+.bingo-preferences-panel .bingo-theme-tools > button {
+  min-height: 44px;
+  font-size: 13px;
+  padding: 10px 12px;
+  width: 100%;
+}
+.bingo-preferences-panel .bingo-theme-tools > button {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .bingo-flow-header {
+    min-height: 76px;
+    padding: 12px 0;
+  }
+  .bingo-header-settings > summary {
+    padding-inline: 12px;
+  }
+}
+@media print {
+  .bingo-header-settings {
+    display: none;
+  }
+}

@@ -762,3 +762,19 @@ it("does not draw a queued keyboard call after play is paused in the same intera
   expect(screen.getByText("Ready for the first call")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Draw first number →" })).toBeDisabled();
 });
+
+it("keeps appearance controls in a labelled, initially closed header disclosure", async () => {
+  const { container } = renderEvent();
+  await screen.findByLabelText("Event name");
+  const settings = container.querySelector(".bingo-header-settings") as HTMLDetailsElement;
+  expect(settings.open).toBe(false);
+  expect(within(settings).getByText("Settings")).toBeInTheDocument();
+  expect(within(settings).getByRole("heading", { name: "Preferences", hidden: true })).toBeInTheDocument();
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(settings.open).toBe(true);
+  expect(within(settings).getByLabelText("Card theme")).toBeInTheDocument();
+  expect(within(settings).getByText("Language")).toBeInTheDocument();
+  expect(within(settings).getByRole("button", { name: /Switch to/ })).toBeInTheDocument();
+  fireEvent.click(settings.querySelector("summary")!);
+  expect(settings.open).toBe(false);
+});

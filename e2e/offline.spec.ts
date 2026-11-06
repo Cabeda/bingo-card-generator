@@ -68,6 +68,15 @@ test('first visit supports offline calls, refresh, tab replacement and browser r
     let page = await context.newPage();
     await prepare(page);
     await context.setOffline(true);
+    const taggedAsset = await page.evaluate(async () => {
+      const script = document.querySelector<HTMLScriptElement>('script[src*="/_next/static/"]')!;
+      const url = new URL(script.src);
+      url.searchParams.set('dpl', 'deployment-query-regression');
+      const response = await fetch(url);
+      return { ok: response.ok, type: response.headers.get('content-type') };
+    });
+    expect(taggedAsset.ok).toBe(true);
+    expect(taggedAsset.type).toMatch(/javascript/);
     await draw(page, 4);
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     await expect.poll(async () => (await saved(page))?.paused).toBe(true);
@@ -109,6 +118,7 @@ test('root and every unvisited locale route open offline with the saved deck and
       await expect.poll(() => saved(page)).toEqual(expected);
     }
     await page.goto(`${origin}/fr/cards`);
+    await page.locator('.bingo-header-settings > summary').click();
     await page.getByLabel('Select language').selectOption('en');
     await expect(page).toHaveURL(/\/en\/cards$/);
     await expect.poll(() => saved(page)).toEqual(expected);

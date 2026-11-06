@@ -71,15 +71,15 @@ export function ThemeToggle(): React.JSX.Element {
   }
 
   const getIcon = (): string => {
-    if (theme === 'dark') return '☀️';
+    if (theme === 'dark') return '🌓';
     if (theme === 'light') return '🌙';
-    return '🌓'; // system
+    return '☀️'; // system: next action is light mode
   };
 
   const getLabel = (): string => {
-    if (theme === 'dark') return 'Switch to light mode';
-    if (theme === 'light') return 'Switch to system mode';
-    return 'Switch to dark mode';
+    if (theme === 'dark') return 'Switch to system mode';
+    if (theme === 'light') return 'Switch to dark mode';
+    return 'Switch to light mode';
   };
 
   return (

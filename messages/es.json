@@ -97,6 +97,8 @@
   "event": {
     "loading": "Cargando tu juego…",
     "yourEvent": "TU EVENTO DE BINGO",
+    "preferences": "Preferencias",
+    "preferencesHelp": "Estilo de los cartones, idioma y apariencia.",
     "cardTheme": "Tema de los cartones",
     "steps": "Pasos del evento",
     "generate": "Generar juego",

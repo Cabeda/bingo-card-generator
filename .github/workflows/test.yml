@@ -184,6 +184,8 @@ jobs:
       run: bunx playwright install --with-deps chromium
 
     - name: Build application
+      env:
+        NEXT_DEPLOYMENT_ID: offline-ci-deployment
       run: bun run build
 
     - name: Check offline recovery in Chromium
